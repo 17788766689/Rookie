@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 招财猫
+ * 旺旺多
  */
-public class ZCMAction extends BaseAction {
+public class WWDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -65,7 +65,7 @@ public class ZCMAction extends BaseAction {
      */
     private void login(){
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/login/Login?returnUrl=/", mPlatform.getHost())
+        HttpClient.getInstance().post("/Login/Login", mPlatform.getHost())
                 .params("UserName", mParams.getAccount())
                 .params("Password", mParams.getPassword())
                 .execute(new StringCallback() {

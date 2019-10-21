@@ -6,6 +6,7 @@ import com.cainiao.action.HLGAction;
 import com.cainiao.action.LHMAction;
 import com.cainiao.action.MGDDAction;
 import com.cainiao.action.TQDAction;
+import com.cainiao.action.WWDAction;
 import com.cainiao.action.ZCMAction;
 import com.cainiao.action.ZFZAction;
 import com.cainiao.action._51MGPAction;
@@ -156,7 +157,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.tianshi, "天时", "com.platform8", "", "", "", 0, Const.IDLE, 0, 7, null));
 //            //第十七行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.taopaipai, "淘拍拍", "com.platform8", "", "", "", 0, Const.FREE_LIMIT_TIME, 0, 16, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.wanwanduo, "旺旺多", "com.platform8", "", "", "", 0, Const.IDLE, 0, 3, null));
+            mList.add(new Platform(new Params(2000,4000),R.mipmap.wanwanduo, "旺旺多", "com.wanwanduo", "http://dkb.j66q66.com", "", "http://dkb.j66q66.com/login?returnUrl=/", 0, Const.IDLE, 1, 3, new WWDAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaobaitu, "小白兔", "com.platform8", "", "", "", 0, Const.IDLE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaojingling, "小精灵", "com.platform8", "", "", "", 0, Const.IDLE, 0, 7, null));
 //            //第十八行

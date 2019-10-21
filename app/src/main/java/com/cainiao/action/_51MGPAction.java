@@ -72,14 +72,15 @@ public class _51MGPAction extends BaseAction {
                     @Override
                     public void onSuccess(Response<String> response) {
                         if(TextUtils.isEmpty(response.body())) return;
-                        cookie = response.headers().get("Set-Cookie").toString();
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         if(jsonObject.getBooleanValue("Success")){    //登录成功
+                            cookie = response.headers().get("Set-Cookie").toString();
                             sendLog("登录成功！");
                             updateParams(mPlatform);
                             getAccount();
                         }else{
-                            MyToast.error(jsonObject.getString("message"));
+                            sendLog(jsonObject.getString("Message"));
+                            MyToast.error(jsonObject.getString("Message"));
                             stop();
                         }
                     }

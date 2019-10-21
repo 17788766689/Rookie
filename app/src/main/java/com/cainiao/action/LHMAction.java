@@ -75,9 +75,9 @@ public class LHMAction extends BaseAction {
                     @Override
                     public void onSuccess(Response<String> response) {
                         if(TextUtils.isEmpty(response.body())) return;
-                        cookie = response.headers().get("Set-Cookie").toString();
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         if(jsonObject.getIntValue("rspCode") == 0){    //登录成功
+                            cookie = response.headers().get("Set-Cookie").toString();
                             sendLog("登录成功！");
                             updateParams(mPlatform);
                             JSONArray tbData = jsonObject.getJSONObject("buyer").getJSONArray("taoBaoInfos");
