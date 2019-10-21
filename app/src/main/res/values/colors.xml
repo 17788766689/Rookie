@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="background">#EEE</color>
+    <color name="gray">#333333</color>
+    <color name="gray_light">#ccc</color>
+    <color name="blue">#2076CF</color>
+    <color name="btn_blue_press">#2B63AD</color>
+    <color name="red">#D62115</color>
+    <color name="btn_red_press">#B7241A</color>
+
+    <color name="platform_idle_text">#66333333</color>
+    <color name="platform_success_text">#38B76A</color>
+    <color name="platform_free_text">#99ff0000</color>
+
+    <color name="alertdialog_line">#c6c6c6</color>
+    <color name="actionsheet_blue">#037BFF</color>
+</resources>

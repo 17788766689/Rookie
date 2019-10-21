@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_load_dialog">
+
+
+    <com.cainiao.view.RoundProgress
+        android:id="@+id/rp_progress"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        app:bgColor="#EDEDED"
+        app:roundColor="@android:color/darker_gray"
+        app:roundTextColor="@color/blue"
+        app:roundWidth="4dp"
+        app:roundTextSize="13sp"
+        app:curProgress="0"
+        app:tipsText="下载apk"/>
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="10dp"
+        android:textSize="15sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+</RelativeLayout>

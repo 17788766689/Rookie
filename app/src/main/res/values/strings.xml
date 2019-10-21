@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">菜鸟</string>
+    
+    <string name="confirm">确定</string>
+    <string name="cancel">取消</string>
+    <string name="search">搜索</string>
+    <string name="dialog_title">提示</string>
+
+    <string name="refresh_success">刷新成功</string>
+    <string name="refresh_fail">刷新失败</string>
+    <string name="web_title">%s官网</string>
+
+    <string name="network_unavailable">请检查网络是否可用！</string>
+
+    <string name="being_login">正在登陆</string>
+    <string name="receipt_start">开始接单</string>
+    <string name="receipt_stop">停止接单</string>
+    <string name="receipt_default_data">登录后选择买号</string>
+    <string name="receipt_account_null">接单帐号不能为空</string>
+    <string name="receipt_pwd_null">接单密码不能为空</string>
+    <string name="receipt_url_null">接单地址不能为空</string>
+    <string name="receipt_verify_code_null">验证码不能为空</string>
+    <string name="receipt_min_freq_error">接单频率不能小于1000ms</string>
+    <string name="receipt_freq_error">最小频率不能大于最大频率</string>
+    <string name="receipt_get_buyer_success">获取买号成功, 开始接单</string>
+    <string name="receipt_get_buyer_fail">获取异常,无可用号</string>
+    <string name="receipt_get_task">检测到任务, 本金:%s， 佣金:%s，任务领取中</string>
+    <string name="receipt_continue_task">继续检测任务</string>
+    <string name="receipt_exception">接单异常：</string>
+    <string name="receipt_success">接单成功,可前往平台做单</string>
+    <string name="receipt_success_tips">%s接单成功</string>
+    <string name="receipt_download_app"><u>下载%sApp</u></string>
+    <string name="receipt_open_app"><u>打开%sApp</u></string>
+    <string name="receipt_open_web"><u>打开%s官网</u></string>
+    <string name="receipt_open_web_outer"><u>浏览器打开%s</u></string>
+    <string name="receipt_open_web_inner"><u>App内打开%s</u></string>
+    <string name="receipt_app_not_install">%s未安装</string>
+
+    <string name="activation_code_empty">激活码不能为空！</string>
+
+    <string name="home_install_apk">正在安装APK...</string>
+    <string name="home_search_hint">请输入平台名称或抢单状态</string>
+    <string name="home_un_active">您的菜鸟未激活！</string>
+    <string name="home_input_code">请输入激活码</string>
+    <string name="home_active_tips">激活</string>
+    <string name="home_reactive_tips">如果老版本菜鸟已激活本设备，请复制老版本设备码进行激活</string>
+
+    <string name="mine_renew">输入激活码进行续费</string>
+    <string name="mine_renew_tips">续费</string>
+    <string name="mine_uuid_copy_success">设备码复制成功！</string>
+
+    <string name="count_search_hint">请输入平台名称搜索</string>
+    <string name="count_today_num">今日接单量：</string>
+    <string name="count_total_num">累计接单数量：</string>
+    <string name="count_last_time">最后接单时间：</string>
+    <string name="count_select_total_tips">数据仅供参考，方便查看问题，下拉刷新重新加载</string>
+
+    <string name="open_device_id_tips">使用时请打开手机识别码权限，否则无法正常使用</string>
+</resources>

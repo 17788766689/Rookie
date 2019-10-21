@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="receipt_type_default">
+        <item></item>
+    </string-array>
+
+    <!--铁蚂蚁-->
+    <string-array name="receipt_type_1">
+        <item>垫付任务</item>
+        <item>浏览任务</item>
+    </string-array>
+
+    <!--欢乐购-->
+    <string-array name="receipt_type_2">
+        <item>垫付任务</item>
+        <item>浏览任务</item>
+        <item>预售任务</item>
+    </string-array>
+
+    <!--51赚钱-->
+    <string-array name="receipt_type_3">
+        <item>淘宝成交任务</item>
+        <item>京东成交任务</item>
+    </string-array>
+
+    <!--阿西里里-->
+    <string-array name="receipt_type_4">
+        <item>淘宝</item>
+        <item>京东</item>
+        <item>拼多多</item>
+    </string-array>
+
+    <!--红苹果-->
+    <string-array name="receipt_type_5">
+        <item>我要买</item>
+        <item>活动单</item>
+        <item>我要找</item>
+    </string-array>
+
+    <!--京东麦田-->
+    <string-array name="receipt_type_6">
+        <item>拼多多</item>
+        <item>京东</item>
+        <item>苏宁</item>
+    </string-array>
+
+    <!--快客-->
+    <string-array name="receipt_type_7">
+        <item>徒弟端</item>
+        <item>师傅端</item>
+    </string-array>
+
+    <!--力度-->
+    <string-array name="receipt_type_8">
+        <item>淘宝</item>
+        <item>预约任务</item>
+    </string-array>
+
+    <!--闲蛋生活-->
+    <string-array name="receipt_type_9">
+        <item>高佣</item>
+        <item>预约</item>
+        <item>浏览</item>
+    </string-array>
+
+    <!--优家网-->
+    <string-array name="receipt_type_10">
+        <item>淘宝天猫</item>
+        <item>阿里巴巴</item>
+        <item>京东</item>
+        <item>拼多多</item>
+    </string-array>
+
+    <!--猫猫咪-->
+    <string-array name="receipt_type_11">
+        <item>当日单</item>
+        <item>2天单</item>
+        <item>3天单</item>
+    </string-array>
+
+</resources>

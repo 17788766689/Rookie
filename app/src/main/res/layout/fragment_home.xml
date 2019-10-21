@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@android:color/white">
+
+    <EditText
+        android:id="@+id/et_search_name"
+        android:drawableLeft="@mipmap/search"
+        android:hint="@string/home_search_hint"
+        android:textSize="14sp"
+        style="@style/SearchEditText"/>
+
+
+    <com.cainiao.view.stickygridheaders.StickyGridHeadersGridView
+        android:id="@+id/asset_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:columnWidth="90dp"
+        android:numColumns="auto_fit"
+        android:fadingEdge="none"
+        android:overScrollMode="never"
+        android:scrollbars="none"
+        android:horizontalSpacing="-1px"
+        android:verticalSpacing="-1px" />
+
+</LinearLayout>
+
+
