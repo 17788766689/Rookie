@@ -1,12 +1,15 @@
 package com.cainiao.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseActivity;
+import com.cainiao.base.MyApp;
 import com.cainiao.fragment.CommonFragment;
 import com.cainiao.fragment.CountFragment;
 import com.cainiao.fragment.HomeFragment;
@@ -20,13 +23,99 @@ import com.cainiao.util.HttpUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.BottomBar;
+import com.cainiao.view.toasty.MyToast;
+import com.cainiao.view.toasty.Toasty;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.Service;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
+
+import java.lang.reflect.Method;
+
 
 public class MainActivity extends BaseActivity {
 
     private BottomBar bottomBar;
     private Intent mServiceIntent;
+
+    private String deviceId;
+    private static final int READ_CONTACT_REQUEST_CODE = 201;
+    private static final int REQUEST_PERMISSION_SETTING = 202;
+
+    /*@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        checkPermission();
+    }*/
+
+    /**
+     * 检查是否授予权限
+     */
+    private void checkPermission(){
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED){ //6.0以下的设备或是6.0以上的已授权，直接获取
+            getDeviceId();
+        }else{ //未授权，则申请授权
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_CONTACT_REQUEST_CODE);
+        }
+    }
+
+    /**
+     * 获取手机IMEI
+     *
+     * @return
+     */
+    @SuppressLint("MissingPermission")
+    private void getDeviceId() {
+        try {
+            TelephonyManager manager = (TelephonyManager) MyApp.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+            Method method = manager.getClass().getMethod("getImei", int.class);
+            deviceId = (String) method.invoke(manager, 0);
+            deviceId +=","+ (String) method.invoke(manager, 1);
+            Utils.setDeviceId(deviceId);
+        } catch (Exception e) {
+
+        }
+        LogUtil.e("deviceId: " + deviceId);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode != READ_CONTACT_REQUEST_CODE) return;  //如果不是读取设备码的requestCode，则不进行处理
+        boolean showRequestPermission = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE);
+        Toasty.error(MyApp.getContext(),"showRequestPermission: " + showRequestPermission);
+        if (showRequestPermission) {   //用户拒绝了权限，但没勾选“不再询问”
+            MyToast.error(MyApp.getContext().getString(R.string.deviceId_not_allow));
+        }else {  //用户勾选了“不再询问”
+            MyToast.error(MyApp.getContext().getString(R.string.deviceId_goto_setting_power));
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode != REQUEST_PERMISSION_SETTING) return;
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            MyToast.error(MyApp.getContext().getString(R.string.deviceId_not_allow));
+        }else{
+            getDeviceId();
+        }
+    }
 
     @Override
     public int getLayoutResId() {
@@ -35,6 +124,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void init() {
+        checkPermission();
         initView();
     }
 

@@ -12,12 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.cainiao.R;
 import com.cainiao.base.BaseActivity;
 import com.cainiao.base.MyApp;
@@ -29,7 +27,6 @@ import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
-import com.cainiao.util.SPUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.litesuits.orm.db.assit.QueryBuilder;
@@ -101,14 +98,14 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             mPlatform.setLog("");
             Platforms.setCurrPlatform(mPlatform);
         }
-        /*msg = msg+="\n"+tvLog.getText().toString();
-        tvLog.setText(msg);*/
-        tvLog.append(msg);
-        if(needNewLine) tvLog.append("\n");
+        msg = msg+="\n"+tvLog.getText().toString();
+        tvLog.setText(msg);
+        /*tvLog.append(msg);
+        if(needNewLine) tvLog.append("\n");*/
         int offset = tvLog.getLineCount() * tvLog.getLineHeight();
         if(offset > tvLog.getHeight()){
-            //tvLog.scrollTo(0,Utils.dp2px(10)-20);
-            tvLog.scrollTo(0,offset - tvLog.getHeight() + Utils.dp2px(10));
+            tvLog.scrollTo(0, Utils.dp2px(10)-20);
+            //tvLog.scrollTo(0,offset - tvLog.getHeight() + Utils.dp2px(10));
         }
     }
 
@@ -149,6 +146,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setBuyerNum(buyerNum);
         params.setBuyerNumIndex(i);
         mPlatform.setParams(params);
+        refreshLogView("接单买号切换为"+ params.getBuyerNum().getName(), true);
         Platforms.setCurrPlatform(mPlatform);
         startService(new Intent(this, MyService.class));
     }
@@ -187,10 +185,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             return false;
         }
 
-        /*if(Integer.parseInt(minFreq) < 1000){   //最小频率不能小于1000ms
+        if(Integer.parseInt(minFreq) < 1000){   //最小频率不能小于1000ms
             MyToast.error(getString(R.string.receipt_min_freq_error));
             return false;
-        }*/
+        }
 
         if(Integer.parseInt(minFreq) > Integer.parseInt(maxFreq)){  //最小频率不能大于最大频率
             MyToast.error(getString(R.string.receipt_freq_error));

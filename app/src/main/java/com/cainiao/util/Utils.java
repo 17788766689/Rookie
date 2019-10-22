@@ -3,19 +3,12 @@ package com.cainiao.util;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.TypedValue;
 
 import com.cainiao.base.MyApp;
-import com.cainiao.bean.Platform;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -23,7 +16,6 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
-import java.util.UUID;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -32,29 +24,19 @@ public class Utils {
 
     private static char sHexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
+    private static String deviceId;
+
+    public static void setDeviceId(String id){
+        deviceId = id;
+    }
     /**
      * 获取：Pseudo-Unique ID, 这个在任何Android手机中都有效
      * @return
      */
     public static String getUuid() {
-        String serial = null;
-        String m_szDevIDShort = "35" +
-                // 35是IMEI开头的号
-                Build.BOARD.length() % 10 + Build.BRAND.length() % 10 + Build.CPU_ABI.length() % 10 + Build.DEVICE.length() % 10
-                + Build.DISPLAY.length() % 10 + Build.HOST.length() % 10 + Build.ID.length() % 10 + Build.MANUFACTURER.length() % 10
-                + Build.MODEL.length() % 10 + Build.PRODUCT.length() % 10 + Build.TAGS.length() % 10 + Build.TYPE.length() % 10
-                + Build.USER.length() % 10;
-        //13 位
-        try {
-            serial = android.os.Build.class.getField("SERIAL").get(null).toString();
-            //API>=9 使用serial号
-            return md5(new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString());
-        } catch (Exception exception) {
-            //serial需要一个初始化
-            serial = "serial";
-            // 随便一个初始化
-        }   //使用硬件信息拼凑出来的15位号码
-        return md5(new UUID(m_szDevIDShort.hashCode(), serial.hashCode()).toString());
+        DeviceUtil.getInstance().init(MyApp.getContext());
+        String android = DeviceUtil.getInstance().getDeviceId();
+        return md5(android+deviceId);
     }
 
     /**
@@ -62,7 +44,6 @@ public class Utils {
      * @param arg3
      * @param arg4
      * @return SHA加密
-     * @throws Exception
      */
     public static String HMACSHA256(String arg3, String arg4) throws Exception {
         String v0 = "HmacSHA256";
@@ -146,7 +127,7 @@ public class Utils {
     }
 
     public static int dp2px(float dpValue){
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dpValue,MyApp.getContext().getResources().getDisplayMetrics());
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dpValue, MyApp.getContext().getResources().getDisplayMetrics());
     }
 
     /**
