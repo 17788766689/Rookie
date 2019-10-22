@@ -35,6 +35,7 @@ import java.util.Random;
  */
 public class _51MGPAction extends BaseAction {
     private boolean isStart;
+
     private Handler mHandler;
     private String cookie = "";
     private Platform mPlatform;
