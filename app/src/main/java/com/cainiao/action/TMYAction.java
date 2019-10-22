@@ -99,7 +99,6 @@ public class TMYAction extends BaseAction {
                         if(TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
-
                         JSONArray array = jsonObject.getJSONArray("obj");
                         if(array.size() > 0){    //获取买号成功
                             JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
