@@ -26,6 +26,12 @@ public class Platform implements Serializable {
     private String downloadUrl;  //下载地址（url）
     @Ignore
     private String webUrl;  //官网地址（url）
+    @Ignore
+    private String verifyCodeUrl;//验证码url
+    @Ignore
+    private String verifyCodeCookie;//验证码cookie
+    @Ignore
+    private boolean refreshVerifyCode;
     private int headerId; //每个item对应的HeaderId，用来分组，默认是0
     private int originalStatus; //记录item初始状态，用来还原status的状态（因为status的状态会不断地改变）
     private int status; //item状态，分为 0: "空闲中", 1: "限时免费", 2: "永久免费", 3: "正在接单", 4: "接单成功" 五种
@@ -67,6 +73,28 @@ public class Platform implements Serializable {
         this.situation = situation;
         this.action = action;
         this.pageType = pageType;
+    }
+
+    public String getVerifyCodeUrl() {
+        return verifyCodeUrl;
+    }
+
+    public void setVerifyCodeUrl(String verifyCodeUrl) {
+        this.verifyCodeUrl = verifyCodeUrl;
+    }
+    public String getVerifyCodeCookie() {
+        return verifyCodeCookie;
+    }
+
+    public void setRefreshVerifyCode(boolean refreshVerifyCode) {
+        this.refreshVerifyCode = refreshVerifyCode;
+    }
+    public boolean getRefreshVerifyCode() {
+        return refreshVerifyCode;
+    }
+
+    public void setVerifyCodeCookie(String verifyCodeCookie) {
+        this.verifyCodeCookie = verifyCodeCookie;
     }
 
     public Long getId() {
