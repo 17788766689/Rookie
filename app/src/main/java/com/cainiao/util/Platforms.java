@@ -8,6 +8,7 @@ import com.cainiao.action.LHMAction;
 import com.cainiao.action.MFWAction;
 import com.cainiao.action.MGDDAction;
 import com.cainiao.action.RRLTAction;
+import com.cainiao.action.TMYAction;
 import com.cainiao.action.TQDAction;
 import com.cainiao.action.TXLYAction;
 import com.cainiao.action.WWDAction;
@@ -80,7 +81,7 @@ public class Platforms {
             mList = new ArrayList<>();
             /******************************************   抢单平台   **************************************************/
             //第一行
-            //mList.add(new Platform(new Params(0,0),R.mipmap.tiemayi, "铁蚂蚁", "com.platform1", "", "", "",0, Const.FREE_FOREVER, 0, 1, null));
+            mList.add(new Platform(new Params(2000,3000),R.mipmap.tiemayi, "铁蚂蚁", "com.p3066672015.rpm", "https://api.5586pk.com", "", "http://www.3318pk.com/invite/register.html?rCode=60645053",0, Const.FREE_FOREVER, 2, 1, new TMYAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://app.biaoqiandan.com", "https://fir.im/tbrp", "",0, Const.FREE_LIMIT_TIME, 0, 0, new HLGAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://www.51qiangdanwang.com", "https://fir.im/l5y2", "",0, Const.FREE_LIMIT_TIME, 0, 0, new TQDAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "https://xiaomangguo.lingchendan.com", "https://fir.im/r7na", "",  0, Const.FREE_LIMIT_TIME, 0, 0, new MGDDAction()));
