@@ -187,10 +187,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             return false;
         }
 
-        if(Integer.parseInt(minFreq) < 1000){   //最小频率不能小于1000ms
+        /*if(Integer.parseInt(minFreq) < 1000){   //最小频率不能小于1000ms
             MyToast.error(getString(R.string.receipt_min_freq_error));
             return false;
-        }
+        }*/
 
         if(Integer.parseInt(minFreq) > Integer.parseInt(maxFreq)){  //最小频率不能大于最大频率
             MyToast.error(getString(R.string.receipt_freq_error));
