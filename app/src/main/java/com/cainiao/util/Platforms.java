@@ -2,6 +2,7 @@ package com.cainiao.util;
 
 import com.cainiao.R;
 import com.cainiao.action.AMAction;
+import com.cainiao.action.FSDMAction;
 import com.cainiao.action.HLGAction;
 import com.cainiao.action.LHMAction;
 import com.cainiao.action.MFWAction;
@@ -83,7 +84,7 @@ public class Platforms {
             mList.add(new Platform(new Params(2000,3000),R.mipmap.tiemayi, "铁蚂蚁", "com.p3066672015.rpm", "https://api.5586pk.com", "", "http://www.3318pk.com/invite/register.html?rCode=60645053",0, Const.FREE_FOREVER, 2, 1, new TMYAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://app.biaoqiandan.com", "https://fir.im/tbrp", "",0, Const.FREE_LIMIT_TIME, 0, 0, new HLGAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://www.51qiangdanwang.com", "https://fir.im/l5y2", "",0, Const.FREE_LIMIT_TIME, 0, 0, new TQDAction()));
-            mList.add(new Platform(new Params(3000,5000),R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "http://www.91xiaomangguo.com", "https://fir.im/r7na", "",  0, Const.FREE_LIMIT_TIME, 0, 0, new MGDDAction()));
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "https://xiaomangguo.lingchendan.com", "https://fir.im/r7na", "",  0, Const.FREE_LIMIT_TIME, 0, 0, new MGDDAction()));
             //第二行
             mList.add(new Platform(new Params(3000,5000),R.mipmap._918renqiwang, "918人气王", "io.dcloud.UNIE9BC8DE", "http://www.918dainizhuan.com", "https://fir.im/regy", "",0, Const.FREE_LIMIT_TIME, 0, 0, new _918RQWAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap._51renqiwang, "51人气王", "com.platform4", "", "", "",0, Const.FREE_LIMIT_TIME, 0, 2, null));
@@ -215,7 +216,7 @@ public class Platforms {
 //            /******************************************   打款平台   **************************************************/
 //            //第一行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.duoduohuayuan, "多多花苑", "com.platform8", "", "", "", 1, Const.IDLE, 0, 20, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.fongshoudamai, "丰收大麦", "com.platform8", "", "", "", 1, Const.IDLE, 0, 20, null));
+            mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.IDLE, 1, 20, new FSDMAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.jiuxingkeji, "九鑫科技", "com.platform8", "", "", "", 1, Const.IDLE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.hongchangkeji, "鸿昌科技", "com.platform8", "", "", "", 1, Const.IDLE, 0, 7, null));
 //            //第二行

@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import com.cainiao.R;
 import com.cainiao.base.MyApp;
 import com.cainiao.view.toasty.MyToast;
+import com.lzy.okgo.callback.BitmapCallback;
 import com.lzy.okgo.callback.StringCallback;
 import com.okhttplib.HttpInfo;
 import com.okhttplib.OkHttpUtil;
@@ -21,6 +22,20 @@ import com.okhttplib.callback.ProgressCallback;
  */
 
 public class HttpUtil {
+
+    /**
+     * 获取验证码
+     * @param url
+     * @param callback
+     */
+    public static void getVerifyCode(String url, BitmapCallback callback) {
+        if(!isNetworkAvailable() || available(MyApp.getContext())){
+            MyToast.error(MyApp.getContext().getString(R.string.network_unavailable));
+            return;
+        }
+        HttpClient.getInstance().get("", url)
+                .execute(callback);
+    }
 
     /**
      * 初始化

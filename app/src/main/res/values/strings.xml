@@ -20,7 +20,7 @@
     <string name="receipt_pwd_null">接单密码不能为空</string>
     <string name="receipt_url_null">接单地址不能为空</string>
     <string name="receipt_verify_code_null">验证码不能为空</string>
-    <string name="receipt_min_freq_error">接单频率不能小于1000ms</string>
+    <string name="receipt_min_freq_error">接单频率不能小于300ms</string>
     <string name="receipt_freq_error">最小频率不能大于最大频率</string>
     <string name="receipt_get_buyer_success">获取买号成功, 开始接单</string>
     <string name="receipt_get_buyer_fail">获取异常,无可用号</string>

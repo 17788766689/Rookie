@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
@@ -11,11 +12,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.cainiao.R;
 import com.cainiao.base.BaseActivity;
 import com.cainiao.base.MyApp;
@@ -25,15 +29,22 @@ import com.cainiao.bean.Platform;
 import com.cainiao.service.MyService;
 import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
+import com.cainiao.util.HttpUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
+import com.cainiao.util.SPUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.litesuits.orm.db.assit.QueryBuilder;
+import com.lzy.okgo.callback.BitmapCallback;
+import com.lzy.okgo.model.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
+import okhttp3.Headers;
 
 /**
  * Created by 123 on 2019/10/7.
@@ -41,6 +52,7 @@ import java.util.List;
 
 public class ReceiptActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
+    private ImageView inVerifyCode;
     private Platform mPlatform;
     private List<Platform> mList;
     private int position;
@@ -55,6 +67,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private ArrayAdapter<String> mAdapter;
     private String buyerNumStr;
     private UpdateReceiver mReceiver;
+    private Random mRandom;
 
     @Override
     public int getLayoutResId() {
@@ -65,6 +78,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     protected void init() {
         mList = Platforms.getPlatforms();
         mPlatform = Platforms.getCurrPlatform();
+        mRandom = new Random();
 
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
@@ -77,6 +91,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         tvBtn1.setOnClickListener(this);
         tvBtn2.setOnClickListener(this);
         spBuyerNum.setOnItemSelectedListener(this);
+        inVerifyCode.setOnClickListener(this);
 //        updateBtnStatus();
 
         String log = mPlatform.getLog();
@@ -98,14 +113,14 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             mPlatform.setLog("");
             Platforms.setCurrPlatform(mPlatform);
         }
-        msg = msg+="\n"+tvLog.getText().toString();
-        tvLog.setText(msg);
-        /*tvLog.append(msg);
-        if(needNewLine) tvLog.append("\n");*/
+        /*msg = msg+="\n"+tvLog.getText().toString();
+        tvLog.setText(msg);*/
+        tvLog.append(msg);
+        if(needNewLine) tvLog.append("\n");
         int offset = tvLog.getLineCount() * tvLog.getLineHeight();
         if(offset > tvLog.getHeight()){
-            tvLog.scrollTo(0, Utils.dp2px(10)-20);
-            //tvLog.scrollTo(0,offset - tvLog.getHeight() + Utils.dp2px(10));
+            //tvLog.scrollTo(0,Utils.dp2px(10)-20);
+            tvLog.scrollTo(0,offset - tvLog.getHeight() + Utils.dp2px(10));
         }
     }
 
@@ -116,12 +131,16 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case R.id.tv_start:
                 if(!getParams()) return;
                 mPlatform.setStart(true);
+                mPlatform.setRefreshVerifyCode(false);
                 Platforms.addRunningPlatform(mPlatform);
+                Platforms.setCurrPlatform(mPlatform);
                 startService(new Intent(this, MyService.class));
                 break;
             case R.id.tv_stop:
                 mPlatform.setStart(false);
+                mPlatform.setRefreshVerifyCode(false);
                 Platforms.rmRunningPlatform(mPlatform);
+                Platforms.setCurrPlatform(mPlatform);
                 startService(new Intent(this, MyService.class));
                 break;
             case R.id.tv_btn1:
@@ -133,13 +152,20 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case R.id.iv_back:
                 finish();
                 break;
+            case R.id.iv_verify_code:
+                //getVerifyCode(mPlatform.getVerifyCodeUrl());
+                mPlatform.setRefreshVerifyCode(true);
+                Platforms.setCurrPlatform(mPlatform);
+                Platforms.rmRunningPlatform(mPlatform);
+                startService(new Intent(this,MyService.class));
+                break;
         }
     }
 
     @Override
     public void onItemSelected(AdapterView<?> view, View view1, int i, long l) {
         mPlatform = Platforms.getCurrPlatform();
-        if(mBuyerNums == null || mBuyerNums.size() <= i || mPlatform.getParams() == null) return;
+        if(mBuyerNums == null || mBuyerNums.size() <= i || mPlatform.getParams() == null || !mPlatform.isStart()) return;
         //选择新的买号之后通知Service，使用新的买号进行刷单
         BuyerNum buyerNum = mBuyerNums.get(i);
         Params params = mPlatform.getParams();
@@ -185,7 +211,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             return false;
         }
 
-        if(Integer.parseInt(minFreq) < 1000){   //最小频率不能小于1000ms
+        if(Integer.parseInt(minFreq) < 300){   //最小频率不能小于300ms
             MyToast.error(getString(R.string.receipt_min_freq_error));
             return false;
         }
@@ -265,6 +291,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         llIgnore = findViewById(R.id.ll_ignore);
         cb1 = findViewById(R.id.cb1);
         cb2 = findViewById(R.id.cb2);
+        inVerifyCode = findViewById(R.id.iv_verify_code);
 
         int resId = R.array.receipt_type_default;
 
@@ -430,8 +457,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         List<Params> paramsList = MyApp.getLiteOrm().query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
         if(paramsList.size() > 0){   //原来存在参数，则进行数据回显
             params = paramsList.get(0);
-            etMinFreq.setText(String.valueOf(params.getMinFrequency()));
-            etMaxFreq.setText(String.valueOf(params.getMaxFrequency()));
+            etMinFreq.setText(String.valueOf(mPlatform.getParams().getMinFrequency()));
+            etMaxFreq.setText(String.valueOf(mPlatform.getParams().getMaxFrequency()));
             etAccount.setText(params.getAccount());
             etPwd.setText(params.getPassword());
             etMinComm.setText(String.valueOf(params.getMinCommission()));
@@ -510,10 +537,34 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
+    /**
+     * 获取验证码
+     * @param url
+     */
+    private void getVerifyCode(String url){
+        if(TextUtils.isEmpty(url)) return;
+        url += "?" + mRandom.nextInt(1000);
+        HttpUtil.getVerifyCode(url, new BitmapCallback() {
+            @Override
+            public void onSuccess(Response<Bitmap> response) {
+                Bitmap bitmap = response.body();
+                if(bitmap != null) inVerifyCode.setImageBitmap(bitmap);
+                Headers headers = response.headers();
+                String cookie = headers.get("Set-Cookie");
+                if(!TextUtils.isEmpty(cookie)){
+                    mPlatform.setVerifyCodeCookie(cookie);
+                    Platforms.setCurrPlatform(mPlatform);
+                }
+            }
+        });
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if(mReceiver != null) unregisterReceiver(mReceiver);
         mPlatform = Platforms.getCurrPlatform();
+        if(mPlatform == null) return;
         mPlatform.setLog(tvLog.getText().toString());
         Params params = mPlatform.getParams();
         if(!TextUtils.isEmpty(buyerNumStr)) {
@@ -524,7 +575,6 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         Platforms.setPlatforms(mList);
 
         Platforms.setCurrPlatform(null);
-        if(mReceiver != null) unregisterReceiver(mReceiver);
     }
 
 
@@ -542,6 +592,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 case "showBuyerNum":
                     buyerNumStr = msg;
                     showBuyerNum();
+                    break;
+                case "get_verifycode":
+                    getVerifyCode(msg);
                     break;
             }
         }

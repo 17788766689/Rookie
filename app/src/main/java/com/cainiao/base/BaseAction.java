@@ -34,6 +34,8 @@ public class BaseAction implements Serializable {
         sendLog(MyApp.getContext().getString(R.string.receipt_stop));
     }
 
+    public void getVerifyCode(Platform platform){}
+
     /**
      * 发送日志到界面，如果是其他平台，则只更新日志内容
      * @param log
@@ -72,7 +74,7 @@ public class BaseAction implements Serializable {
      * @param flag
      * @param msg
      */
-    private void sendMsg(String flag, String msg){
+    protected void sendMsg(String flag, String msg){
         Intent intent = new Intent(Const.UPDATE_ACTION);
         intent.putExtra("flag", flag);
         intent.putExtra("msg", msg);
@@ -159,6 +161,9 @@ public class BaseAction implements Serializable {
         if(platform == null) return;
         if(status < 0) status = platform.getOriginalStatus();   //传递过来的status为负数，则还原初始状态
 
+        if (status == Const.RECEIPT_SUCCESS){//接单成功
+            platform.setStart(false);
+        }
         //更新首页的状态
         List<Platform> mList = Platforms.getPlatforms();
         int position = mList.indexOf(platform);

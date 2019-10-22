@@ -19,8 +19,9 @@ public class MyService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Platform platform = Platforms.getCurrPlatform();
         if(platform == null || platform.getAction() == null) return START_STICKY;
-
-        if(platform.isStart()){
+        if (platform.getRefreshVerifyCode()){
+            platform.getAction().getVerifyCode(platform);
+        }else if(platform.isStart()){
             try {
                 platform.getAction().start(platform);
             } catch (Exception e) {
