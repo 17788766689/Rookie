@@ -172,6 +172,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setBuyerNum(buyerNum);
         params.setBuyerNumIndex(i);
         mPlatform.setParams(params);
+        refreshLogView("接单买号切换为"+ params.getBuyerNum().getName(), true);
         Platforms.setCurrPlatform(mPlatform);
         startService(new Intent(this, MyService.class));
     }
