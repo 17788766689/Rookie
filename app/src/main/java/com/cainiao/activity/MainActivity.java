@@ -81,8 +81,9 @@ public class MainActivity extends BaseActivity {
             TelephonyManager manager = (TelephonyManager) MyApp.getContext().getSystemService(Context.TELEPHONY_SERVICE);
             Method method = manager.getClass().getMethod("getImei", int.class);
             deviceId = (String) method.invoke(manager, 0);
-            deviceId +=","+ (String) method.invoke(manager, 1);
             Utils.setDeviceId(deviceId);
+            deviceId +=","+ (String) method.invoke(manager, 1);
+
         } catch (Exception e) {
 
         }
