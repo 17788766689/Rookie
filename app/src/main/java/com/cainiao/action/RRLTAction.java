@@ -180,13 +180,13 @@ public class RRLTAction extends BaseAction {
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         if("您当前有接单未做的任务，请先完成".equals(jsonObject.getString("rspDesc")) || "操作成功".equals(jsonObject.getString("rspDesc"))){   //接单成功
                             sendLog(MyApp.getContext().getString(R.string.receipt_success));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw.linghuomai, 3000);
+                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw.renrenletao, 3000);
                             addTask(mPlatform.getName());
                             updateStatus(mPlatform, Const.RECEIPT_SUCCESS); //接单成功的状态
                             isStart = false;
                         }else if (jsonObject.getString("rspDesc").equals("每天最多只能接3单")){
                             sendLog(jsonObject.getString("rspDesc").toString());
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw.linghuomai, 3000);
+                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw.renrenletao, 3000);
                             updateStatus(mPlatform, Const.RECEIPT_SUCCESS); //接单成功的状态
                             isStart = false;
                         } else{

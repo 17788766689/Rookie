@@ -179,7 +179,7 @@ public class ZFZAction extends BaseAction {
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         if(jsonObject.getIntValue("status") == 1){    //接单成功
                             sendLog(MyApp.getContext().getString(R.string.receipt_success));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw._918renqiwang, 3000);
+                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
                             addTask(mPlatform.getName());
                             updateStatus(mPlatform, Const.RECEIPT_SUCCESS); //接单成功的状态
                             isStart = false;
