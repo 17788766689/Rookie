@@ -15,6 +15,7 @@ import com.cainiao.adapter.StickyGridAdapter;
 import com.cainiao.base.BaseFragment;
 import com.cainiao.base.MyApp;
 import com.cainiao.bean.Platform;
+import com.cainiao.util.DbUtil;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
@@ -93,7 +94,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
     private void itemLongClick(int position){
         Platform platform = mList.remove(position);
         mAdapter.notifyDataSetChanged();
-        MyApp.getLiteOrm().delete(platform);
+        DbUtil.delete(platform);
     }
 
     /**

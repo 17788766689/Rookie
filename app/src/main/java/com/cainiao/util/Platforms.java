@@ -65,7 +65,7 @@ public class Platforms {
         }else {
             mLatestList.clear();
         }
-        List<Platform> list = MyApp.getLiteOrm().query(new QueryBuilder<>(Platform.class).orderBy("lastTime desc"));
+        List<Platform> list = DbUtil.query(new QueryBuilder<>(Platform.class).orderBy("lastTime desc"));
         if(list != null && list.size() > 0) mLatestList.addAll(list);
         return mLatestList;
     }
@@ -256,7 +256,7 @@ public class Platforms {
             platform.setStatus(platform.getOriginalStatus());   //还原初始状态
             list.set(i, platform);
         }
-        MyApp.getLiteOrm().update(list);
+        DbUtil.update(list);
     }
 
     public static Map<String, Integer> getPlatformIcons(){

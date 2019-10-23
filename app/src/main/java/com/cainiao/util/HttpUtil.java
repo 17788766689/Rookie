@@ -141,8 +141,8 @@ public class HttpUtil {
             proxyAddress = android.net.Proxy.getHost(context);
             proxyPort = android.net.Proxy.getPort(context);
         }
-        return false;
-        //return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
+        //return false;
+        return (!TextUtils.isEmpty(proxyAddress)) && (proxyPort != -1);
     }
 
     /**

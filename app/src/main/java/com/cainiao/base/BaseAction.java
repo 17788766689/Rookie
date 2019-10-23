@@ -11,6 +11,7 @@ import com.cainiao.R;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
+import com.cainiao.util.DbUtil;
 import com.cainiao.util.HttpClient;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.NotifyUtil;
@@ -117,14 +118,14 @@ public class BaseAction implements Serializable {
      * 更新常用的平台
      */
     protected void updatePlatform(Platform mPlatform){
-        List<Platform> platforms = MyApp.getLiteOrm().query(new QueryBuilder<>(Platform.class).whereEquals("pkgName", mPlatform.getPkgName()));
+        List<Platform> platforms = DbUtil.query(new QueryBuilder<>(Platform.class).whereEquals("pkgName", mPlatform.getPkgName()));
         if(platforms.size() > 0){   //原来存在，则更新
             Platform platform = platforms.get(0);
             platform.setLastTime(System.currentTimeMillis());
-            MyApp.getLiteOrm().update(platform);
+            DbUtil.update(platform);
         }else{  //不存在，则添加
             mPlatform.setLastTime(System.currentTimeMillis());
-            MyApp.getLiteOrm().save(mPlatform);
+            DbUtil.save(mPlatform);
         }
     }
 
@@ -133,7 +134,7 @@ public class BaseAction implements Serializable {
      * @param mPlatform
      */
     protected void updateParams(Platform mPlatform){
-        List<Params> paramsList = MyApp.getLiteOrm().query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
+        List<Params> paramsList = DbUtil.query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
         Params params = mPlatform.getParams();
         if(paramsList.size() > 0){   //原来存在，则更新
             Params p = paramsList.get(0);
@@ -143,10 +144,10 @@ public class BaseAction implements Serializable {
             p.setPassword(params.getPassword());
             p.setMinCommission(params.getMinCommission());
             p.setMaxPrincipal(params.getMaxPrincipal());
-            MyApp.getLiteOrm().update(p);
+            DbUtil.update(p);
         }else{  //不存在，则添加
             params.setPkgName(mPlatform.getPkgName());
-            MyApp.getLiteOrm().save(params);
+            DbUtil.save(params);
         }
 
         updateStatus(mPlatform, Const.RECEIPTING); //接单中的状态
@@ -173,11 +174,11 @@ public class BaseAction implements Serializable {
         Platforms.setPlatforms(mList);
 
         //更新常用的状态
-        mList = MyApp.getLiteOrm().query(new QueryBuilder<>(Platform.class).whereEquals("pkgName", platform.getPkgName()));
+        mList = DbUtil.query(new QueryBuilder<>(Platform.class).whereEquals("pkgName", platform.getPkgName()));
         if(mList == null || mList.size() <= 0) return;
         Platform p = mList.get(0);
         p.setStatus(status);
-        MyApp.getLiteOrm().update(p);
+        DbUtil.update(p);
     }
 
 }

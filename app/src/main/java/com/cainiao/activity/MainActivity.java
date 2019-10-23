@@ -95,7 +95,14 @@ public class MainActivity extends BaseActivity {
         if(requestCode != READ_CONTACT_REQUEST_CODE) return;  //如果不是读取设备码的requestCode，则不进行处理
         boolean showRequestPermission = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE);
         Toasty.error(MyApp.getContext(),"showRequestPermission: " + showRequestPermission);
-        if (showRequestPermission) {   //用户拒绝了权限，但没勾选“不再询问”
+        if (showRequestPermission){
+            MyToast.error(MyApp.getContext().getString(R.string.deviceId_goto_setting_power));
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+        }
+        /*if (!showRequestPermission) {   //用户拒绝了权限，但没勾选“不再询问”
             MyToast.error(MyApp.getContext().getString(R.string.deviceId_not_allow));
         }else {  //用户勾选了“不再询问”
             MyToast.error(MyApp.getContext().getString(R.string.deviceId_goto_setting_power));
@@ -103,7 +110,7 @@ public class MainActivity extends BaseActivity {
             Uri uri = Uri.fromParts("package", getPackageName(), null);
             intent.setData(uri);
             startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-        }
+        }*/
     }
 
     @Override

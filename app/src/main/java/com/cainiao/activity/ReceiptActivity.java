@@ -29,6 +29,7 @@ import com.cainiao.bean.Platform;
 import com.cainiao.service.MyService;
 import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
+import com.cainiao.util.DbUtil;
 import com.cainiao.util.HttpUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
@@ -454,7 +455,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
      */
     private void initData(){
         Params params;
-        List<Params> paramsList = MyApp.getLiteOrm().query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
+        List<Params> paramsList = DbUtil.query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
         if(paramsList.size() > 0){   //原来存在参数，则进行数据回显
             params = paramsList.get(0);
             etMinFreq.setText(String.valueOf(mPlatform.getParams().getMinFrequency()));
