@@ -50,7 +50,7 @@ public class _51MGPAction extends BaseAction {
 
 //        isStart = true;
 //        updatePlatform(mPlatform);
-//        updateStatus(platform, Const.RECEIPTING);
+//        updateStatus(platform, Const.AJW_VA);
 
         if(!isStart){    //未开始抢单
             isStart = true;
@@ -177,10 +177,10 @@ public class _51MGPAction extends BaseAction {
                         if(TextUtils.isEmpty(response.body())) return;
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         if(jsonObject.getBooleanValue("Success")){    //接单成功
-                            sendLog(MyApp.getContext().getString(R.string.receipt_success));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.receipt_success_tips), mPlatform.getName()), R.raw._51mangguopai, 3000);
+                            sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw._51mangguopai, 3000);
                             addTask(mPlatform.getName());
-                            updateStatus(mPlatform, Const.RECEIPT_SUCCESS); //接单成功的状态
+                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                             isStart = false;
                         }else{
                             sendLog(jsonObject.getString("Message"));
@@ -198,6 +198,6 @@ public class _51MGPAction extends BaseAction {
         isStart = false;
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，
         // 否则状态会变成初始状态而不是“抢单成功”的状态。抢单成功直接把isStart设为false即可
-        updateStatus(mPlatform, Const.RESET);
+        updateStatus(mPlatform, Const.WGHS);
     }
 }

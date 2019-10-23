@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 public class MyApp extends Application{
 
     private static Application mContext;
-    private static int mTime = 0; //剩余时间
+    private static int log = 0; //剩余时间
 
     /**全局LiteOrm对象*/
     private static LiteOrm liteOrm;
@@ -37,19 +37,19 @@ public class MyApp extends Application{
     public static Application getContext(){return mContext;}
 
     /**
-     * 设置剩余时间
-     * @param time
+     *
+     * @param l
      */
-    public static void setTime(int time){
-        mTime = time;
+    public static void setLog(int l){
+        log = l;
     }
 
     /**
      * 获取剩余时间
      * @return
      */
-    public static int getTime(){
-        return mTime;
+    public static int getLog(){
+        return log;
     }
 
     /**

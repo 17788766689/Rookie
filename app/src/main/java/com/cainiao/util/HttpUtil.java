@@ -113,16 +113,16 @@ public class HttpUtil {
 
     /**
      * 检查更新
-     * @param versionCode
+     * @param in
      * @param callback
      */
-    public static void checkUpdate(int versionCode, StringCallback callback) {
+    public static void index(int in, StringCallback callback) {
         if(!isNetworkAvailable() || available(MyApp.getContext())){
             MyToast.error(MyApp.getContext().getString(R.string.network_unavailable));
             return;
         }
         HttpClient.getInstance().get(Const.UPDATE_URL, null)
-                .params("ver", versionCode)
+                .params("ver", in)
                 .execute(callback);
     }
 

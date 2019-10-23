@@ -81,7 +81,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
      */
     private void itemClick(int position){
         Platform platform = mList.get(position);
-        if(platform.getStatus() != 0 || MyApp.getTime() >= 1){
+        if(platform.getStatus() != 0 || MyApp.getLog() >= 1){
             List<Platform> list = Platforms.getPlatforms();
             for(int i = 0, len = list.size(); i < len; i++){   //获取点击进来的平台对应的下标，因为这里是从常用页面点击的
                 if(TextUtils.equals(platform.getPkgName(), list.get(i).getPkgName())){

@@ -25,6 +25,7 @@ public class MineFragment extends BaseFragment {
     private List<Mine> mList;
     private ListView lv;
     private MineAdapter mAdapter;
+    private String a = "";
 
     @Override
     public int getLayoutResId() {
@@ -33,6 +34,7 @@ public class MineFragment extends BaseFragment {
 
     @Override
     protected void init(View view) {
+        a = String.format("剩余%d天", MyApp.getLog());
         lv = view.findViewById(R.id.lv);
         initData();
         lv.setAdapter(mAdapter = new MineAdapter(getActivity(), mList));
@@ -45,9 +47,8 @@ public class MineFragment extends BaseFragment {
     }
 
     private void initData(){
-        String time = String.format("剩余%d天", MyApp.getTime());
         mList = new ArrayList<>();
-        mList.add(new Mine(R.mipmap._60x60, "我的菜鸟", time, "点我续费"));
+        mList.add(new Mine(R.mipmap._60x60, "我的菜鸟", a, "点我续费"));
         mList.add(new Mine(R.mipmap._60x60, "获取设备码", "换绑设备时使用", "如需换绑请找客服"));
         mList.add(new Mine(R.mipmap._60x60, "购卡地址", "不推荐使用", "点我前往，仅限购买不到激活码的用户使用"));
         mList.add(new Mine(R.mipmap._60x60, "菜鸟抢单App", "下载地址", Const.OUTER_DOWNLOAD_URL));
@@ -68,7 +69,7 @@ public class MineFragment extends BaseFragment {
     @Override
     protected void findUserCallback() {
         Mine mine = mList.get(0);
-        mine.setMsg(String.format("剩余%d天", MyApp.getTime()));
+        mine.setMsg(String.format("剩余%d天", MyApp.getLog()));
         mList.set(0, mine);
         mAdapter.notifyDataSetChanged();
     }

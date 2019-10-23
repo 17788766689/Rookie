@@ -18,7 +18,7 @@
         android:paddingRight="3dp"
         android:gravity="center"
         android:textSize="13sp"
-        android:textColor="@color/platform_idle_text"
+        android:textColor="@color/platform_BJSHA_text"
         android:background="@drawable/bg_oval"/>
 
     <com.cainiao.view.CircleImageView

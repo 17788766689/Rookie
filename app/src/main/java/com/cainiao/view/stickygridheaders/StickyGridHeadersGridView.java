@@ -113,12 +113,12 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
         @Override
         public void onChanged() {
-            reset();
+            WGHS();
         }
 
         @Override
         public void onInvalidated() {
-            reset();
+            WGHS();
         }
     };
 
@@ -159,7 +159,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     private View mStickiedHeader;
 
-    private Runnable mTouchModeReset;
+    private Runnable mTouchModeWGHS;
 
     private int mTouchSlop;
 
@@ -409,14 +409,14 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
                                 mTouchMode = TOUCH_MODE_TAP;
                                 header.setPressed(true);
                                 setPressed(true);
-                                if (mTouchModeReset != null) {
-                                    removeCallbacks(mTouchModeReset);
+                                if (mTouchModeWGHS != null) {
+                                    removeCallbacks(mTouchModeWGHS);
                                 }
-                                mTouchModeReset = new Runnable() {
+                                mTouchModeWGHS = new Runnable() {
                                     @Override
                                     public void run() {
                                         mMotionHeaderPosition = NO_MATCHED_HEADER;
-                                        mTouchModeReset = null;
+                                        mTouchModeWGHS = null;
                                         mTouchMode = TOUCH_MODE_REST;
                                         header.setPressed(false);
                                         setPressed(false);
@@ -428,7 +428,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
                                         }
                                     }
                                 };
-                                postDelayed(mTouchModeReset,
+                                postDelayed(mTouchModeWGHS,
                                         ViewConfiguration.getPressedStateDuration());
                             } else {
                                 mTouchMode = TOUCH_MODE_REST;
@@ -497,7 +497,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
         this.mAdapter = new StickyGridHeadersBaseAdapterWrapper(getContext(), this, baseAdapter);
         this.mAdapter.registerDataSetObserver(mDataSetObserver);
-        reset();
+        WGHS();
         super.setAdapter(this.mAdapter);
     }
 
@@ -661,7 +661,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
         }
     }
 
-    private void reset() {
+    private void WGHS() {
         mHeaderBottomPosition = 0;
         swapStickiedHeader(null);
         mCurrentHeaderId = INVALID_ROW_ID;

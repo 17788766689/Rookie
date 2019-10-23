@@ -67,9 +67,9 @@ public class StickyGridAdapter extends BaseAdapter implements
         mViewHolder.tvName.setText(item.getName());
         mViewHolder.tvStatus.setText(item.getStatusTip(item.getStatus()));
         ColorStateList cs;
-        if(item.getStatus() == Const.IDLE){  //空闲中
-            cs = mContext.getResources().getColorStateList(R.color.platform_idle_text);
-        }else if(item.getStatus() == Const.RECEIPT_SUCCESS){    //接单成功
+        if(item.getStatus() == Const.BJSHA){  //空闲中
+            cs = mContext.getResources().getColorStateList(R.color.platform_BJSHA_text);
+        }else if(item.getStatus() == Const.KSHG_AW){    //接单成功
             cs = mContext.getResources().getColorStateList(R.color.platform_success_text);
         }else{
             cs = mContext.getResources().getColorStateList(R.color.platform_free_text);

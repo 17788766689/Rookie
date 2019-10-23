@@ -32,12 +32,12 @@ public class Const {
     public static String UPDATE_ACTION;
     public static int LOG_MAX_LINE;
 
-    public static int RESET;             //重置
-    public static int IDLE;             //空闲中
-    public static int FREE_LIMIT_TIME;  //限时免费
-    public static int FREE_FOREVER;     //永久免费
-    public static int RECEIPTING;       //正在接单
-    public static int RECEIPT_SUCCESS;  //接单成功
+    public static int WGHS;             //重置
+    public static int BJSHA;             //空闲中
+    public static int TLSHE;            //限时免费
+    public static int BLSA;     //永久免费
+    public static int AJW_VA;       //正在接单
+    public static int KSHG_AW;  //接单成功
 
 
     private static void init(){
@@ -57,12 +57,12 @@ public class Const {
         DB_NAME = "cainiao.db";
         UPDATE_ACTION = "com.cainiao.update";
         LOG_MAX_LINE = 30;  //日志显示最多20行，超出则进行清理
-        RESET = -1;
-        IDLE = 0;
-        FREE_LIMIT_TIME = 1;
-        FREE_FOREVER = 2;
-        RECEIPTING = 3;
-        RECEIPT_SUCCESS = 4;
+        WGHS = -1;
+        BJSHA = 0;
+        TLSHE = 1;
+        BLSA = 2;
+        AJW_VA = 3;
+        KSHG_AW = 4;
         DEBUG_MODE = true;
     }
 

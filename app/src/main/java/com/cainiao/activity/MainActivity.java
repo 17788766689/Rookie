@@ -164,14 +164,14 @@ public class MainActivity extends BaseActivity {
                         R.mipmap.ic_tab_mine_normal,
                         R.mipmap.ic_tab_mine_selected)
                 .build();
-        checkUpdate();
+        index();
     }
 
     /**
      * 检查更新
      */
-    protected void checkUpdate(){
-        HttpUtil.checkUpdate(AppUtil.getVersionCode(this), new StringCallback() {
+    protected void index(){
+        HttpUtil.index(AppUtil.getVersionCode(this), new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
 //                LogUtil.e("response: " + response.body());

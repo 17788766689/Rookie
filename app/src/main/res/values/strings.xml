@@ -27,8 +27,8 @@
     <string name="receipt_get_task">检测到任务, 本金:%s， 佣金:%s，任务领取中</string>
     <string name="receipt_continue_task">继续检测任务</string>
     <string name="receipt_exception">接单异常：</string>
-    <string name="receipt_success">接单成功,可前往平台做单</string>
-    <string name="receipt_success_tips">%s接单成功</string>
+    <string name="KSHG_AW">接单成功,可前往平台做单</string>
+    <string name="KSHG_AW_tips">%s接单成功</string>
     <string name="receipt_download_app"><u>下载%sApp</u></string>
     <string name="receipt_open_app"><u>打开%sApp</u></string>
     <string name="receipt_open_web"><u>打开%s官网</u></string>

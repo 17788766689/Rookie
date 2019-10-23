@@ -74,7 +74,7 @@ public abstract class BaseFragment extends Fragment {
         String code = object.getString("code");
         String time = object.getString("time");
         String msg = object.getString("msg");
-        if(Utils.isInteger(time)) MyApp.setTime(Integer.parseInt(time));
+        if(Utils.isInteger(time)) MyApp.setLog(Integer.parseInt(time));
 
         if(TextUtils.equals(code, "2")){  //冻结
             MyToast.error(msg);

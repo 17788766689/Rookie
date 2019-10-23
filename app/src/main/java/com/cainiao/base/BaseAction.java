@@ -150,7 +150,7 @@ public class BaseAction implements Serializable {
             DbUtil.save(params);
         }
 
-        updateStatus(mPlatform, Const.RECEIPTING); //接单中的状态
+        updateStatus(mPlatform, Const.AJW_VA); //接单中的状态
     }
 
     /**
@@ -162,7 +162,7 @@ public class BaseAction implements Serializable {
         if(platform == null) return;
         if(status < 0) status = platform.getOriginalStatus();   //传递过来的status为负数，则还原初始状态
 
-        if (status == Const.RECEIPT_SUCCESS){//接单成功
+        if (status == Const.KSHG_AW){//接单成功
             platform.setStart(false);
         }
         //更新首页的状态

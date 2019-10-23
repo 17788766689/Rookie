@@ -79,7 +79,7 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
     private void itemClick(int position){
         Platform platform = mList.get(position);
 
-        if(platform.getStatus() != 0 || MyApp.getTime() >= 1){
+        if(platform.getStatus() != 0 || MyApp.getLog() >= 1){
             Platforms.setCurrPlatform(mList.get(position));
             startActivity(new Intent(getActivity(), ReceiptActivity.class).putExtra("position", position));
         }else{ //非免费且设备未激活
