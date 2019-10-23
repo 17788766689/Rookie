@@ -19,9 +19,12 @@ public class SplashActivity extends BaseActivity{
 
     @Override
     protected void init() {
-        new Handler().postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-            finish();
-        }, 2000);
+        new Handler().postDelayed(new Runnable() {
+              @Override
+              public void run() {
+                  startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                  finish();
+              }
+          }, 2000);
     }
 }

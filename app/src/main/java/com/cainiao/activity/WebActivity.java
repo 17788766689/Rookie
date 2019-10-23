@@ -22,7 +22,12 @@ public class WebActivity extends BaseActivity {
 
     @Override
     protected void init() {
-        findViewById(R.id.iv_back).setOnClickListener(view -> finish());
+        findViewById(R.id.iv_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         url = getIntent().getStringExtra("url");
         name = getIntent().getStringExtra("name");
         if(TextUtils.isEmpty(url)) return;

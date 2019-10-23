@@ -36,6 +36,7 @@ public class Utils {
     public static String getUuid() {
         DeviceUtil.getInstance().init(MyApp.getContext());
         String android = DeviceUtil.getInstance().getDeviceId();
+        System.out.println(android+"----"+deviceId);
         return md5(android+deviceId);
     }
 

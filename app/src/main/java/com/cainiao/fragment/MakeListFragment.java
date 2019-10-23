@@ -51,13 +51,19 @@ public class MakeListFragment extends BaseFragment {
                 android.R.color.holo_red_light,
                 android.R.color.holo_orange_light);
         //设置下拉刷新时的操作
-        mRefreshLayout.setOnRefreshListener(() -> {
-            mList.clear();
-            selectPlatform("");
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mList.clear();
+                selectPlatform("");
+            }
         });
-        tvSearch.setOnClickListener(view1 -> {
-            mList.clear();
-            selectPlatform(etSearchName.getText().toString().trim());
+        tvSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mList.clear();
+                selectPlatform(etSearchName.getText().toString().trim());
+            }
         });
         selectPlatform("");
     }

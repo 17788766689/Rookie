@@ -56,7 +56,12 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
         mGridView.setNumColumns(4); //设置一行有4个item
         mGridView.setAdapter(mAdapter);
         etSearchName.addTextChangedListener(this);
-        mGridView.setOnItemClickListener((view12, view1, i, l) -> itemClick(i));
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> view, View view1, int i, long l) {
+                itemClick(i);
+            }
+        });
     }
 
 
@@ -78,7 +83,12 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
             Platforms.setCurrPlatform(mList.get(position));
             startActivity(new Intent(getActivity(), ReceiptActivity.class).putExtra("position", position));
         }else{ //非免费且设备未激活
-            DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.home_un_active) + getString(R.string.home_reactive_tips), getString(R.string.home_input_code), getString(R.string.home_active_tips), view -> active(DialogUtil.get().getInputStr()));
+            DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.home_un_active) + getString(R.string.home_reactive_tips), getString(R.string.home_input_code), getString(R.string.home_active_tips), new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    active(DialogUtil.get().getInputStr());
+                }
+            });
         }
     }
 

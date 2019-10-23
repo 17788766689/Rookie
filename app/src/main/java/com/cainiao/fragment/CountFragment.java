@@ -47,14 +47,20 @@ public class CountFragment extends BaseFragment {
                 android.R.color.holo_red_light,
                 android.R.color.holo_orange_light);
         //设置下拉刷新时的操作
-        mRefreshLayout.setOnRefreshListener(() -> {
-            mList.clear();
-            selectTotal("");
+        mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mList.clear();
+                selectTotal("");
+            }
         });
 
-        tvSearch.setOnClickListener(view1 -> {
-            mList.clear();
-            selectTotal(etSearchName.getText().toString().trim());
+        tvSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mList.clear();
+                selectTotal(etSearchName.getText().toString().trim());
+            }
         });
         selectTotal("");
     }

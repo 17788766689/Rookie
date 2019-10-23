@@ -3,6 +3,7 @@ package com.cainiao.fragment;
 import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.cainiao.R;
@@ -35,7 +36,12 @@ public class MineFragment extends BaseFragment {
         lv = view.findViewById(R.id.lv);
         initData();
         lv.setAdapter(mAdapter = new MineAdapter(getActivity(), mList));
-        lv.setOnItemClickListener((view12, view1, position, l) -> listItemClick(position));
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> view, View view1, int position, long l) {
+                listItemClick(position);
+            }
+        });
     }
 
     private void initData(){
@@ -70,7 +76,12 @@ public class MineFragment extends BaseFragment {
     private void listItemClick(int position){
         switch (position){
             case 0:     //我的菜鸟
-                DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.mine_renew), getString(R.string.home_input_code), getString(R.string.mine_renew_tips), view -> active(DialogUtil.get().getInputStr()));
+                DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.mine_renew), getString(R.string.home_input_code), getString(R.string.mine_renew_tips), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        active(DialogUtil.get().getInputStr());
+                    }
+                });
                 break;
             case 1:     //获取设备码
                 Utils.setClipboardStr(Utils.getUuid());
