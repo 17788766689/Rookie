@@ -177,7 +177,17 @@ public class MainActivity extends BaseActivity {
 //                LogUtil.e("response: " + response.body());
                 if(TextUtils.isEmpty(response.body())) return;
                 JSONObject jsonObject = JSONObject.parseObject(response.body());
-                if(!TextUtils.equals(jsonObject.getString("status"), "2")) return; //无更新
+                if(!TextUtils.equals(jsonObject.getString("status"), "2")){
+                    HttpUtil.message( new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            if(TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            DialogUtil.get().showNoticeDialog(MainActivity.this,jsonObject.getString("msg"));
+                        }
+                    });
+                    return;
+                } ; //无更新
                 boolean cancelable = TextUtils.equals(jsonObject.getString("force"), "1"); //force的值为1，表示非强制更新，非强制更新的话对话框可以消失
                 String title = jsonObject.getString("msg");
                 String msg = jsonObject.getString("body");

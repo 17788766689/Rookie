@@ -20,6 +20,7 @@ public class Const {
     public static String FIND_USER_URL;
     public static String ACTIVATION_URL;
     public static String UPDATE_URL;
+    public static String MESSAGE_URL;
 
     public static String OUTER_BUY_URL;
     public static String OUTER_DOWNLOAD_URL;
@@ -56,6 +57,7 @@ public class Const {
         SP_NAME = "cainiao";
         DB_NAME = "cainiao.db";
         UPDATE_ACTION = "com.cainiao.update";
+        MESSAGE_URL="message";
         LOG_MAX_LINE = 30;  //日志显示最多20行，超出则进行清理
         WGHS = -1;
         BJSHA = 0;

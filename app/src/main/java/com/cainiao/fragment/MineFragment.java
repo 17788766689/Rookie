@@ -86,7 +86,7 @@ public class MineFragment extends BaseFragment {
                 break;
             case 1:     //获取设备码
                 Utils.setClipboardStr(Utils.getUuid());
-                MyToast.success(getString(R.string.mine_uuid_copy_success));
+                MyToast.success("设备码复制成功");
                 break;
             case 2:     //购卡地址
                 AppUtil.openUrlInOuter(Const.OUTER_BUY_URL);

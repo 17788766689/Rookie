@@ -43,7 +43,7 @@ public class ZCMAction extends BaseAction {
 
     @Override
     public void start(Platform platform) {
-        if(platform == null) return;
+        if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
 
@@ -51,7 +51,7 @@ public class ZCMAction extends BaseAction {
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
-        if(!isStart){    //未开始抢单
+        if (!isStart) {    //未开始抢单
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -63,7 +63,7 @@ public class ZCMAction extends BaseAction {
     /**
      * 登录
      */
-    private void login(){
+    private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/login/Login?returnUrl=/", mPlatform.getHost())
                 .params("UserName", mParams.getAccount())
@@ -71,16 +71,21 @@ public class ZCMAction extends BaseAction {
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if(jsonObject.getBooleanValue("Success")){    //登录成功
-                            cookie = response.headers().get("Set-Cookie").toString();
-                            sendLog("登录成功！");
-                            updateParams(mPlatform);
-                            getAccount();
-                        }else{
-                            sendLog(jsonObject.getString("Message"));
-                            MyToast.error(jsonObject.getString("Message"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getBooleanValue("Success")) {    //登录成功
+                                cookie = response.headers().get("Set-Cookie").toString();
+                                sendLog("登录成功！");
+                                updateParams(mPlatform);
+                                getAccount();
+                            } else {
+                                sendLog(jsonObject.getString("Message"));
+                                MyToast.error(jsonObject.getString("Message"));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
                         }
                     }
@@ -90,28 +95,33 @@ public class ZCMAction extends BaseAction {
     /**
      * 获取买号
      */
-    private void getAccount(){
+    private void getAccount() {
         HttpClient.getInstance().post("/ReceiptTask", mPlatform.getHost())
-                .headers("Cookie",cookie)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        Document doc = Jsoup.parse(response.body());
-                        Elements tbData = doc.select(".accountlist").select(".cell-item");
-                        if(tbData.size() > 0){    //获取买号成功
-                            mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
-                            List<BuyerNum> list = new ArrayList<>();
-                            for(int i = 0, len = tbData.size(); i < len; i++){
-                                list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            Document doc = Jsoup.parse(response.body());
+                            Elements tbData = doc.select(".accountlist").select(".cell-item");
+                            if (tbData.size() > 0) {    //获取买号成功
+                                mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
+                                List<BuyerNum> list = new ArrayList<>();
+                                for (int i = 0, len = tbData.size(); i < len; i++) {
+                                    list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
+                                }
+                                showBuyerNum(JSON.toJSONString(list));
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else { //无可用的买号
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                stop();
                             }
-                            showBuyerNum(JSON.toJSONString(list));
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                            updateStatus(mPlatform, 3); //正在接单的状态
-                            startTask();
-                        }else { //无可用的买号
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                        } catch (Exception e) {
+                            sendLog("获取买号异常！");
                             stop();
                         }
                     }
@@ -121,20 +131,24 @@ public class ZCMAction extends BaseAction {
     /**
      * 开始任务
      */
-    private void startTask(){
+    private void startTask() {
         HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
                 .params("id", mParams.getBuyerNum().getId())
-                .headers("Cookie",cookie)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject array = JSONObject.parseObject(response.body());
-                        if (array.getBooleanValue("Success")){
-                            sendLog("检测到任务领取中...");
-                            lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
-                        }else{
-                            sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject array = JSONObject.parseObject(response.body());
+                            if (array.getBooleanValue("Success")) {
+                                sendLog("检测到任务领取中...");
+                                lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                            } else {
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            }
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -147,7 +161,7 @@ public class ZCMAction extends BaseAction {
                     @Override
                     public void onFinish() {
                         super.onFinish();
-                        if(isStart){
+                        if (isStart) {
                             //取最小频率和最大频率直接的随机数值作为刷单间隔
                             int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
                             mHandler.postDelayed(new Runnable() {
@@ -163,36 +177,40 @@ public class ZCMAction extends BaseAction {
 
     /**
      * 领取任务
-     * @param taskId  任务id
+     *
+     * @param taskId 任务id
      */
-    private void lqTask(String taskId){
+    private void lqTask(String taskId) {
         HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id",mParams.getBuyerNum().getId())
-                .params("orderId",taskId)
-                .headers("Cookie",cookie)
+                .params("id", mParams.getBuyerNum().getId())
+                .params("orderId", taskId)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if(jsonObject.getBooleanValue("Success")){    //接单成功
-                            sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhaocaimao, 3000);
-                            addTask(mPlatform.getName());
-                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                            isStart = false;
-                        }else{
-                            sendLog(jsonObject.getString("Message"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhaocaimao, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog(jsonObject.getString("Message"));
+                            }
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });
     }
 
 
-
     @Override
     public void stop() {
-        if(!isStart) return;   //如果当前状态是未开始，则不做任何操作
+        if (!isStart) return;   //如果当前状态是未开始，则不做任何操作
         super.stop();
         isStart = false;
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，

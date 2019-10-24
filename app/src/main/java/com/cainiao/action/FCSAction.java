@@ -49,7 +49,7 @@ public class FCSAction extends BaseAction {
 
     @Override
     public void start(Platform platform) {
-        if(platform == null) return;
+        if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
 
@@ -57,7 +57,7 @@ public class FCSAction extends BaseAction {
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
-        if(!isStart){    //未开始抢单
+        if (!isStart) {    //未开始抢单
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -69,31 +69,36 @@ public class FCSAction extends BaseAction {
     /**
      * 登录
      */
-    private void login(){
+    private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         Map map = new HashMap();
-        map.put("telephone",mParams.getAccount());
-        map.put("password",mParams.getPassword());
+        map.put("telephone", mParams.getAccount());
+        map.put("password", mParams.getPassword());
         String param = JSON.toJSONString(map);
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, param);
         HttpClient.getInstance().post("/tcbuyer/ajaxLogin", mPlatform.getHost())
                 .upRequestBody(body)
-                .headers("Content-Type","application/json")
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if("登录成功".equals(jsonObject.getString("message"))){    //登录成功
-                            sendLog("登录成功！");
-                            token = jsonObject.getString("token");
-                            userId = jsonObject.getString("buyerId");
-                            updateParams(mPlatform);
-                            getAccount();
-                        }else{
-                            sendLog(jsonObject.getString("message"));
-                            MyToast.error(jsonObject.getString("message"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if ("登录成功".equals(jsonObject.getString("message"))) {    //登录成功
+                                sendLog("登录成功！");
+                                token = jsonObject.getString("token");
+                                userId = jsonObject.getString("buyerId");
+                                updateParams(mPlatform);
+                                getAccount();
+                            } else {
+                                sendLog(jsonObject.getString("message"));
+                                MyToast.error(jsonObject.getString("message"));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
                         }
                     }
@@ -103,37 +108,42 @@ public class FCSAction extends BaseAction {
     /**
      * 获取买号
      */
-    private void getAccount(){
+    private void getAccount() {
         Map map = new HashMap();
-        map.put("buyerId",Integer.valueOf(userId));
+        map.put("buyerId", Integer.valueOf(userId));
         String param = JSON.toJSONString(map);
         MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSONType, param);
         HttpClient.getInstance().post("/tcbuyer/person/findAccount", mPlatform.getHost())
-               .upRequestBody(body)
-                .headers("Content-Type","application/json")
-                .headers("Cookie","JSESSIONID="+token)
+                .upRequestBody(body)
+                .headers("Content-Type", "application/json")
+                .headers("Cookie", "JSESSIONID=" + token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        JSONArray tbData = jsonObject.getJSONArray("Accountlist");
-                        if(tbData.size() > 0){    //获取买号成功
-                            JSONObject index = tbData.getJSONObject(0);
-                            mParams.setBuyerNum(new BuyerNum(index.getString("id"), index.getString("acountName")));
-                            List<BuyerNum> list = new ArrayList<>();
-                            for(int i = 0, len = tbData.size(); i < len; i++){
-                                index = tbData.getJSONObject(i);
-                                list.add(new BuyerNum(index.getString("id"), index.getString("acountName")));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            JSONArray tbData = jsonObject.getJSONArray("Accountlist");
+                            if (tbData.size() > 0) {    //获取买号成功
+                                JSONObject index = tbData.getJSONObject(0);
+                                mParams.setBuyerNum(new BuyerNum(index.getString("id"), index.getString("acountName")));
+                                List<BuyerNum> list = new ArrayList<>();
+                                for (int i = 0, len = tbData.size(); i < len; i++) {
+                                    index = tbData.getJSONObject(i);
+                                    list.add(new BuyerNum(index.getString("id"), index.getString("acountName")));
+                                }
+                                showBuyerNum(JSON.toJSONString(list));
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else { //无可用的买号
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                stop();
                             }
-                            showBuyerNum(JSON.toJSONString(list));
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                            updateStatus(mPlatform, 3); //正在接单的状态
-                            startTask();
-                        }else { //无可用的买号
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                        } catch (Exception e) {
+                            sendLog("获取买号异常！");
                             stop();
                         }
                     }
@@ -143,43 +153,47 @@ public class FCSAction extends BaseAction {
     /**
      * 开始任务
      */
-    private void startTask(){
+    private void startTask() {
         long time = new Date().getTime();
         Map map = new HashMap();
-        map.put("deviceType",2);
-        map.put("accountId",mParams.getBuyerNum().getId());
-        map.put("taskType",1);
-        map.put("pageNo",1);
-        map.put("time",time);
-        map.put("buyerId",userId);
-        map.put("platform",1);
-        map.put("token",Utils.md5("TCfghFGH123!@#"+time+userId));
+        map.put("deviceType", 2);
+        map.put("accountId", mParams.getBuyerNum().getId());
+        map.put("taskType", 1);
+        map.put("pageNo", 1);
+        map.put("time", time);
+        map.put("buyerId", userId);
+        map.put("platform", 1);
+        map.put("token", Utils.md5("TCfghFGH123!@#" + time + userId));
         String param = JSON.toJSONString(map);
         MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSONType, param);
         HttpClient.getInstance().post("/tcbuyer/task/getTaskHallList", mPlatform.getHost())
                 .upRequestBody(body)
-                .headers("Content-Type","application/json")
-                .headers("Cookie","JSESSIONID="+token)
+                .headers("Content-Type", "application/json")
+                .headers("Cookie", "JSESSIONID=" + token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        JSONArray array = jsonObject.getJSONArray("taskList");
-                        if (array.size()>0){
-                            sendLog("检测到任务领取中...");
-                            for(int i = 0, len = array.size(); i < len; i++){
-                                JSONObject object = array.getJSONObject(i);
-                                if(object.getDouble("principal") <= mParams.getMaxPrincipal()){
-                                    sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("principal"), object.getString("commission")));
-                                    lqTask(object.getString("subtaskId"));
-                                }else{
-                                    sendLog("不符合本金条件过滤掉。。");
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            JSONArray array = jsonObject.getJSONArray("taskList");
+                            if (array.size() > 0) {
+                                sendLog("检测到任务领取中...");
+                                for (int i = 0, len = array.size(); i < len; i++) {
+                                    JSONObject object = array.getJSONObject(i);
+                                    if (object.getDouble("principal") <= mParams.getMaxPrincipal()) {
+                                        sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("principal"), object.getString("commission")));
+                                        lqTask(object.getString("subtaskId"));
+                                    } else {
+                                        sendLog("不符合本金条件过滤掉。。");
+                                    }
                                 }
+                            } else {
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }
-                        }else{
-                            sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -192,7 +206,7 @@ public class FCSAction extends BaseAction {
                     @Override
                     public void onFinish() {
                         super.onFinish();
-                        if(isStart){
+                        if (isStart) {
                             //取最小频率和最大频率直接的随机数值作为刷单间隔
                             int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
                             mHandler.postDelayed(new Runnable() {
@@ -208,45 +222,49 @@ public class FCSAction extends BaseAction {
 
     /**
      * 领取任务
-     * @param taskId  任务id
+     *
+     * @param taskId 任务id
      */
-    private void lqTask(String taskId){
+    private void lqTask(String taskId) {
         Map map = new HashMap();
-        map.put("deviceType",2);
-        map.put("accountId",mParams.getBuyerNum().getId());
-        map.put("subtaskId",taskId);
-        map.put("buyerId",userId);
-        map.put("platform",1);
+        map.put("deviceType", 2);
+        map.put("accountId", mParams.getBuyerNum().getId());
+        map.put("subtaskId", taskId);
+        map.put("buyerId", userId);
+        map.put("platform", 1);
         String param = JSON.toJSONString(map);
         MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(JSONType, param);
         HttpClient.getInstance().post("/tcbuyer/task/receiptTask", mPlatform.getHost())
                 .upRequestBody(body)
-                .headers("Content-Type","application/json")
-                .headers("Cookie","JSESSIONID="+token)
+                .headers("Content-Type", "application/json")
+                .headers("Cookie", "JSESSIONID=" + token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if("领取成功".equals(jsonObject.getString("message"))){    //接单成功
-                            sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.facaishu, 3000);
-                            addTask(mPlatform.getName());
-                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                            isStart = false;
-                        }else{
-                            sendLog(jsonObject.getString("message"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if ("领取成功".equals(jsonObject.getString("message"))) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.facaishu, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog(jsonObject.getString("message"));
+                            }
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });
     }
 
 
-
     @Override
     public void stop() {
-        if(!isStart) return;   //如果当前状态是未开始，则不做任何操作
+        if (!isStart) return;   //如果当前状态是未开始，则不做任何操作
         super.stop();
         isStart = false;
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，

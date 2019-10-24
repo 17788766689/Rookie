@@ -47,7 +47,7 @@ public class ZFZAction extends BaseAction {
 
     @Override
     public void start(Platform platform) {
-        if(platform == null) return;
+        if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
 
@@ -55,7 +55,7 @@ public class ZFZAction extends BaseAction {
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
-        if(!isStart){    //未开始抢单
+        if (!isStart) {    //未开始抢单
             cookie = "";
             isStart = true;
             mHandler = new Handler();
@@ -68,31 +68,36 @@ public class ZFZAction extends BaseAction {
     /**
      * 登录
      */
-    private void login(){
+    private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/iop/register/loginActApp", mPlatform.getHost())
                 .params("moblie", mParams.getAccount())
                 .params("password", mParams.getPassword())
-                .params("deviceid",Utils.md5(Build.DEVICE+Build.SERIAL))
-                .params("devicename",Build.BRAND+" "+Build.MODEL+" Android "+Build.VERSION.RELEASE+" SDK "+Build.VERSION.SDK_INT)
-                .headers("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .params("deviceid", Utils.md5(Build.DEVICE + Build.SERIAL))
+                .params("devicename", Build.BRAND + " " + Build.MODEL + " Android " + Build.VERSION.RELEASE + " SDK " + Build.VERSION.SDK_INT)
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if("登录成功".equals(jsonObject.getString("msg"))){    //登录成功
-                            List<String> cookies=response.headers().values("Set-Cookie");
-                            for (String str : cookies){
-                                cookie+=str.substring(0,str.indexOf(";"))+";";
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                                }
+                                sendLog("登录成功！");
+                                updateParams(mPlatform);
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else {
+                                MyToast.error(jsonObject.getString("msg"));
+                                stop();
                             }
-                            sendLog("登录成功！");
-                            updateParams(mPlatform);
-                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                            updateStatus(mPlatform, 3); //正在接单的状态
-                            startTask();
-                        }else{
-                            MyToast.error(jsonObject.getString("msg"));
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
                         }
                     }
@@ -102,21 +107,25 @@ public class ZFZAction extends BaseAction {
     /**
      * 开始任务
      */
-    private void startTask(){
+    private void startTask() {
         HttpClient.getInstance().get("/iop/index/index.html", mPlatform.getHost())
-                .headers("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie",cookie)
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        Document doc = Jsoup.parse(response.body());
-                        Elements tbData = doc.select(".jin-sha-dan").select("a");
-                        if (tbData.size() > 0){
-                            sendLog("检测到任务领取中...");
-                            getTask(tbData.get(0).attr("href"));
-                        }else{
-                            sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            Document doc = Jsoup.parse(response.body());
+                            Elements tbData = doc.select(".jin-sha-dan").select("a");
+                            if (tbData.size() > 0) {
+                                sendLog("检测到任务领取中...");
+                                getTask(tbData.get(0).attr("href"));
+                            } else {
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            }
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -129,7 +138,7 @@ public class ZFZAction extends BaseAction {
                     @Override
                     public void onFinish() {
                         super.onFinish();
-                        if(isStart){
+                        if (isStart) {
                             //取最小频率和最大频率直接的随机数值作为刷单间隔
                             int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
                             mHandler.postDelayed(new Runnable() {
@@ -146,55 +155,63 @@ public class ZFZAction extends BaseAction {
     /**
      * 获取token
      */
-    private void getTask(String url){
+    private void getTask(String url) {
         String[] str = url.split("=");
-        HttpClient.getInstance().get("/iop/index/attention.html?task_key_id="+str[1], mPlatform.getHost())
-                .headers("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie",cookie)
+        HttpClient.getInstance().get("/iop/index/attention.html?task_key_id=" + str[1], mPlatform.getHost())
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        Document doc = Jsoup.parse(response.body());
-                        Elements taskToken = doc.select("input[name=token]");
-                        lqTask(taskToken.val(),str[1]);
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            Document doc = Jsoup.parse(response.body());
+                            Elements taskToken = doc.select("input[name=token]");
+                            lqTask(taskToken.val(), str[1]);
+                        } catch (Exception e) {
+                            sendLog("获取任务信息异常！");
+                        }
                     }
                 });
     }
 
     /**
      * 领取任务
-     * @param taskId  任务id
+     *
+     * @param taskId 任务id
      */
-    private void lqTask(String token,String taskId){
+    private void lqTask(String token, String taskId) {
         HttpClient.getInstance().post("/iop/order/orderDown", mPlatform.getHost())
-                .params("task_key_id",taskId)
-                .params("access_token",token)
-                .headers("User-Agent","Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie",cookie)
+                .params("task_key_id", taskId)
+                .params("access_token", token)
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if(jsonObject.getIntValue("status") == 1){    //接单成功
-                            sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
-                            addTask(mPlatform.getName());
-                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                            isStart = false;
-                        }else{
-                            sendLog(jsonObject.getString("msg"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getIntValue("status") == 1) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog(jsonObject.getString("msg"));
+                            }
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });
     }
 
 
-
     @Override
     public void stop() {
-        if(!isStart) return;   //如果当前状态是未开始，则不做任何操作
+        if (!isStart) return;   //如果当前状态是未开始，则不做任何操作
         super.stop();
         isStart = false;
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，

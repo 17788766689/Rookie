@@ -126,6 +126,19 @@ public class HttpUtil {
                 .execute(callback);
     }
 
+    /**
+     * 检查更新
+     * @param callback
+     */
+    public static void message(StringCallback callback) {
+        if(!isNetworkAvailable() || available(MyApp.getContext())){
+            MyToast.error(MyApp.getContext().getString(R.string.network_unavailable));
+            return;
+        }
+        HttpClient.getInstance().get(Const.MESSAGE_URL, null)
+                .execute(callback);
+    }
+
 
     /*
     * 判断设备 是否使用代理上网，方法名称叫available是为了防止别人分析出有代理检测

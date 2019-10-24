@@ -8,6 +8,7 @@ import com.cainiao.action.HLGAction;
 import com.cainiao.action.LHMAction;
 import com.cainiao.action.MFWAction;
 import com.cainiao.action.MGDDAction;
+import com.cainiao.action.NMPAction;
 import com.cainiao.action.RRLTAction;
 import com.cainiao.action.TMYAction;
 import com.cainiao.action.TQDAction;
@@ -107,7 +108,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.danzhuan, "单赚", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.dingdangmao, "叮当猫", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            //第六行
-            mList.add(new Platform(new Params(1000,1500),R.mipmap.facaishu, "发财树", "com.wangzai.wealth", "http://122.112.163.12:8080", "", "", 0, Const.TLSHE, 0, 2, new FCSAction()));
+            mList.add(new Platform(new Params(2000,3000),R.mipmap.facaishu, "发财树", "com.wangzai.wealth", "http://122.112.163.12:8080", "", "", 0, Const.TLSHE, 0, 2, new FCSAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.guli, "谷粒", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 6, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.gebiwangshushu, "隔壁王叔叔", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.gongxiangke, "共享客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
@@ -142,7 +143,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.maijiale, "麦家乐", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.niurouxuetan, "牛肉学堂", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 10, null));
 //            //第十三行
-            mList.add(new Platform(new Params(2000,4000),R.mipmap.ningmengpai, "柠檬派", "com.ningmengpai", "http://nmp.wifan.cn", "", "http://nmp.wifan.cn/login?returnUrl=/", 0, Const.TLSHE, 1, 3, null));
+            mList.add(new Platform(new Params(10000,12000),R.mipmap.ningmengpai, "柠檬派", "com.ningmengpai", "http://nmp.wifan.cn", "", "http://nmp.wifan.cn/login?returnUrl=/", 0, Const.TLSHE, 1, 3, new NMPAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.niuyouguo, "牛油果", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.pinjinbi, "拼金币", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.qingningmeng, "青柠檬", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
@@ -216,8 +217,8 @@ public class Platforms {
 //
 //            /******************************************   打款平台   **************************************************/
 //            //第一行
-//            mList.add(new Platform(new Params(0,0),R.mipmap.duoduohuayuan, "多多花苑", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 20, null));
-            mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new FSDMAction()));
+              //mList.add(new Platform(new Params(3000,4000),R.mipmap.duoduohuayuan, "多多花苑", "com.platform8", "http://wx.xdhfnch.cn", "", "", 1, Const.TLSHE, 0, 20, null));
+              mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new FSDMAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.jiuxingkeji, "九鑫科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.hongchangkeji, "鸿昌科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            //第二行

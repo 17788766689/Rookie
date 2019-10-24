@@ -39,7 +39,7 @@ public class TQDAction extends BaseAction {
 
     @Override
     public void start(Platform platform) {
-        if(platform == null) return;
+        if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
 
@@ -47,7 +47,7 @@ public class TQDAction extends BaseAction {
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
-        if(!isStart){    //未开始抢单
+        if (!isStart) {    //未开始抢单
             count = 0;
             isStart = true;
             mHandler = new Handler();
@@ -60,7 +60,7 @@ public class TQDAction extends BaseAction {
     /**
      * 登录
      */
-    private void login(){
+    private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
@@ -69,15 +69,20 @@ public class TQDAction extends BaseAction {
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        sendLog(jsonObject.getString("message"));
-                        if(jsonObject.getIntValue("code") == 1){    //登录成功
-                            updateParams(mPlatform);
-                            token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
-                            getAccount();
-                        }else{
-                            MyToast.error(jsonObject.getString("message"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("message"));
+                            if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                                updateParams(mPlatform);
+                                token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                                getAccount();
+                            } else {
+                                MyToast.error(jsonObject.getString("message"));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
                         }
                     }
@@ -87,38 +92,43 @@ public class TQDAction extends BaseAction {
     /**
      * 获取买号
      */
-    private void getAccount(){
+    private void getAccount() {
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/index/get_taobao_info", mPlatform.getHost())
                 .params("type", "1")
                 .params("page", "1")
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua"+Utils.md5("page=1&type=1")+n))
-                .params("time",n)
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=1") + n))
+                .params("time", n)
                 .headers("Authorization", token)
-                .headers("Content-Type","application/json")
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
 
-                        JSONArray array = jsonObject.getJSONObject("data").getJSONArray("info");
-                        if(array.size() > 0){    //获取买号成功
-                            JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                            mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("name")));
-                            List<BuyerNum> list = new ArrayList<>();
-                            for(int i = 0, len = array.size(); i < len; i++){
-                                obj = array.getJSONObject(i);
-                                list.add(new BuyerNum(obj.getString("id"), obj.getString("name")));
+                            JSONArray array = jsonObject.getJSONObject("data").getJSONArray("info");
+                            if (array.size() > 0) {    //获取买号成功
+                                JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
+                                mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("name")));
+                                List<BuyerNum> list = new ArrayList<>();
+                                for (int i = 0, len = array.size(); i < len; i++) {
+                                    obj = array.getJSONObject(i);
+                                    list.add(new BuyerNum(obj.getString("id"), obj.getString("name")));
+                                }
+                                showBuyerNum(JSON.toJSONString(list));
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else { //无可用的买号
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                stop();
                             }
-                            showBuyerNum(JSON.toJSONString(list));
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                            updateStatus(mPlatform, 3); //正在接单的状态
-                            startTask();
-                        }else { //无可用的买号
-                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                        } catch (Exception e) {
+                            sendLog("获取买号异常！");
                             stop();
                         }
                     }
@@ -128,30 +138,34 @@ public class TQDAction extends BaseAction {
     /**
      * 开始任务
      */
-    private void startTask(){
+    private void startTask() {
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/assign/get_all_assigns", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("page", "1")
                 .params("type", mParams.getType())
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua"+Utils.md5("page=1&type="+mParams.getType())+n))
-                .params("time",n)
-                .headers("Content-Type","application/json")
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=" + mParams.getType()) + n))
+                .params("time", n)
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
-                        for(int i = 0, len = array.size(); i < len; i++){
-                            JSONObject object = array.getJSONObject(i);
-                            if(object.getIntValue("publish_status") == 0
-                                    && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
-                                    && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()){    //本金金额小于最大本金
-                                sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
-                                lqTask(object.getString("id"));
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
+                            for (int i = 0, len = array.size(); i < len; i++) {
+                                JSONObject object = array.getJSONObject(i);
+                                if (object.getIntValue("publish_status") == 0
+                                        && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
+                                        && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
+                                    sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
+                                    lqTask(object.getString("id"));
+                                }
                             }
+                            sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
                         }
-                        sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                     }
 
                     @Override
@@ -163,7 +177,7 @@ public class TQDAction extends BaseAction {
                     @Override
                     public void onFinish() {
                         super.onFinish();
-                        if(isStart){
+                        if (isStart) {
                             //取最小频率和最大频率直接的随机数值作为刷单间隔
                             int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
                             mHandler.postDelayed(new Runnable() {
@@ -179,43 +193,47 @@ public class TQDAction extends BaseAction {
 
     /**
      * 领取任务
-     * @param taskId  任务id
+     *
+     * @param taskId 任务id
      */
-    private void lqTask(String taskId){
+    private void lqTask(String taskId) {
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/assign/accept_work", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("id", taskId)
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua"+Utils.md5("id="+taskId)+n))
-                .params("time",n)
-                .headers("Content-Type","application/json")
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n))
+                .params("time", n)
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
 
                     @Override
                     public void onSuccess(Response<String> response) {
-                        if(TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        if(jsonObject.getIntValue("code") == 1){    //接单成功
-                            sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                            if (count == 0){
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.taoqiangdan, 3000);
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getIntValue("code") == 1) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                if (count == 0) {
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.taoqiangdan, 3000);
+                                }
+                                count++;
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog(jsonObject.getString("message"));
                             }
-                            count++;
-                            addTask(mPlatform.getName());
-                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                            isStart = false;
-                        }else{
-                            sendLog(jsonObject.getString("message"));
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });
     }
 
 
-
     @Override
     public void stop() {
-        if(!isStart) return;   //如果当前状态是未开始，则不做任何操作
+        if (!isStart) return;   //如果当前状态是未开始，则不做任何操作
         super.stop();
         isStart = false;
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，

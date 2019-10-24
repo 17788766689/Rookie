@@ -18,20 +18,24 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-public class TMYAction extends BaseAction {
+public class NMPAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
-    private String token = "";
-    private String userId = "";
+
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
     private int count = 0;
+    private String cookie;
 
     @Override
     public void start(Platform platform) {
@@ -58,25 +62,21 @@ public class TMYAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/Login/LoginByMobile", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
-                .params("password", mParams.getPassword())
-                .params("client_id", "BF7817FD2E8651B6FC4C102F607EA1CD")
-                .params("client_secret", "AFB5D053C0D6EE9E9B2796333AB2EAC8")
+        HttpClient.getInstance().post("/Login/Login", mPlatform.getHost())
+                .params("UserName", mParams.getAccount())
+                .params("Password", mParams.getPassword())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("msg"));
-                            if (jsonObject.getIntValue("errcode") == 0) {    //登录成功
+                            if (jsonObject.getString("Success").equals("true")) {    //登录成功
                                 updateParams(mPlatform);
-                                token = jsonObject.getJSONObject("obj").getString("Token");
-                                userId = jsonObject.getJSONObject("obj").getString("UserId");
+                                cookie = response.headers().get("Set-Cookie").toString();
                                 getAccount();
                             } else {
-                                MyToast.error(jsonObject.getString("msg"));
+                                MyToast.error(jsonObject.getString("Message"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -92,27 +92,22 @@ public class TMYAction extends BaseAction {
      */
     private void getAccount() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Member/GetBindPlatformAccountList", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("PlatId", 1)
-                .headers("Authorization", token)
+        HttpClient.getInstance().post("/ReceiptTask", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-//                        LogUtil.e("response: " + response.body());
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray array = jsonObject.getJSONArray("obj");
-                            if (array.size() > 0) {    //获取买号成功
-                                JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                            Document doc = Jsoup.parse(response.body());
+                            Elements tbData = doc.select(".accountlist").select(".cell-item");
+
+                            if (tbData.size() > 0) {    //获取买号成功
+                                mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
                                 List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = array.size(); i < len; i++) {
-                                    obj = array.getJSONObject(i);
-                                    list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                for (int i = 0, len = tbData.size(); i < len; i++) {
+                                    list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
@@ -135,43 +130,25 @@ public class TMYAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        System.out.println(mParams.getType());
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("TaskType", mParams.getType())
-                .params("Page", 1)
-                .params("PageSize", 12)
-                .params("PlatId", 1)
-                .params("MaxAdvancePayMoney", 5000)
-                .params("AccountId", mParams.getBuyerNum().getId())
-                .headers("Content-Type", "application/json")
+        HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
+                .params("id", mParams.getBuyerNum().getId())
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject obj = JSONObject.parseObject(response.body());
-                            if (null != obj.getString("msg") && !("".equals(obj.getString("msg")))) {
-                                sendLog(obj.getString("msg") + "a");
+                            JSONObject array = JSONObject.parseObject(response.body());
+                            if (array.getBooleanValue("Success")) {
+                                sendLog("检测到任务领取中...");
+                                lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
                             } else {
-                                JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
-                                if (null != array && array.size() != 0) {
-                                    for (int i = 0, len = array.size(); i < len; i++) {
-                                        JSONObject object = array.getJSONObject(i);
-                                        sendLog("检测到任务领取中...");
-                                        lqTask(object.getString("TaskListNo"));
-                                    }
-                                } else {
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
-                                }
+                                sendLog(array.getString("Message"));  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
                         }
                     }
-
 
                     @Override
                     public void onError(Response<String> response) {
@@ -202,31 +179,24 @@ public class TMYAction extends BaseAction {
      * @param taskId 任务id
      */
     private void lqTask(String taskId) {
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("AccountId", mParams.getBuyerNum().getId())
-                .params("TaskListNo", taskId)
-                .headers("Content-Type", "application/json")
+        HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
+                .params("id", mParams.getBuyerNum().getId())
+                .params("orderId", taskId)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
-
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("errcode") == 0 && "接单成功".equals(jsonObject.getString("msg"))) {    //接单成功
+                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.tiemayi, 3000);
-                                }
-                                count++;
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhaocaimao, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {
-                                sendLog(jsonObject.getString("msg"));
+                                sendLog(jsonObject.getString("Message"));
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");
