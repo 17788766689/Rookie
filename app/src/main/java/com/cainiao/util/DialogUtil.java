@@ -174,9 +174,12 @@ public class DialogUtil {
         TextView tvContent = view.findViewById(R.id.tv_content);
         TextView tvClose = view.findViewById(R.id.tv_close);
         tvContent.setText(Html.fromHtml(msg));
-        tvClose.setOnClickListener(view1 -> {
-            noticeDialog.cancel();
-            noticeDialog = null;
+        tvClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                noticeDialog.cancel();
+                noticeDialog = null;
+            }
         });
         noticeDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(false).create();
         noticeDialog.show();
