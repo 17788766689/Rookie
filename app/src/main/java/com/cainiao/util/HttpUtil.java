@@ -33,7 +33,13 @@ public class HttpUtil {
             MyToast.error(MyApp.getContext().getString(R.string.network_unavailable));
             return;
         }
+        String re = "";
+        if (url.indexOf("api.ch5s.cn:14141") != -1){
+            re = "https://wx.ch5s.cn/workerLogin";
+        }
         HttpClient.getInstance().get("", url)
+                .headers("Referer",re)
+                .headers("Sec-Fetch-Mode","no-cors")
                 .execute(callback);
     }
 

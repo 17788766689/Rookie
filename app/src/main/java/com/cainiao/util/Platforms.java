@@ -6,6 +6,7 @@ import com.cainiao.action.DDHYAction;
 import com.cainiao.action.FCSAction;
 import com.cainiao.action.FSDMAction;
 import com.cainiao.action.HLGAction;
+import com.cainiao.action.JXLYAction;
 import com.cainiao.action.LHMAction;
 import com.cainiao.action.MFWAction;
 import com.cainiao.action.MGDDAction;
@@ -221,9 +222,8 @@ public class Platforms {
               mList.add(new Platform(new Params(2500,4000),R.mipmap.duoduohuayuan, "多多花苑", "com.duoduohuayuan", "http://api.xdhfnch.cn:18082", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new DDHYAction()));
               mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.fsdmff.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new FSDMAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.jiuxingkeji, "九鑫科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.hongchangkeji, "鸿昌科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
-//            //第二行
-//            mList.add(new Platform(new Params(0,0),R.mipmap.jinxiuleyuan, "锦绣乐园", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 13, null));
+//            mList.add(new Platform(new Params(0,0),R.mipmap.hongchangkeji, "鸿昌科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));//            //第二行
+            mList.add(new Platform(new Params(2500,4000),R.mipmap.jinxiuleyuan, "锦绣乐园", "com.jinxiuleyuan", "https://api.ch5s.cn:14141", "", "https://wx.ch5s.cn/workerLogin", 1, Const.TLSHE, 1, 13, new JXLYAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.ningmengshu, "柠檬树", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.maomaomi, "猫猫咪打款", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 1, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.qiutianleyuan, "秋天乐园", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 13, null));
