@@ -2,6 +2,7 @@ package com.cainiao.util;
 
 import com.cainiao.R;
 import com.cainiao.action.AMAction;
+import com.cainiao.action.DDHYAction;
 import com.cainiao.action.FCSAction;
 import com.cainiao.action.FSDMAction;
 import com.cainiao.action.HLGAction;
@@ -217,8 +218,8 @@ public class Platforms {
 //
 //            /******************************************   打款平台   **************************************************/
 //            //第一行
-              //mList.add(new Platform(new Params(3000,4000),R.mipmap.duoduohuayuan, "多多花苑", "com.platform8", "http://wx.xdhfnch.cn", "", "", 1, Const.TLSHE, 0, 20, null));
-              mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new FSDMAction()));
+              mList.add(new Platform(new Params(2500,4000),R.mipmap.duoduohuayuan, "多多花苑", "com.duoduohuayuan", "http://api.xdhfnch.cn:18082", "", "http://wx.xdhfnch.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new DDHYAction()));
+              mList.add(new Platform(new Params(3000,4000),R.mipmap.fongshoudamai, "丰收大麦", "com.fongshoudamai", "http://api.fsdmff.cn", "", "http://wx.fsdmff.cn:8081/workerLogin", 1, Const.TLSHE, 1, 20, new FSDMAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.jiuxingkeji, "九鑫科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.hongchangkeji, "鸿昌科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            //第二行
