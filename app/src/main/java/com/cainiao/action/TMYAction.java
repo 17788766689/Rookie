@@ -147,6 +147,7 @@ public class TMYAction extends BaseAction {
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountId", mParams.getBuyerNum().getId())
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -159,9 +160,10 @@ public class TMYAction extends BaseAction {
                                 JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
                                 if (null != array && array.size() != 0) {
                                     for (int i = 0, len = array.size(); i < len; i++) {
-                                        JSONObject object = array.getJSONObject(i);
+                                        JSONObject object = array.getJSONObject(0);
                                         sendLog("检测到任务领取中...");
                                         lqTask(object.getString("TaskListNo"));
+                                        break;
                                     }
                                 } else {
                                     sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务

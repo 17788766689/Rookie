@@ -1,5 +1,6 @@
 package com.cainiao.service;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -12,6 +13,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 
@@ -22,6 +24,7 @@ import com.cainiao.bean.Platform;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.NotifyUtil;
 
+
 /**
  * 防止后台杀死进程服务
  * Created by 123 on 2019/9/23.
@@ -30,6 +33,8 @@ import com.cainiao.util.NotifyUtil;
 public class KeepAliveService extends Service{
     private MediaPlayer mMediaPlayer;
     private AudioManager mAudioManager;
+    private PowerManager.WakeLock wakelock;
+
 
 
 
@@ -39,7 +44,7 @@ public class KeepAliveService extends Service{
         return null;
     }
 
-
+    @SuppressLint("InvalidWakeLockTag")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Notification notification = NotifyUtil.getNotification(this, getString(R.string.app_name) + "正在运行", "点击返回" + getString(R.string.app_name), "101", "cainiao101");
@@ -49,6 +54,11 @@ public class KeepAliveService extends Service{
         mMediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.silent);
         mMediaPlayer.setLooping(true);
         startPlayMusic();
+        if(wakelock == null){
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            wakelock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CaiNiaoWakelockTag");
+            wakelock.acquire();
+        }
         return START_STICKY;
     }
 
@@ -93,5 +103,9 @@ public class KeepAliveService extends Service{
     public void onDestroy() {
         super.onDestroy();
         stopPlayMusic();
+        if(wakelock != null){
+            wakelock.release();
+            wakelock = null;
+        }
     }
 }

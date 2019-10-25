@@ -95,7 +95,9 @@ public class MineFragment extends BaseFragment {
                 AppUtil.openUrlInOuter(Const.OUTER_DOWNLOAD_URL);
                 break;
             case 4:     //问题反馈
-                AppUtil.openUrlInOuter(Const.SERVICE_URI);
+                if(AppUtil.isInstalled("com.tencent.mobileqq")){
+                    AppUtil.openUrlInOuter(Const.SERVICE_URI);
+                }
                 break;
         }
     }
