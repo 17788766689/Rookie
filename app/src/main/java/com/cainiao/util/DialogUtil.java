@@ -2,6 +2,7 @@ package com.cainiao.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,14 +103,15 @@ public class DialogUtil {
     /**
      * 显示提示对话框
      */
-    public void showDoubleBtnAlertDialog(Context context, boolean cancelable, String title, String msg, String negText, String posText, View.OnClickListener negCallback, View.OnClickListener posCallback) {
+    public void showDoubleBtnAlertDialog(Context context, boolean cancelable, String title, String msg, String negText, String posText, View.OnClickListener negCallback, View.OnClickListener posCallback,DialogInterface.OnCancelListener nullCallback) {
         if (alertDialog == null) {
             alertDialog = new AlertDialog(context).builder();
             alertDialog.setTitle(title)
                     .setMsg(msg.replace("\\n", "\n"))
                     .setCancelable(cancelable)
                     .setPositiveButton(posText, posCallback)
-                    .setNegativeButton(negText, negCallback);
+                    .setNegativeButton(negText, negCallback)
+                    .setCancelListener(nullCallback);
             alertDialog.show();
         } else {
             alertDialog.setMsg(msg.replace("\\n", "\n"));
@@ -188,4 +190,5 @@ public class DialogUtil {
     public void setDownloadProgress(int progress) {
         if (loadDialog != null) loadDialog.setProgress(progress);
     }
+
 }

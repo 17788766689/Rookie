@@ -2,6 +2,8 @@ package com.cainiao.view;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +17,13 @@ import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
+import com.cainiao.activity.MainActivity;
 import com.cainiao.util.DialogUtil;
+import com.cainiao.util.HttpUtil;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 
 public class AlertDialog {
@@ -176,5 +183,11 @@ public class AlertDialog {
 	public void dismiss(){
 		if(dialog != null && dialog.isShowing())
 			dialog.dismiss();
+	}
+
+	public void setCancelListener(DialogInterface.OnCancelListener listener) {
+		if (dialog == null || listener == null)return;
+		dialog.setOnCancelListener(listener);
+
 	}
 }

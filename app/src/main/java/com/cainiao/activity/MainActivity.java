@@ -1,6 +1,7 @@
 package com.cainiao.activity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.text.TextUtils;
@@ -167,6 +168,8 @@ public class MainActivity extends BaseActivity {
         index();
     }
 
+
+
     /**
      * 检查更新
      */
@@ -207,6 +210,18 @@ public class MainActivity extends BaseActivity {
                             public void onClick(View view) {    //在线更新
                                 DialogUtil.get().closeAlertDialog();
                                 update(jsonObject.getString("url"), cancelable);
+                            }
+                        },new DialogInterface.OnCancelListener(){
+                            @Override
+                            public void onCancel(DialogInterface dialogInterface) {
+                                HttpUtil.message( new StringCallback() {
+                                    @Override
+                                    public void onSuccess(Response<String> response) {
+                                        if(TextUtils.isEmpty(response.body())) return;
+                                        JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                        DialogUtil.get().showNoticeDialog(MainActivity.this,jsonObject.getString("msg"));
+                                    }
+                                });
                             }
                         });
             }

@@ -143,7 +143,7 @@ public class NMPAction extends BaseAction {
                                 sendLog("检测到任务领取中...");
                                 lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
                             } else {
-                                sendLog(array.getString("Message"));  //继续检测任务
+                                sendLog("继续检测任务");  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");

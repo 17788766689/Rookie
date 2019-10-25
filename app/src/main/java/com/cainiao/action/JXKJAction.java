@@ -4,32 +4,19 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
 import com.cainiao.base.MyApp;
-import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
-import com.google.gson.JsonObject;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -37,9 +24,9 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * 天玺乐园
+ * 九鑫科技
  */
-public class TXLYAction extends BaseAction {
+public class JXKJAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String token = "";
