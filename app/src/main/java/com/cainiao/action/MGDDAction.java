@@ -22,8 +22,13 @@ import com.lzy.okgo.model.Response;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 /**
  * 芒果叮咚
@@ -147,7 +152,7 @@ public class MGDDAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/get_all_assigns", mPlatform.getHost())
+        HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("page", "1")
                 .params("type", mParams.getType())
@@ -205,14 +210,18 @@ public class MGDDAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         long n = new Date().getTime();
+        Map map = new HashMap();
+        map.put("id", taskId);
+        map.put("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n));
+        map.put("time", n);
+        String param = JSON.toJSONString(map);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, param);
         HttpClient.getInstance().post("/api/assign/accept_work", mPlatform.getHost())
+                .upRequestBody(body)
                 .headers("Authorization", token)
-                .params("id", taskId)
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n))
-                .params("time", n)
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
-
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
