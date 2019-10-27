@@ -23,6 +23,7 @@ import com.cainiao.action.TSKJAction;
 import com.cainiao.action.TXLYAction;
 import com.cainiao.action.WTKJAction;
 import com.cainiao.action.WWDAction;
+import com.cainiao.action.XJLAction;
 import com.cainiao.action.XMCAction;
 import com.cainiao.action.ZCMAction;
 import com.cainiao.action.ZFZAction;
@@ -184,7 +185,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaobaixiang, "小白象", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            //第十九行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaomogu, "小蘑菇", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 6, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.xiaojinli, "小锦鲤", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
+            mList.add(new Platform(new Params(2000,3000),R.mipmap.xiaojinli, "小锦鲤", "com.xiaojinli", "http://118.25.168.82", "", "http://118.25.168.82/auth/goLoginPage", 0, Const.TLSHE, 1, 3, new XJLAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaozhushou, "小助手", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaomifengtuiguan, "小蜜蜂推广", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第二十行
