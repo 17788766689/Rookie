@@ -171,7 +171,7 @@ public class MGDDAction extends BaseAction {
                             }
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                         } catch (Exception e) {
-                            MyToast.error("检测任务异常");
+                            sendLog("检测任务异常");
                         }
                     }
 
@@ -231,7 +231,7 @@ public class MGDDAction extends BaseAction {
                                 sendLog(jsonObject.getString("message"));
                             }
                         } catch (Exception e) {
-                            MyToast.error("领取任务异常");
+                            sendLog("领取任务异常");
                         }
                     }
                 });

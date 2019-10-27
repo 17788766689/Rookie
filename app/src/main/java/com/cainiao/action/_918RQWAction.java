@@ -222,6 +222,7 @@ public class _918RQWAction extends BaseAction {
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
+                                stop();
                             } else {
                                 sendLog(jsonObject.getString("message"));
                             }

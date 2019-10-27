@@ -93,13 +93,13 @@ public class Platforms {
             mList = new ArrayList<>();
             /******************************************   抢单平台   **************************************************/
             //第一行
-            mList.add(new Platform(new Params(2000,3000),R.mipmap.tiemayi, "铁蚂蚁", "com.p3066672015.rpm", "https://api.damingduo.cn", "", "http://www.3318pk.com/invite/register.html?rCode=60645053",0, Const.BLSA, 2, 1, new TMYAction()));
+            mList.add(new Platform(new Params(12000,15000),R.mipmap.tiemayi, "铁蚂蚁", "com.p3066672015.rpm", "https://api.damingduo.cn", "", "http://www.3318pk.com/invite/register.html?rCode=60645053",0, Const.BLSA, 2, 1, new TMYAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://app.biaoqiandan.com", "https://fir.im/tbrp", "",0, Const.TLSHE, 0, 0, new HLGAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://www.51qiangdanwang.com", "https://fir.im/l5y2", "",0, Const.TLSHE, 0, 0, new TQDAction()));
             mList.add(new Platform(new Params(3000,5000),R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "http://www.91xiaomangguo.com", "https://fir.im/r7na", "",  0, Const.TLSHE, 0, 0, new MGDDAction()));
             //第二行
             mList.add(new Platform(new Params(3000,5000),R.mipmap._918renqiwang, "918人气王", "io.dcloud.UNIE9BC8DE", "http://www.918dainizhuan.com", "https://fir.im/regy", "",0, Const.TLSHE, 0, 0, new _918RQWAction()));
-//            mList.add(new Platform(new Params(0,0),R.mipmap._51renqiwang, "51人气王", "com.platform4", "", "", "",0, Const.TLSHE, 0, 2, null));
+//          mList.add(new Platform(new Params(0,0),R.mipmap._51renqiwang, "51人气王", "com.platform4", "", "", "",0, Const.TLSHE, 0, 2, null));
             mList.add(new Platform(new Params(4000,5000),R.mipmap._51mangguopai, "51芒果派", "com._51mangguopai", "http://madou.fl1m.cn", "", "http://madou.fl1m.cn/login?returnUrl=/",0, Const.BJSHA, 1, 3, new _51MGPAction()));
             //mList.add(new Platform(new Params(0,0),R.mipmap._51zhuanqian, "51赚钱", "com.platform6", "", "", "",0, Const.TLSHE, 0, 4, null));
 //            //第三行
@@ -134,7 +134,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.kuaidan, "快单", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 11, null));
 //            //第九行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.kuaike, "快客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 12, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.kaixinguo, "开心果", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 2, null));
+              mList.add(new Platform(new Params(8000,10000),R.mipmap.kaixinguo, "开心果", "com.koudaizhuan.ycha", "http://118.89.131.202", "http://www.cainiaoqd.com", "", 0, Const.TLSHE, 0, 2, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.leduoduo, "乐多多", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 13, null));
              mList.add(new Platform(new Params(500,800),R.mipmap.linghuomai, "灵活买", "com.linghuomai.app", "http://www.linghuomai.com", "https://fir.im/hxkv", "", 0, Const.BJSHA, 0, 3, new LHMAction()));
 //            //第十行
@@ -170,7 +170,7 @@ public class Platforms {
 //            //第十六行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.shengduoduo, "升多多", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.shangke, "尚客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.sifangqian, "私房钱", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 15, null));
+//              mList.add(new Platform(new Params(0,0),R.mipmap.sifangqian, "私房钱", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 15, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.tianshi, "天时", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十七行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.taopaipai, "淘拍拍", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 16, null));
@@ -249,7 +249,7 @@ public class Platforms {
             mList.add(new Platform(new Params(2500,3000),R.mipmap.weitaokeji, "微淘科技", "com.weitaokeji", "http://macworksdc.com:8080", "", "http://macworksdc.com:8080/workerLogin", 1, Const.TLSHE, 0, 7, new WTKJAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaomifengdakuang, "打款小蜜蜂", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 13, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaolanshu, "小蓝书", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
-            mList.add(new Platform(new Params(1800,3000),R.mipmap.zhengfuzhe, "征服者", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
 
 
             initLatestStatus();

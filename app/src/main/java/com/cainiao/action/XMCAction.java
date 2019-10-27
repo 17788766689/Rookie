@@ -24,7 +24,7 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * 鸿昌科技
+ * 小马车
  */
 public class XMCAction extends BaseAction {
     private boolean isStart;
@@ -173,7 +173,7 @@ public class XMCAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if ("success".equals(jsonObject.getString("msg"))) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.tianxileyuan, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaomache, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
