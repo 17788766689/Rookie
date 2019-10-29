@@ -1,8 +1,11 @@
 package com.cainiao.activity;
 
+import android.app.Fragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
@@ -41,9 +44,23 @@ import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 
 public class MainActivity extends BaseActivity {
+
+    class UpdateStatusReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(bottomBar == null) return;
+            List<Fragment> fragments = bottomBar.getFragments();
+            for(Fragment fragment : fragments){
+                if(fragment instanceof HomeFragment || fragment instanceof CommonFragment){ //更新首页和常用的平台的状态
+                    fragment.onResume();
+                }
+            }
+        }
+    }
 
     private BottomBar bottomBar;
     private Intent mServiceIntent;
@@ -51,6 +68,7 @@ public class MainActivity extends BaseActivity {
     private String deviceId;
     private static final int READ_CONTACT_REQUEST_CODE = 201;
     private static final int REQUEST_PERMISSION_SETTING = 202;
+    private UpdateStatusReceiver mReceiver;
 
     /*@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +91,6 @@ public class MainActivity extends BaseActivity {
 
     /**
      * 获取手机IMEI
-     *
      * @return
      */
     @SuppressLint("MissingPermission")
@@ -135,6 +152,9 @@ public class MainActivity extends BaseActivity {
     protected void init() {
         checkPermission();
         initView();
+        mReceiver = new UpdateStatusReceiver();
+        IntentFilter filter = new IntentFilter(Const.STATUS_ACTION);
+        registerReceiver(mReceiver,filter);
     }
 
     /**
@@ -263,6 +283,10 @@ public class MainActivity extends BaseActivity {
         super.onDestroy();
         DialogUtil.get().closeAlertDialog();
         DialogUtil.get().closeLoadDialog();
+        if(mReceiver != null){
+            unregisterReceiver(mReceiver);
+            mReceiver = null;
+        }
     }
 
     @Override

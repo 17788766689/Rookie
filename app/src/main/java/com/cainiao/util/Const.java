@@ -39,9 +39,11 @@ public class Const {
     public static int BLSA;     //永久免费
     public static int AJW_VA;       //正在接单
     public static int KSHG_AW;  //接单成功
+    public static String STATUS_ACTION;
 
 
     private static void init(){
+        STATUS_ACTION = "com.cainiao.status";
         HOST = "http://www.cainiaoqd.com";
         BASE_APP_URL = HOST + "/app/";
         BASE_USER_URL = HOST + "/user/";

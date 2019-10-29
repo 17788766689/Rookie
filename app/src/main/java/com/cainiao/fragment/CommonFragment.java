@@ -71,8 +71,10 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
     @Override
     public void onResume() {
         super.onResume();
-        mList = Platforms.getLatestPlaforms();
-        mAdapter.notifyDataSetChanged();
+        if(null != mAdapter) {
+            mList = Platforms.getLatestPlaforms();
+            mAdapter.notifyDataSetChanged();
+        }
     }
 
     /**
@@ -81,6 +83,9 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
      */
     private void itemClick(int position){
         Platform platform = mList.get(position);
+        if(null == platform){
+            return;
+        }
         if(platform.getStatus() != 0 || MyApp.getLog() >= 1){
             List<Platform> list = Platforms.getPlatforms();
             for(int i = 0, len = list.size(); i < len; i++){   //获取点击进来的平台对应的下标，因为这里是从常用页面点击的
