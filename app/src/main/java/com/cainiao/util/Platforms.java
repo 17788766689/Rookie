@@ -12,6 +12,7 @@ import com.cainiao.action.JXLYAction;
 import com.cainiao.action.LHMAction;
 import com.cainiao.action.MFWAction;
 import com.cainiao.action.MGDDAction;
+import com.cainiao.action.MMMAction;
 import com.cainiao.action.NMPAction;
 import com.cainiao.action.RRLTAction;
 import com.cainiao.action.SMKJAction;
@@ -147,7 +148,7 @@ public class Platforms {
 //            //第十一行
             mList.add(new Platform(new Params(500,800),R.mipmap.mifengwo, "蜜蜂窝", "com.zhizuanling.app", "https://www.991zhizuanling.com", "", "", 0, Const.BJSHA, 0, 3, new MFWAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.maotouying, "猫头鹰", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.miaomiaomiao, "喵喵喵", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
+            mList.add(new Platform(new Params(3200,4500),R.mipmap.miaomiaomiao, "喵喵喵", "com.miaomiaomiao", "http://sdjh.daiyun057.cn", "", "http://sdjh.daiyun057.cn/login?returnUrl=/", 0, Const.TLSHE, 1, 3, new MMMAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.mizhifu, "米之富", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十二行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.mengxiangjia, "梦想家", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 13, null));
