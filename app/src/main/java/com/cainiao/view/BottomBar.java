@@ -309,4 +309,8 @@ public class BottomBar extends View {
             transaction.commit();
         }
     }
+
+    public List<Fragment> getFragments(){
+        return fragmentList;
+    }
 }

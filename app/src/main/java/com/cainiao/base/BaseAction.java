@@ -179,6 +179,10 @@ public class BaseAction implements Serializable {
         Platform p = mList.get(0);
         p.setStatus(status);
         DbUtil.update(p);
+        if(status == Const.AJW_VA || status == Const.KSHG_AW){
+            Intent intent = new Intent(Const.STATUS_ACTION);
+            MyApp.getContext().sendBroadcast(intent);
+        }
     }
 
 }

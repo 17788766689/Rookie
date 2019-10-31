@@ -68,8 +68,11 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
     @Override
     public void onResume() {
         super.onResume();
-        mList = Platforms.getPlatforms();
-        mAdapter.notifyDataSetChanged();
+        if(null != mAdapter){
+            mList = Platforms.getPlatforms();
+            mAdapter.notifyDataSetChanged();
+        }
+
     }
 
     /**
@@ -78,7 +81,9 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
      */
     private void itemClick(int position){
         Platform platform = mList.get(position);
-
+        if(null == platform){
+            return;
+        }
         if(platform.getStatus() != 0 || MyApp.getLog() >= 1){
             Platforms.setCurrPlatform(mList.get(position));
             startActivity(new Intent(getActivity(), ReceiptActivity.class).putExtra("position", position));

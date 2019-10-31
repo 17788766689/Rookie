@@ -14,6 +14,7 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * 开心果
@@ -33,6 +36,10 @@ public class KXGAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
+    private String userId;
+    private String token;
+    private String imei;
+    private JSONArray accountArray;
 
     @Override
     public void start(Platform platform) {
@@ -58,12 +65,9 @@ public class KXGAction extends BaseAction {
      * 登录
      */
     private void login() {
+        imei = Utils.md5(new Date().getTime() + "");
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/Login/LoginByMobile", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
-                .params("password", mParams.getPassword())
-                .params("client_id", "BF7817FD2E8651B6FC4C102F607EA1CD")
-                .params("client_secret", "AFB5D053C0D6EE9E9B2796333AB2EAC8")
+        HttpClient.getInstance().get("/u!login.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&username=" + mParams.getAccount() + "&password=" + Utils.md5(mParams.getPassword()), mPlatform.getHost())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -71,9 +75,10 @@ public class KXGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
-                            if (jsonObject.getIntValue("errcode") == 0) {    //登录成功
+                            if (jsonObject.getIntValue("status") == 0) {    //登录成功
+                                userId = jsonObject.getJSONObject("user").getString("userid");
+                                token = jsonObject.getJSONObject("user").getString("token");
                                 updateParams(mPlatform);
-
                                 getAccount();
                             } else {
                                 MyToast.error(jsonObject.getString("msg"));
@@ -92,8 +97,7 @@ public class KXGAction extends BaseAction {
      */
     private void getAccount() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Member/GetBindPlatformAccountList", mPlatform.getHost())
-                .params("PlatId", 1)
+        HttpClient.getInstance().get("/account!getbindbuyuserlist.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&oid=0", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -102,20 +106,21 @@ public class KXGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray array = jsonObject.getJSONArray("obj");
+                            JSONArray array = jsonObject.getJSONArray("list");
+                            accountArray = array;
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                mParams.setBuyerNum(new BuyerNum("0", obj.getString("tbuser")));
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
-                                    list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                    list.add(new BuyerNum(i + "", obj.getString("tbuser")));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                savesendacc();
                             } else { //无可用的买号
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
                                 stop();
@@ -129,80 +134,110 @@ public class KXGAction extends BaseAction {
     }
 
     /**
-     * 开始任务
+     * 保存配置
      */
-    private void startTask() {
-        System.out.println(mParams.getType());
+    private void savesendacc() {
+
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
-                .params("TaskType", mParams.getType())
-                .params("Page", 1)
-                .params("PageSize", 12)
-                .params("PlatId", 1)
-                .params("MaxAdvancePayMoney", 5000)
-                .params("AccountId", mParams.getBuyerNum().getId())
+        HttpClient.getInstance().get("/account!savesendacc.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&bindid=" + accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id") + "&devicetype=0&paytype=0&backtype=0&specialtype=1&tmallplat=0&price_min=" + mParams.getMinCommission() + "&price_max=1550", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject obj = JSONObject.parseObject(response.body());
-                            if (null != obj.getString("msg") && !("".equals(obj.getString("msg")))) {
-                                sendLog(obj.getString("msg") + "a");
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if ("成功".equals(jsonObject.getString("msg"))) {
+                                sendLog("配置成功,开始接单！");
+                                sendLog("可通过卡本金不接浏览单,设置最小佣金为0时可接浏览单");
+                               testing();
                             } else {
-                                JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
-                                if (null != array && array.size() != 0) {
-                                    for (int i = 0, len = array.size(); i < len; i++) {
-                                        JSONObject object = array.getJSONObject(0);
-                                        sendLog("检测到任务领取中...");
-                                        lqTask(object.getString("TaskListNo"));
-                                        break;
-                                    }
-                                } else {
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
-                                }
+                                sendLog("配置失败！");
+                                stop();
                             }
                         } catch (Exception e) {
-                            sendLog("检测任务异常！");
-                        }
-                    }
-
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        super.onFinish();
-                        if (isStart) {
-                            //取最小频率和最大频率直接的随机数值作为刷单间隔
-                            int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startTask();
-                                }
-                            }, period);
+                            sendLog("配置异常！");
+                            stop();
                         }
                     }
                 });
     }
 
     /**
-     * 领取任务
-     *
-     * @param taskId 任务id
+     * 延时60秒后开始抢单
      */
-    private void lqTask(String taskId) {
+    private void delayed(){
+        Timer timer=new Timer();//实例化Timer类
+        timer.schedule(new TimerTask(){
+            public void run(){
+                deliverTask();}},65000);//五百毫秒
+    }
+
+    /**
+     * 检查是否正在接单状态
+     */
+    private void testing(){
+        HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
+                .headers("Content-Type", "application/json")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+
+                            if ("900".equals(jsonObject.getString("status"))) {
+                                deliverTask();
+                            } else {
+                                startTask();
+                            }
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
+                        }
+                    }
+                });
+    }
+
+
+    /**
+     * 开始派单
+     */
+    private void deliverTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
-                .params("AccountId", mParams.getBuyerNum().getId())
-                .params("TaskListNo", taskId)
+        isStart = true;
+        HttpClient.getInstance().get("/task!trigger.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&clientid=99726ee9f79e9c74633f4c80cb941fc0&bindid_1="+accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id"),mPlatform.getHost())
+                .headers("Content-Type", "application/json")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if ("成功".equals(jsonObject.getString("msg"))) {
+                                //sendLog("请求成功！");
+                                startTask();
+                            } else if("1001".equals(jsonObject.getString("status"))){
+                                sendLog("请求失败！"+jsonObject.getString("msg")+",请在一分钟后再次开始接单,请勿在他处登录");
+                                sendLog("将在65秒后开始抢单");
+                                delayed();
+                            }else{
+                                sendLog("请求失败！"+jsonObject.getString("msg"));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            sendLog("请求异常！");
+                            stop();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 开始任务
+     */
+    private void startTask() {
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/task!getorderbuylist.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&status=0&pageIndex=1&pageSize=20&isflow=0", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
 
@@ -211,7 +246,7 @@ public class KXGAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("errcode") == 0 && "接单成功".equals(jsonObject.getString("msg"))) {    //接单成功
+                            if (jsonObject.getInteger("totalCount") > 0) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
                                     receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.kaixinguo, 3000);
@@ -221,10 +256,92 @@ public class KXGAction extends BaseAction {
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {
-                                sendLog(jsonObject.getString("msg"));
+                                HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
+                                        .headers("Content-Type", "application/json")
+                                        .execute(new StringCallback() {
+                                            @Override
+                                            public void onSuccess(Response<String> response) {
+                                                try {
+                                                    if (TextUtils.isEmpty(response.body())) return;
+                                                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+
+                                                    if(jsonObject.getInteger("status")==0&&jsonObject.getJSONObject("msg").getInteger("price") >= mParams.getMinCommission()){
+                                                        sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                                        if (count == 0) {
+                                                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.kaixinguo, 3000);
+                                                        }
+                                                        count++;
+                                                        addTask(mPlatform.getName());
+                                                        updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                                        isStart = false;
+                                                    }else{
+                                                        if("800".equals(jsonObject.getString("status"))){
+                                                            sendLog(jsonObject.getString("msg"));
+                                                        }else if(jsonObject.getInteger("status") == 0){
+                                                            sendLog("垫付"+jsonObject.getJSONObject("msg").getInteger("price")+"元，不符合要求,自动取消");
+                                                            qxTask(jsonObject.getJSONObject("msg").getString("id"));
+
+                                                        }else if(jsonObject.getInteger("status") == 900){
+                                                            isStart = false;
+                                                            deliverTask();
+                                                        }else{
+                                                            sendLog(jsonObject.getString("msg"));
+                                                        }
+                                                    }
+                                                } catch (Exception e) {
+                                                    sendLog("检测任务异常！");
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(Response<String> response) {
+                                                super.onError(response);
+                                                sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                                            }
+
+                                            @Override
+                                            public void onFinish() {
+                                                super.onFinish();
+                                                if (isStart) {
+                                                    //取最小频率和最大频率直接的随机数值作为刷单间隔
+                                                    int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
+                                                    mHandler.postDelayed(new Runnable() {
+                                                        @Override
+                                                        public void run() {
+                                                            startTask();
+                                                        }
+                                                    }, period);
+                                                }
+                                            }
+                                        });
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 取消任务
+     *
+     * @param taskId 任务id
+     */
+    private void qxTask(String taskId) {
+
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/task!buycencaltask.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&id="+taskId+"&isflow=1&cancel_type=3", mPlatform.getHost())
+                .headers("Content-Type", "application/json")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("msg"));
+                            end(0);
+                        } catch (Exception e) {
+                            sendLog("撤销任务异常！");
                         }
                     }
                 });
@@ -239,5 +356,29 @@ public class KXGAction extends BaseAction {
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，
         // 否则状态会变成初始状态而不是“抢单成功”的状态。抢单成功直接把isStart设为false即可
         updateStatus(mPlatform, Const.WGHS);
+        long n = new Date().getTime();
+        end(1);
+
+    }
+
+    public void end(Integer type){
+        HttpClient.getInstance().post("/task!canceltrigger.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token, mPlatform.getHost())
+                .headers("Content-Type", "application/json")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("msg"));
+                            if(type == 0){
+                                deliverTask();
+                                updateStatus(mPlatform, 3);
+                            }
+                        } catch (Exception e) {
+                            sendLog("停止接单异常！");
+                        }
+                    }
+                });
     }
 }
