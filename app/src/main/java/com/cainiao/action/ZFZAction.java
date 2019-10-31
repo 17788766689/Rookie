@@ -85,7 +85,6 @@ public class ZFZAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
                                 List<String> cookies = response.headers().values("Set-Cookie");
-                                System.out.println(JSON.toJSONString(cookies));
                                 for (String str : cookies) {
                                     cookie += str.substring(0, str.indexOf(";")) + ";";
                                 }

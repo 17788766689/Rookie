@@ -40,6 +40,7 @@ public class KXGAction extends BaseAction {
     private String token;
     private String imei;
     private JSONArray accountArray;
+    private Integer type = 2;
 
     @Override
     public void start(Platform platform) {
@@ -82,10 +83,12 @@ public class KXGAction extends BaseAction {
                                 getAccount();
                             } else {
                                 MyToast.error(jsonObject.getString("msg"));
+                                type = 0;
                                 stop();
                             }
                         } catch (Exception e) {
                             sendLog("登录异常！");
+                            type = 0;
                             stop();
                         }
                     }
@@ -123,10 +126,12 @@ public class KXGAction extends BaseAction {
                                 savesendacc();
                             } else { //无可用的买号
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                type = 0;
                                 stop();
                             }
                         } catch (Exception e) {
                             sendLog("获取买号异常！");
+                            type = 0;
                             stop();
                         }
                     }
@@ -153,10 +158,12 @@ public class KXGAction extends BaseAction {
                                testing();
                             } else {
                                 sendLog("配置失败！");
+                                type = 0;
                                 stop();
                             }
                         } catch (Exception e) {
                             sendLog("配置异常！");
+                            type = 0;
                             stop();
                         }
                     }
@@ -170,7 +177,9 @@ public class KXGAction extends BaseAction {
         Timer timer=new Timer();//实例化Timer类
         timer.schedule(new TimerTask(){
             public void run(){
-                deliverTask();}},65000);//五百毫秒
+                deliverTask();
+                timer.cancel();
+            }},65000);//五百毫秒
     }
 
     /**
@@ -221,10 +230,12 @@ public class KXGAction extends BaseAction {
                                 sendLog("将在65秒后开始抢单");
                                 delayed();
                             }else{
+                                type = 0;
                                 sendLog("请求失败！"+jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
+                            type = 0;
                             sendLog("请求异常！");
                             stop();
                         }
@@ -246,7 +257,7 @@ public class KXGAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getInteger("totalCount") > 0) {    //接单成功
+                            if (jsonObject.getString("msg").equals("成功") && jsonObject.getInteger("totalCount") > 0) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
                                     receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.kaixinguo, 3000);
@@ -255,7 +266,11 @@ public class KXGAction extends BaseAction {
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
-                            } else {
+                            } else if(jsonObject.getString("status").equals("102")){
+                                sendLog(jsonObject.getString("msg")+",请重新登录！");
+                                type = 0;
+                                stop();
+                            }else {
                                 HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
                                         .headers("Content-Type", "application/json")
                                         .execute(new StringCallback() {
@@ -316,7 +331,7 @@ public class KXGAction extends BaseAction {
                                         });
                             }
                         } catch (Exception e) {
-                            sendLog("领取任务异常！");
+                            sendLog("检测任务异常");
                         }
                     }
                 });
@@ -339,7 +354,8 @@ public class KXGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
-                            end(0);
+                            type = 1;
+                            end();
                         } catch (Exception e) {
                             sendLog("撤销任务异常！");
                         }
@@ -357,11 +373,13 @@ public class KXGAction extends BaseAction {
         // 否则状态会变成初始状态而不是“抢单成功”的状态。抢单成功直接把isStart设为false即可
         updateStatus(mPlatform, Const.WGHS);
         long n = new Date().getTime();
-        end(1);
+        if(type != 0){
+            end();
+        }
 
     }
 
-    public void end(Integer type){
+    public void end(){
         HttpClient.getInstance().post("/task!canceltrigger.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token, mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
@@ -371,7 +389,7 @@ public class KXGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
-                            if(type == 0){
+                            if(type == 1){
                                 deliverTask();
                                 updateStatus(mPlatform, 3);
                             }
