@@ -63,6 +63,7 @@ public class TMYAction extends BaseAction {
                 .params("password", mParams.getPassword())
                 .params("client_id", "BF7817FD2E8651B6FC4C102F607EA1CD")
                 .params("client_secret", "AFB5D053C0D6EE9E9B2796333AB2EAC8")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -84,6 +85,13 @@ public class TMYAction extends BaseAction {
                             stop();
                         }
                     }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog("登录异常");  //接单异常
+                        stop();
+                    }
                 });
     }
 
@@ -98,6 +106,7 @@ public class TMYAction extends BaseAction {
                 .params("PlatId", 1)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -211,6 +220,7 @@ public class TMYAction extends BaseAction {
                 .params("AccountId", mParams.getBuyerNum().getId())
                 .params("TaskListNo", taskId)
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
 
                     @Override

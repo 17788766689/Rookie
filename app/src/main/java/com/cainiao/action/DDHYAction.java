@@ -51,6 +51,7 @@ public class DDHYAction extends BaseAction {
     private String userId;
     private String platform;
     private String status;
+    private String shopName;
 
     @Override
     public void start(Platform platform) {
@@ -156,6 +157,7 @@ public class DDHYAction extends BaseAction {
                             if (null != array && 2000 == array.getIntValue("code") && array.getJSONObject("data").getJSONArray("list").size() > 0) {
                                 sendLog("检测到任务领取中...");
                                 lqTask(String.valueOf(array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getIntValue("id")));
+                                shopName = array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getString("shopName");
                             } else {
                                 sendLog(array.getString("msg"));  //继续检测任务
                             }
@@ -210,7 +212,7 @@ public class DDHYAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (2000 == jsonObject.getIntValue("code")) {
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW)+"店铺名:"+shopName);
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.duoduohuayuan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态

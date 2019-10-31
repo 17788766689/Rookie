@@ -38,9 +38,9 @@ public class KXGAction extends BaseAction {
     private int count = 0;
     private String userId;
     private String token;
-    private String imei;
+    private String uuid;
     private JSONArray accountArray;
-    private Integer type = 2;
+    private int type = 2;
 
     @Override
     public void start(Platform platform) {
@@ -66,9 +66,10 @@ public class KXGAction extends BaseAction {
      * 登录
      */
     private void login() {
-        imei = Utils.md5(new Date().getTime() + "");
+        uuid = Utils.md5(new Date().getTime() + "");
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().get("/u!login.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&username=" + mParams.getAccount() + "&password=" + Utils.md5(mParams.getPassword()), mPlatform.getHost())
+        String url = "/u!login.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3&sign=1&username=" + mParams.getAccount() + "&password=" + Utils.md5(mParams.getPassword());
+        HttpClient.getInstance().get(url, mPlatform.getHost())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -100,7 +101,7 @@ public class KXGAction extends BaseAction {
      */
     private void getAccount() {
         long n = new Date().getTime();
-        HttpClient.getInstance().get("/account!getbindbuyuserlist.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&oid=0", mPlatform.getHost())
+        HttpClient.getInstance().get("/account!getbindbuyuserlist.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&oid=0", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -144,7 +145,7 @@ public class KXGAction extends BaseAction {
     private void savesendacc() {
 
         long n = new Date().getTime();
-        HttpClient.getInstance().get("/account!savesendacc.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&bindid=" + accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id") + "&devicetype=0&paytype=0&backtype=0&specialtype=1&tmallplat=0&price_min=" + mParams.getMinCommission() + "&price_max=1550", mPlatform.getHost())
+        HttpClient.getInstance().get("/account!savesendacc.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&plat=1&bindid=" + accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id") + "&devicetype=0&paytype=0&backtype=0&specialtype=1&tmallplat=0&price_min=" + mParams.getMinCommission() + "&price_max=1550", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -186,7 +187,7 @@ public class KXGAction extends BaseAction {
      * 检查是否正在接单状态
      */
     private void testing(){
-        HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
+        HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -214,7 +215,7 @@ public class KXGAction extends BaseAction {
     private void deliverTask() {
         long n = new Date().getTime();
         isStart = true;
-        HttpClient.getInstance().get("/task!trigger.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&clientid=99726ee9f79e9c74633f4c80cb941fc0&bindid_1="+accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id"),mPlatform.getHost())
+        HttpClient.getInstance().get("/task!trigger.htm?version=15&imei="+uuid+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&clientid=99726ee9f79e9c74633f4c80cb941fc0&bindid_1="+accountArray.getJSONObject(mParams.getBuyerNumIndex()).getString("id"),mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -248,7 +249,7 @@ public class KXGAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/task!getorderbuylist.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&status=0&pageIndex=1&pageSize=20&isflow=0", mPlatform.getHost())
+        HttpClient.getInstance().post("/task!getorderbuylist.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3&sign=1&userid=" + userId + "&token=" + token + "&status=0&pageIndex=1&pageSize=20&isflow=0", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
 
@@ -271,7 +272,7 @@ public class KXGAction extends BaseAction {
                                 type = 0;
                                 stop();
                             }else {
-                                HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + imei + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
+                                HttpClient.getInstance().get("/task!waitresult.htm?version=15&imei=" + uuid + "&imeimsg=iPhone11,2;13.1.3=&sign=1&userid=" + userId + "&token=" + token, mPlatform.getHost())
                                         .headers("Content-Type", "application/json")
                                         .execute(new StringCallback() {
                                             @Override
@@ -345,7 +346,7 @@ public class KXGAction extends BaseAction {
     private void qxTask(String taskId) {
 
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/task!buycencaltask.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&id="+taskId+"&isflow=1&cancel_type=3", mPlatform.getHost())
+        HttpClient.getInstance().post("/task!buycencaltask.htm?version=15&imei="+uuid+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token+"&id="+taskId+"&isflow=1&cancel_type=3", mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
@@ -380,7 +381,7 @@ public class KXGAction extends BaseAction {
     }
 
     public void end(){
-        HttpClient.getInstance().post("/task!canceltrigger.htm?version=15&imei="+imei+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token, mPlatform.getHost())
+        HttpClient.getInstance().post("/task!canceltrigger.htm?version=15&imei="+uuid+"&imeimsg=iPhone11,2;13.1.3&sign=1&userid="+userId+"&token="+token, mPlatform.getHost())
                 .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
