@@ -84,7 +84,7 @@ public class FSDMAction extends BaseAction {
                         String reData = response.body().toString();
                         int index = reData.indexOf("captcha/gen_img?key=");
                         yzmKey = reData.substring(index + 20, index + 67);
-                        String imgUrl = "http://api.xdhfnch.cn:18082/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
+                        String imgUrl = "http://api.fsdmff.cn:18087/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
                         sendMsg("get_verifycode", imgUrl);
                     }
                 });
