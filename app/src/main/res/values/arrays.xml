@@ -24,7 +24,7 @@
         <item>京东成交任务</item>
     </string-array>
 
-    <!--阿西里里-->
+    <!--阿西里里、私房钱-->
     <string-array name="receipt_type_4">
         <item>淘宝</item>
         <item>京东</item>

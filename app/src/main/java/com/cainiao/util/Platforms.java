@@ -18,6 +18,7 @@ import com.cainiao.action.MMMAction;
 import com.cainiao.action.NMPAction;
 import com.cainiao.action.QTLYAction;
 import com.cainiao.action.RRLTAction;
+import com.cainiao.action.SFQQDAction;
 import com.cainiao.action.SMKJAction;
 import com.cainiao.action.SYCAction;
 import com.cainiao.action.TMMAction;
@@ -176,8 +177,8 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.suanluobo, "酸罗卜", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十六行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.shengduoduo, "升多多", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.shangke, "尚客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//              mList.add(new Platform(new Params(0,0),R.mipmap.sifangqian, "私房钱", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 15, null));
+//            mList.add(new Platform(new Params(0,0),R.m5ipmap.shangke, "尚客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
+             mList.add(new Platform(new Params(60000,65000),R.mipmap.sifangqian, "私房钱(抢单)", "com.dispatch.homebrew", "http://19sf.cn", "", "http://19sf.cn/main/index", 0, Const.TLSHE, 2, 0, new SFQQDAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.tianshi, "天时", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十七行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.taopaipai, "淘拍拍", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 16, null));

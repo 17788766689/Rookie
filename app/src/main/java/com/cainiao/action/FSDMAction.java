@@ -122,6 +122,7 @@ public class FSDMAction extends BaseAction {
                             } else {
                                 sendLog(jsonObject.getString("msg"));
                                 MyToast.error(jsonObject.getString("msg"));
+                                getVerifyCode(mPlatform);
                                 stop();
                             }
                         } catch (Exception e) {
@@ -154,10 +155,15 @@ public class FSDMAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject array = JSONObject.parseObject(response.body());
+                            System.out.println(JSON.toJSONString(mParams.getShopName()));
                             if (null != array && 2000 == array.getIntValue("code") && array.getJSONObject("data").getJSONArray("list").size() > 0) {
                                 sendLog("检测到任务领取中...");
                                 lqTask(String.valueOf(array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getIntValue("id")));
                                 shopName = array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getString("shopName");
+
+                                if(shopName != null && shopName.equals(mParams.getAccount())){
+
+                                }
                             } else {
                                 sendLog(array.getString("msg"));  //继续检测任务
                             }
