@@ -47,7 +47,6 @@ public class Params {
     @Ignore
     private boolean filterCheck = true;
 
-    @Ignore
     private String shopName;// 不接店铺
 
     public Params(){}

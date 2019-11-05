@@ -34,6 +34,7 @@ import com.cainiao.action.XJLAction;
 import com.cainiao.action.XMCAction;
 import com.cainiao.action.ZCMAction;
 import com.cainiao.action.ZFZAction;
+import com.cainiao.action.ZFZPDAction;
 import com.cainiao.action._51MGPAction;
 import com.cainiao.action._918RQWAction;
 import com.cainiao.base.MyApp;
@@ -257,8 +258,8 @@ public class Platforms {
 //            mList.add(new Platform(new Params(2500,3000),R.mipmap.weitaokeji, "微淘科技", "com.weitaokeji", "http://macworksdc.com:8080", "", "http://macworksdc.com:8080/workerLogin", 1, Const.TLSHE, 0, 7, new WTKJAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaomifengdakuang, "打款小蜜蜂", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 13, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaolanshu, "小蓝书", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
-            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
-
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者(抢单)", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者(派单)", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZPDAction()));
 
             initLatestStatus();
         }

@@ -58,7 +58,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private List<Platform> mList;
     private int position;
     private TextView tvLog, tvStart, tvStop, tvBtn1, tvBtn2;
-    private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode;
+    private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode,etIgnore;
     private Spinner spBuyerNum, spReceiptType, spAccountType;
     private CheckBox cb1, cb2, filter1;
     private LinearLayout llAccount, llPwd, llReceiptUrl, llBuyerNum, llComm, llReceiptType, llVerifyCode, llSmsCode, llAccountType, llCheckbox, llIgnore, llFilter;
@@ -198,6 +198,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         String receiptUrl = etReceiptUrl.getText().toString().trim();
         String verifyCode = etVerifyCode.getText().toString().trim();
         String smsCode = etSmsCode.getText().toString().trim();
+        String shopName = etIgnore.getText().toString().trim();
 
         if (!Utils.isInteger(minFreq)) minFreq = "1000";  //最小频率默认给1000ms
         if (!Utils.isInteger(maxFreq)) maxFreq = "9999"; //最大频率默认给9999ms
@@ -253,6 +254,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setPrePaymentCheck(cb1.isChecked());
         params.setLabelCheck(cb2.isChecked());
         params.setFilterCheck(filter1.isChecked());
+        params.setShopName(shopName);
         mPlatform.setParams(params);
         Platforms.setCurrPlatform(mPlatform);
 
@@ -275,6 +277,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         etPwd = findViewById(R.id.et_pwd);
         etMinComm = findViewById(R.id.et_min_commission);
         etMaxPrinc = findViewById(R.id.et_max_principal);
+        etIgnore = findViewById(R.id.et_ignore);
         etReceiptUrl = findViewById(R.id.et_receipt_url);
         etVerifyCode = findViewById(R.id.et_verify_code);
         etSmsCode = findViewById(R.id.et_sms_code);
@@ -468,6 +471,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         List<Params> paramsList = DbUtil.query(new QueryBuilder<>(Params.class).whereEquals("pkgName", mPlatform.getPkgName()));
         if (paramsList.size() > 0) {   //原来存在参数，则进行数据回显
             params = paramsList.get(0);
+            etIgnore.setText(params.getShopName());
             etMinFreq.setText(String.valueOf(mPlatform.getParams().getMinFrequency()));
             etMaxFreq.setText(String.valueOf(mPlatform.getParams().getMaxFrequency()));
             etAccount.setText(params.getAccount());

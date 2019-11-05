@@ -1,24 +1,17 @@
 package com.cainiao.action;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
 import com.cainiao.base.MyApp;
-import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
@@ -26,18 +19,15 @@ import com.lzy.okgo.model.Response;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 /**
  * 征服者
  */
-public class ZFZAction extends BaseAction {
+public class ZFZPDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -109,22 +99,27 @@ public class ZFZAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/iop/index/index.html", mPlatform.getHost())
+        HttpClient.getInstance().get("/iop/index/autoindex?type=1", mPlatform.getHost())
+                .headers("Referer","http://app.zhengfuz.com/iop/index/index.html")
                 .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie", cookie+";order_token="+token)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            Document doc = Jsoup.parse(response.body());
-                            Elements tbData = doc.select(".jin-sha-dan").select("a");
-                            if (tbData.size() > 0) {
-                                sendLog("检测到任务领取中...");
-                                System.out.println(tbData.get(0).attr("href"));
-                                getTask(tbData.get(0).attr("href"));
-                            } else {
+                            if (TextUtils.isEmpty(response.body())) {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            }else{
+                                JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                if(1 == jsonObject.getInteger("status")){
+                                    sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
+                                    addTask(mPlatform.getName());
+                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                    isStart = false;
+                                }else{
+                                    sendLog(jsonObject.getString("msg"));
+                                }
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -154,64 +149,6 @@ public class ZFZAction extends BaseAction {
                 });
     }
 
-    /**
-     * 获取token
-     */
-    private void getTask(String url) {
-        String[] str = url.split("=");
-        HttpClient.getInstance().get("/iop/index/attention.html?task_key_id=" + str[1], mPlatform.getHost())
-                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie", cookie+";order_token="+token)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            Document doc = Jsoup.parse(response.body());
-                            Elements taskToken = doc.select("input[name=token]");
-                            token = taskToken.val();
-                            lqTask(str[1]);
-                        } catch (Exception e) {
-                            sendLog("获取任务信息异常！");
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/iop/order/orderDown", mPlatform.getHost())
-                .params("task_key_id", taskId)
-                .params("access_token", token)
-                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
-                .headers("Cookie", cookie+";order_token="+token)
-                .headers("Referer","http://app.zhengfuz.com/iop/index/attention.html?task_key_id="+taskId)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            System.out.println(jsonObject);
-                            if (jsonObject.getIntValue("status") == 1) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(jsonObject.getString("msg"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
 
 
     @Override

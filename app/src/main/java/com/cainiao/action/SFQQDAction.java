@@ -135,15 +135,13 @@ public class SFQQDAction extends BaseAction {
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); //默认使用第一个买号
                                 mParams.setBuyerNum(new BuyerNum("-1", "自动切换"));
-
-                                mParams.setFilterCheck(mParams.isFilterCheck());
                                 System.out.println(mParams.isFilterCheck());
                                 List<BuyerNum> list = new ArrayList<>();
                                 list.add(new BuyerNum("-1", "自动切换"));
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
                                     if(obj.getInteger("fblack") == 1){
-                                        if(obj.getInteger("f1") != 3){
+                                        if(obj.getInteger("f1") != 3 && mParams.isFilterCheck()){
                                             sendLog(obj.getString("vestname")+",此号只能接浏览单,已过滤");
                                         }else{
                                             list.add(new BuyerNum(obj.getString("id"), obj.getString("vestname")));
