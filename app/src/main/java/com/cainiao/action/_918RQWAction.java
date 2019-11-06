@@ -142,7 +142,7 @@ public class _918RQWAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/get_all_assigns", mPlatform.getHost())
+        HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("page", "1")
                 .params("type", mParams.getType())
