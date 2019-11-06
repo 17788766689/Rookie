@@ -200,7 +200,7 @@ public class ZFZAction extends BaseAction {
                             if (jsonObject.getIntValue("status") == 1) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zhengfuzhe, 3000);
-                                addTask(mPlatform.getName());
+                                addTask("征服者");
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {

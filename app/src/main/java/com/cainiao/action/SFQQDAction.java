@@ -272,10 +272,10 @@ public class SFQQDAction extends BaseAction {
                             if(jsonObject.getJSONArray("data").size() != 0){
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), "私房钱"), R.raw.sifangqian, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.sifangqian, 3000);
                                 }
                                 count++;
-                                addTask(mPlatform.getName());
+                                addTask("私房钱");
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             }
