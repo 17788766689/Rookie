@@ -5,7 +5,6 @@ import com.cainiao.action.AMAction;
 import com.cainiao.action.DDHYAction;
 import com.cainiao.action.FCSAction;
 import com.cainiao.action.FSDMAction;
-import com.cainiao.action.GBWSSAction;
 import com.cainiao.action.HCKJAction;
 import com.cainiao.action.HLGAction;
 import com.cainiao.action.JXKJAction;
@@ -127,7 +126,7 @@ public class Platforms {
 //            //第六行
             mList.add(new Platform(new Params(2000,3000),R.mipmap.facaishu, "发财树", "com.wangzai.wealth", "http://122.112.163.12:8080", "", "", 0, Const.TLSHE, 0, 2, new FCSAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.guli, "谷粒", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 6, null));
-              mList.add(new Platform(new Params(3000,5000),R.mipmap.gebiwangshu, "隔壁王叔叔", "com.gebiwanshu", "http://www.haisirui.xin/", "", "http://www.haisirui.xin", 0, Const.TLSHE, 0, 7, new GBWSSAction()));
+              mList.add(new Platform(new Params(3000,5000),R.mipmap.gebiwangshu, "隔壁王叔叔", "com.gebiwanshu", "http://www.haisirui.xin/", "", "http://www.haisirui.xin", 0, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.gongxiangke, "共享客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第七行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.hongpingguo, "红苹果", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 10, null));
