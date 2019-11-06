@@ -17,6 +17,7 @@ import com.cainiao.action.MMMAction;
 import com.cainiao.action.NMPAction;
 import com.cainiao.action.QTLYAction;
 import com.cainiao.action.RRLTAction;
+import com.cainiao.action.SFQQDAction;
 import com.cainiao.action.SMKJAction;
 import com.cainiao.action.SYCAction;
 import com.cainiao.action.TMMAction;
@@ -32,6 +33,7 @@ import com.cainiao.action.XJLAction;
 import com.cainiao.action.XMCAction;
 import com.cainiao.action.ZCMAction;
 import com.cainiao.action.ZFZAction;
+import com.cainiao.action.ZFZPDAction;
 import com.cainiao.action._51MGPAction;
 import com.cainiao.action._918RQWAction;
 import com.cainiao.base.MyApp;
@@ -175,8 +177,8 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.suanluobo, "酸罗卜", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十六行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.shengduoduo, "升多多", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.shangke, "尚客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
-//              mList.add(new Platform(new Params(0,0),R.mipmap.sifangqian, "私房钱", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 15, null));
+//            mList.add(new Platform(new Params(0,0),R.m5ipmap.shangke, "尚客", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
+             mList.add(new Platform(new Params(60000,65000),R.mipmap.sifangqian, "私房钱(抢单)", "com.dispatch.homebrew", "http://19sf.cn", "", "http://19sf.cn/main/index", 0, Const.TLSHE, 2, 0, new SFQQDAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.tianshi, "天时", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十七行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.taopaipai, "淘拍拍", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 16, null));
@@ -255,8 +257,8 @@ public class Platforms {
 //            mList.add(new Platform(new Params(2500,3000),R.mipmap.weitaokeji, "微淘科技", "com.weitaokeji", "http://macworksdc.com:8080", "", "http://macworksdc.com:8080/workerLogin", 1, Const.TLSHE, 0, 7, new WTKJAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaomifengdakuang, "打款小蜜蜂", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 13, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaolanshu, "小蓝书", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
-            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
-
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者(抢单)", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZAction()));
+            mList.add(new Platform(new Params(3000,5000),R.mipmap.zhengfuzhe, "征服者(派单)", "com.zhengfuz.app.xmx5zak", "http://app.zhengfuz.com", "", "", 1, Const.BJSHA, 0, 7, new ZFZPDAction()));
 
             initLatestStatus();
         }

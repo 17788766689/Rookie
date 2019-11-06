@@ -355,6 +355,25 @@
 
     </LinearLayout>
 
+    <!-- 过滤违规号 -->
+    <LinearLayout
+        android:id="@+id/ll_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:visibility="gone">
+
+        <CheckBox
+            android:id="@+id/filter1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="过滤降权号"/>
+
+    </LinearLayout>
+
+
     <!-- 帐号类型 -->
     <LinearLayout
         android:id="@+id/ll_account_type"

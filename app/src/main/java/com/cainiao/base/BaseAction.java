@@ -144,6 +144,7 @@ public class BaseAction implements Serializable {
             p.setPassword(params.getPassword());
             p.setMinCommission(params.getMinCommission());
             p.setMaxPrincipal(params.getMaxPrincipal());
+            p.setShopName(params.getShopName());
             DbUtil.update(p);
         }else{  //不存在，则添加
             params.setPkgName(mPlatform.getPkgName());

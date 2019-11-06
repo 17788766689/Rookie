@@ -23,6 +23,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * 铁蚂蚁
+ */
 public class TMYAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;

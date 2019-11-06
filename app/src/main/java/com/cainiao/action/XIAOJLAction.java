@@ -141,7 +141,7 @@ public class XIAOJLAction extends BaseAction {
                         super.onError(response);
                         JSONObject jsonObject = JSONObject.parseObject(response.body());
                         JSONObject obj = jsonObject.getJSONObject("error");
-                        sendLog(obj.getString("用户名或密码无效"));  //接单异常
+                        sendLog(obj.getString("details"));  //接单异常
                         stop();
                     }
                 });

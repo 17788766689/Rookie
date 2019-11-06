@@ -44,6 +44,10 @@ public class Params {
     private boolean prePaymentCheck;  //垫付单是否选中
     @Ignore
     private boolean labelCheck;  //标签单是否选中
+    @Ignore
+    private boolean filterCheck = true;
+
+    private String shopName;// 不接店铺
 
     public Params(){}
 
@@ -209,5 +213,21 @@ public class Params {
 
     public void setLabelCheck(boolean labelCheck) {
         this.labelCheck = labelCheck;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setFilterCheck(boolean filterCheck) {
+        this.filterCheck = filterCheck;
+    }
+
+    public boolean isFilterCheck() {
+        return filterCheck;
     }
 }

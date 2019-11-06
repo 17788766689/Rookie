@@ -88,7 +88,7 @@ public class ZFZAction extends BaseAction {
                                 for (String str : cookies) {
                                     cookie += str.substring(0, str.indexOf(";")) + ";";
                                 }
-                                sendLog("登录成功！");
+                                sendLog("登录成功,请勿同时使用同一账号登录征服者(抢单)和征服者(派单)");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态

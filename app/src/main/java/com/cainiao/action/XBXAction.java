@@ -88,7 +88,7 @@ public class XBXAction extends BaseAction {
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                MyToast.error(jsonObject.getString("msg"));
+                                MyToast.error(jsonObject.getString("msg")+",如果需要输入验证码,请先去官方登录一次");
                                 stop();
                             }
                         } catch (Exception e) {
