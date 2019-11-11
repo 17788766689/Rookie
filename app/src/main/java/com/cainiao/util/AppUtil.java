@@ -7,6 +7,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
@@ -79,8 +80,8 @@ public class AppUtil {
      * @param cancelable
      */
     public static void downloadApk(final Activity aty, String url, boolean cancelable){
-//        APK_PATH = Environment.getExternalStorageDirectory() + "/apk/";
-        APK_PATH = aty.getFilesDir().getAbsolutePath() + "/";
+        APK_PATH = Environment.getExternalStorageDirectory() + "/";
+//        APK_PATH = aty.getFilesDir().getAbsolutePath() + "/";
         File dir = new File(APK_PATH);
         if(!dir.exists()) dir.mkdirs();
         deleteDownloadApk();

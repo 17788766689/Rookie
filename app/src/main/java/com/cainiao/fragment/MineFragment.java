@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.cainiao.R;
+import com.cainiao.activity.MainActivity;
 import com.cainiao.adapter.MineAdapter;
 import com.cainiao.base.BaseFragment;
 import com.cainiao.base.MyApp;
@@ -60,19 +61,19 @@ public class MineFragment extends BaseFragment {
      */
     @Override
     protected void activeSuccess() {
-        findUser();
+        ((MainActivity)getActivity()).findUser();
     }
 
     /**
      * 查询用户是否激活回调
      */
-    @Override
-    protected void findUserCallback() {
-        Mine mine = mList.get(0);
-        mine.setMsg(String.format("剩余%d天", MyApp.getLog()));
-        mList.set(0, mine);
-        mAdapter.notifyDataSetChanged();
-    }
+//    @Override
+//    protected void findUserCallback() {
+//        Mine mine = mList.get(0);
+//        mine.setMsg(String.format("剩余%d天", MyApp.getLog()));
+//        mList.set(0, mine);
+//        mAdapter.notifyDataSetChanged();
+//    }
 
     private void listItemClick(int position){
         switch (position){

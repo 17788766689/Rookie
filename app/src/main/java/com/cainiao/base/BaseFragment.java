@@ -1,8 +1,21 @@
 package com.cainiao.base;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,12 +27,17 @@ import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.HttpUtil;
+import com.cainiao.util.LogUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.lang.reflect.Method;
+
 public abstract class BaseFragment extends Fragment {
+
+
 
     @Nullable
     @Override
@@ -53,39 +71,7 @@ public abstract class BaseFragment extends Fragment {
         });
     }
 
-    /**
-     * 检查设备是否已经激活
-     */
-    public void findUser(){
-        HttpUtil.findUser(new StringCallback() {
-            @Override
-            public void onSuccess(Response<String> response) {
-                parseData(response.body());
-            }
-        });
-    }
-
-    /**
-     * 解析从服务器返回的数据
-     * @param data
-     */
-    public void parseData(String data){ //格式： {"msg":"你的设备未激活App","code":"1","time":"0"}
-        JSONObject object = JSONObject.parseObject(data);
-        String code = object.getString("code");
-        String time = object.getString("time");
-        String msg = object.getString("msg");
-        if(Utils.isInteger(time)) MyApp.setLog(Integer.parseInt(time));
-
-        if(TextUtils.equals(code, "2")){  //冻结
-            MyToast.error(msg);
-        }
-        findUserCallback();
-    }
-
-
     protected void init(View view) {}
     public abstract int getLayoutResId();
     protected void activeSuccess(){}
-    protected void findUserCallback(){}
-
 }

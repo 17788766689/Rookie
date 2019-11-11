@@ -1,5 +1,6 @@
 package com.cainiao.fragment;
 
+import android.Manifest;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -18,6 +19,7 @@ import com.cainiao.base.MyApp;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
+import com.cainiao.util.DeviceUtil;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.HttpUtil;
 import com.cainiao.util.LogUtil;
@@ -46,7 +48,6 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
 
     @Override
     protected void init(View view) {
-        findUser();
         mGridView = view.findViewById(R.id.asset_grid);
         etSearchName = view.findViewById(R.id.et_search_name);
         mList = Platforms.getPlatforms();
@@ -75,6 +76,7 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
 
     }
 
+
     /**
      * 点击平台
      * @param position
@@ -102,7 +104,7 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
      */
     @Override
     protected void activeSuccess() {
-        findUser();
+        ((MainActivity)getActivity()).findUser();
     }
 
     @Override

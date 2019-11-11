@@ -15,7 +15,7 @@ public class LogUtil {
     /**日志输出的tag*/
     private static final String TAG = "cainiao";
     /**用来控制日志输入的当前级别*/
-    private static final int CUR_LEVEL = 5;
+    private static final int CUR_LEVEL = 0;
     /**verbose级别的log*/
     private static final int V_LEVEL = 1;
     /**debug级别的log*/

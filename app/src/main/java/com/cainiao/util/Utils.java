@@ -24,11 +24,14 @@ public class Utils {
 
     private static char sHexDigits[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-    private static String deviceId;
+    private static String deviceId = Const.DEFAULT_ID;
 
     public static void setDeviceId(String id){
         deviceId = id;
     }
+
+    public static String getDeviceId(){return  deviceId;}
+
     /**
      * 获取：Pseudo-Unique ID, 这个在任何Android手机中都有效
      * @return
@@ -36,7 +39,6 @@ public class Utils {
     public static String getUuid() {
         DeviceUtil.getInstance().init(MyApp.getContext());
         String android = DeviceUtil.getInstance().getDeviceId();
-        System.out.println(android+"----"+deviceId);
         return md5(android+deviceId);
     }
 

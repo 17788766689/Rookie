@@ -75,7 +75,6 @@ public class StickyGridAdapter extends BaseAdapter implements
             cs = mContext.getResources().getColorStateList(R.color.platform_free_text);
         }
         mViewHolder.tvStatus.setTextColor(cs);
-
         return convertView;
     }
 
@@ -94,7 +93,6 @@ public class StickyGridAdapter extends BaseAdapter implements
         }
         Platform item = items.get(position);
         mHeaderHolder.tvHeader.setText(item.getHeaderTip(item.getHeaderId()));
-
         return convertView;
     }
 

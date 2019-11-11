@@ -58,6 +58,7 @@ public class SFQQDAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            cookie = "";
             count = 0;
             isStart = true;
             mHandler = new Handler();
@@ -87,7 +88,7 @@ public class SFQQDAction extends BaseAction {
                             if (jsonObject.getIntValue("code") == 1) {//登录成功
                                 List<String> list = response.headers().values("Set-Cookie");
                                 for (String str : list) {
-                                    cookie = str.substring(0, str.indexOf(";")) + ";";
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
                                 }
                                 sendLog("登录成功");
                                 updateParams(mPlatform);

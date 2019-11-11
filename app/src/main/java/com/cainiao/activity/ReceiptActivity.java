@@ -265,6 +265,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
      * 初始化控件
      */
     private void initView() {
+        if(mPlatform == null) finish();
         ((TextView) findViewById(R.id.tv_title)).setText(mPlatform.getName());
         tvLog = findViewById(R.id.tv_log);
         tvStart = findViewById(R.id.tv_start);
@@ -394,15 +395,16 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llReceiptType.setVisibility(View.GONE);
                 llVerifyCode.setVisibility(View.VISIBLE);
                 break;
-            case 14:  //代表平台：木瓜科技 等（频率、账号）
+            case 14:  //代表平台：木瓜科技 等（频率、账号）   ---- 可删除
                 llPwd.setVisibility(View.GONE);
                 llBuyerNum.setVisibility(View.GONE);
                 llReceiptType.setVisibility(View.GONE);
                 llComm.setVisibility(View.GONE);
                 break;
-            case 15:  //代表平台：私房钱 等（频率、账号、密码、买号、接单类型、佣金本金、验证码）
-                resId = R.array.receipt_type_4;
-                llVerifyCode.setVisibility(View.VISIBLE);
+            case 15:  //代表平台：红苹果 等（账号、密码、接单类型）
+                llBuyerNum.setVisibility(View.GONE);
+                llComm.setVisibility(View.GONE);
+                resId = R.array.receipt_type_5;
                 break;
             case 16:  //代表平台：淘拍拍 等（频率、账号、验证码）
                 llPwd.setVisibility(View.GONE);

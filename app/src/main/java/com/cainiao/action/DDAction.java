@@ -106,8 +106,16 @@ public class DDAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
                             sendLog(obj.getString("returnMsg"));
-                            if(obj.getInteger("returnCode")== 1 || "您已经有任务在进行请完成后再来".equals(obj.getString("returnMsg"))){
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                            if(obj.getInteger("returnCode")== 1){
+                                sendLog("接单成功,店铺名:"+obj.getString("dpmc"));
+                                Utils.setClipboardStr(obj.getString("shopLink"));
+                                sendLog("商品链接自动复制成功,可粘贴查看！");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dadou, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }else if( "您已经有任务在进行请完成后再来".equals(obj.getString("returnMsg"))){
+                                sendLog("接单成功");
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dadou, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态

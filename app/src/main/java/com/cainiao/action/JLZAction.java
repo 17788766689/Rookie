@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 小黑猪
+ * 锦鲤赚
  */
-public class XHZAction extends BaseAction {
+public class JLZAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -41,6 +41,7 @@ public class XHZAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -68,8 +69,8 @@ public class XHZAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if ("Bearer".equals(jsonObject.getString("tokenType"))) {    //登录成功
-                               cookie = "Bearer "+ jsonObject.getString("accessToken");
-                                sendLog("登录成功！");
+                                sendLog("登录成功");
+                                cookie = "Bearer "+jsonObject.getString("accessToken");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
@@ -98,6 +99,8 @@ public class XHZAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().post("/memberSubTaskQueue", mPlatform.getHost())
+                .params("type","Task")
+                .params("vip","")
                 .headers("authorization",cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")

@@ -41,6 +41,8 @@ public class Const {
     public static int KSHG_AW;  //接单成功
     public static String STATUS_ACTION;
 
+    public static String DEFAULT_ID;  //默认的imei，用来判断是否进行了获取imei的操作
+
 
     private static void init(){
         STATUS_ACTION = "com.cainiao.status";
@@ -60,6 +62,7 @@ public class Const {
         DB_NAME = "cainiao.db";
         UPDATE_ACTION = "com.cainiao.update";
         MESSAGE_URL="message";
+        DEFAULT_ID = "cainiao_device_id";
         LOG_MAX_LINE = 30;  //日志显示最多20行，超出则进行清理
         WGHS = -1;
         BJSHA = 0;

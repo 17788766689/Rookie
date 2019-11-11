@@ -11,6 +11,7 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -20,9 +21,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 小黑猪
+ * 隔壁王叔叔
  */
-public class XHZAction extends BaseAction {
+public class HPGAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -41,6 +42,7 @@ public class XHZAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            cookie = "apprentice_remember_user=deleted;";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -54,10 +56,12 @@ public class XHZAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/auth", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
-                .params("password", mParams.getPassword())
-                .params("grantType","Password")
+        HttpClient.getInstance().post("/public/apprentice.php/passport/ajax_login.html", mPlatform.getHost())
+                .params("username", mParams.getAccount())
+                .params("password", Utils.md5(mParams.getPassword()))
+                .params("remember",1)
+                .params("callback","/public/apprentice.php")
+                .params("t","0."+new Date().getTime())
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
@@ -67,16 +71,18 @@ public class XHZAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if ("Bearer".equals(jsonObject.getString("tokenType"))) {    //登录成功
-                               cookie = "Bearer "+ jsonObject.getString("accessToken");
-                                sendLog("登录成功！");
+                            sendLog(jsonObject.getString("msg"));
+                            if (1 == jsonObject.getIntValue("success")) {    //登录成功
+                                List<String> list = response.headers().values("Set-Cookie");
+                                for (String str : list) {
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                                }
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
                             } else {
-                                sendLog(jsonObject.getString("message"));
-                                MyToast.error(jsonObject.getString("message"));
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -97,8 +103,23 @@ public class XHZAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/memberSubTaskQueue", mPlatform.getHost())
-                .headers("authorization",cookie)
+        String normal = "0";
+        String activity = "0";
+        String traffic = "0";
+        if(mParams.getType().equals("1")){
+            normal = "1";
+        }else if(mParams.getType().equals("2")){
+            activity = "1";
+        }else if(mParams.getType().equals("3")){
+            traffic = "1";
+        }
+
+        HttpClient.getInstance().get("/public/apprentice.php/task/ajax_queue_up", mPlatform.getHost())
+                .params("t","0."+new Date().getTime())
+                .params("normal",normal)
+                .params("activity",activity)
+                .params("traffic",traffic)
+                .headers("Cookie",cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
@@ -108,12 +129,15 @@ public class XHZAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if(obj != null &&!"当前操作过于频繁，请休息一会儿再试。".equals(obj.getString("message"))){
+                            System.out.println(obj.getString("task"));
+                            if (obj.getString("task") != null && obj.getString("task").length()> 0) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaoheizhu, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.hongpingguo, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
+                            } else {
+                                sendLog(obj.getString("message"));  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常");  //接单异常
@@ -123,13 +147,7 @@ public class XHZAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        sendLog(response.body());
-                        if(null != jsonObject){
-                            sendLog(jsonObject.getString("message"));
-                        }else{
-                            sendLog("等待派送任务");
-                        }
+                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
                     }
 
                     @Override

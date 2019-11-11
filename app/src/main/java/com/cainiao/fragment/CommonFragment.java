@@ -1,5 +1,6 @@
 package com.cainiao.fragment;
 
+import android.Manifest;
 import android.content.Intent;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -10,16 +11,19 @@ import android.widget.EditText;
 
 import com.alibaba.fastjson.JSONArray;
 import com.cainiao.R;
+import com.cainiao.activity.MainActivity;
 import com.cainiao.activity.ReceiptActivity;
 import com.cainiao.adapter.StickyGridAdapter;
 import com.cainiao.base.BaseFragment;
 import com.cainiao.base.MyApp;
 import com.cainiao.bean.Platform;
+import com.cainiao.util.Const;
 import com.cainiao.util.DbUtil;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
 import com.cainiao.util.SPUtil;
+import com.cainiao.util.Utils;
 import com.cainiao.view.stickygridheaders.StickyGridHeadersGridView;
 
 import java.util.ArrayList;
@@ -43,7 +47,6 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
 
     @Override
     protected void init(View view) {
-        findUser();
         mGridView = view.findViewById(R.id.asset_grid);
         etSearchName = view.findViewById(R.id.et_search_name);
         mList = Platforms.getLatestPlaforms();
@@ -67,6 +70,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
             }
         });
     }
+
 
     @Override
     public void onResume() {
@@ -120,7 +124,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
      */
     @Override
     protected void activeSuccess() {
-        findUser();
+        ((MainActivity)getActivity()).findUser();
     }
 
     @Override

@@ -313,4 +313,6 @@ public class BottomBar extends View {
     public List<Fragment> getFragments(){
         return fragmentList;
     }
+
+    public Fragment getCurrentFragment() {return currentFragment;}
 }
