@@ -46,7 +46,7 @@
     <string name="home_reactive_tips">如果老版本菜鸟已激活本设备，请复制老版本设备码进行激活</string>
 
     <string name="deviceId_not_allow">请先授予获取手机信息和SD卡读写的权限！</string>
-    <string name="deviceId_goto_setting_power">请先到权限管理里面授予获取手机信息的权限！</string>
+    <string name="deviceId_goto_setting_power">请先到权限管理里面授予所有权限！</string>
 
     <string name="mine_renew">输入激活码进行续费</string>
     <string name="mine_renew_tips">续费</string>

@@ -179,7 +179,7 @@ public class DialogUtil {
         tvClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                noticeDialog.cancel();
+                if(noticeDialog != null) noticeDialog.cancel();
                 noticeDialog = null;
             }
         });

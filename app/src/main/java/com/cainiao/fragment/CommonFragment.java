@@ -47,6 +47,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
 
     @Override
     protected void init(View view) {
+        checkPermission();
         mGridView = view.findViewById(R.id.asset_grid);
         etSearchName = view.findViewById(R.id.et_search_name);
         mList = Platforms.getLatestPlaforms();
@@ -124,7 +125,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
      */
     @Override
     protected void activeSuccess() {
-        ((MainActivity)getActivity()).findUser();
+        findUser();
     }
 
     @Override

@@ -26,7 +26,7 @@ import java.util.Random;
 /**
  * 铁蚂蚁
  */
-public class TMYAction extends BaseAction {
+public class TMYPDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String token = "";
@@ -149,15 +149,13 @@ public class TMYAction extends BaseAction {
     private void startTask() {
         System.out.println(mParams.getType());
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
+        HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
                 .params("TaskType", mParams.getType())
-                .params("Page", 1)
-                .params("PageSize", 12)
-                .params("PlatId", 1)
+                .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
-                .params("AccountId", mParams.getBuyerNum().getId())
+                .params("AccountIdList", mParams.getBuyerNum().getId()+",")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -166,20 +164,17 @@ public class TMYAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (null != obj.getString("msg") && !("".equals(obj.getString("msg")))) {
-                                sendLog(obj.getString("msg") + "a");
-                            } else {
-                                JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
-                                if (null != array && array.size() != 0) {
-                                    for (int i = 0, len = array.size(); i < len; i++) {
-                                        JSONObject object = array.getJSONObject(0);
-                                        sendLog("检测到任务领取中...");
-                                        lqTask(object.getString("TaskListNo"));
-                                        break;
-                                    }
-                                } else {
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            if(obj.getInteger("errcode") == 0 || obj.getInteger("errcode") == 3){
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                if (count == 0) {
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.tiemayi, 3000);
                                 }
+                                count++;
+                                addTask("铁蚂蚁");
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }else{
+                                sendLog(obj.getString("msg"));
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -205,46 +200,6 @@ public class TMYAction extends BaseAction {
                                     startTask();
                                 }
                             }, period);
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("AccountId", mParams.getBuyerNum().getId())
-                .params("TaskListNo", taskId)
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
-                .execute(new StringCallback() {
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("errcode") == 0 && "接单成功".equals(jsonObject.getString("msg"))) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.tiemayi, 3000);
-                                }
-                                count++;
-                                addTask("铁蚂蚁");
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(jsonObject.getString("msg"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
                         }
                     }
                 });

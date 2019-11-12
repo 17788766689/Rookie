@@ -131,7 +131,7 @@ public class XMGAction extends BaseAction {
         HttpClient.getInstance().get("/iop/index/index.html", mPlatform.getHost())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .headers("Referer","http://yuntao.zhengfuz.com/iop/order/index.html")
-                .headers("Cookie", cookie)
+                .headers("Cookie", cookie+";order_token="+token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -181,7 +181,7 @@ public class XMGAction extends BaseAction {
         String[] str = url.split("=");
         HttpClient.getInstance().get("/iop/index/attention.html?task_key_id=" + str[1], mPlatform.getHost())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Cookie", cookie)
+                .headers("Cookie", cookie+";order_token="+token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -208,7 +208,7 @@ public class XMGAction extends BaseAction {
                 .params("task_key_id", taskId)
                 .params("access_token", token)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Cookie", cookie)
+                .headers("Cookie", cookie+";order_token="+token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
