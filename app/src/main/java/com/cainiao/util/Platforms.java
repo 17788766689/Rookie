@@ -27,6 +27,8 @@ import com.cainiao.action.QTLYAction;
 import com.cainiao.action.RRLTAction;
 import com.cainiao.action.SFQQDAction;
 import com.cainiao.action.SLB2Action;
+import com.cainiao.action.SLB3Action;
+import com.cainiao.action.SLB4Action;
 import com.cainiao.action.SLBAction;
 import com.cainiao.action.SMKJAction;
 import com.cainiao.action.SYCAction;
@@ -194,6 +196,8 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.ruyi, "如意", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 8, null));
            mList.add(new Platform(new Params(500,1000),R.mipmap.suanluobo, "酸罗卜", "com.suanluobo", "http://gouqujie.cn", "", "http://gouqujie.cn/binding/noBinding", 0, Const.TLSHE, 1, 7, new SLBAction()));
             mList.add(new Platform(new Params(500,1000),R.mipmap.suanluobo, "酸罗卜2", "com.suanluobo2", "http://gouqujie.cn", "", "http://gouqujie.cn/binding/noBinding", 0, Const.TLSHE, 1, 7, new SLB2Action()));
+            mList.add(new Platform(new Params(500,1000),R.mipmap.suanluobo, "酸罗卜3", "com.suanluobo3", "http://gouqujie.cn", "", "http://gouqujie.cn/binding/noBinding", 0, Const.TLSHE, 1, 7, new SLB3Action()));
+            mList.add(new Platform(new Params(500,1000),R.mipmap.suanluobo, "酸罗卜4", "com.suanluobo4", "http://gouqujie.cn", "", "http://gouqujie.cn/binding/noBinding", 0, Const.TLSHE, 1, 7, new SLB4Action()));
 
             //            //第十六行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.shengduoduo, "升多多", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
