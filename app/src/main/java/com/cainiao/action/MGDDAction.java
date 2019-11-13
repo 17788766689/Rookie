@@ -173,6 +173,7 @@ public class MGDDAction extends BaseAction {
                                         && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
                                     lqTask(object.getString("id"));
+                                    break;
                                 }
                             }
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
