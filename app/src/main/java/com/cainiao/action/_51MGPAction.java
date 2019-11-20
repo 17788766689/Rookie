@@ -144,7 +144,11 @@ public class _51MGPAction extends BaseAction {
                             JSONObject array = JSONObject.parseObject(response.body());
                             if (array.getBooleanValue("Success")) {
                                 sendLog("检测到任务领取中...");
-                                lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                if (array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getDoubleValue("CommissionFee") > 1){
+                                    lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                }else {
+                                    sendLog("自动过滤浏览任务...");
+                                }
                             } else {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }
