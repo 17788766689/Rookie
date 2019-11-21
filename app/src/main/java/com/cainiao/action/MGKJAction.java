@@ -110,7 +110,7 @@ public class MGKJAction extends BaseAction {
                                 sendLog("接单成功,店铺名:"+obj.getString("dpmc"));
                                 Utils.setClipboardStr(obj.getString("shopLink"));
                                 sendLog("商品链接自动复制成功,可粘贴查看！");
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.muguakeji, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getString("dpmc"), R.raw.muguakeji, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

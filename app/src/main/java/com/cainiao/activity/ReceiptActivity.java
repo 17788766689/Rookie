@@ -315,7 +315,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_9;
                 } else if (TextUtils.equals(mPlatform.getName(), "优家网")) {
                     resId = R.array.receipt_type_10;
-                } else if (TextUtils.equals(mPlatform.getName(), "猫猫咪")) {
+                } else if (TextUtils.equals(mPlatform.getName(), "猫猫咪打款")) {
                     resId = R.array.receipt_type_11;
                 } else {
                     resId = R.array.receipt_type_1;
@@ -597,7 +597,6 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         mList.set(position, mPlatform);
         Platforms.setPlatforms(mList);
 
-        Platforms.setCurrPlatform(null);
     }
 
 

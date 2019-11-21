@@ -1,33 +1,21 @@
 package com.cainiao.fragment;
 
-import android.Manifest;
 import android.content.Intent;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 
-import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
-import com.cainiao.activity.MainActivity;
 import com.cainiao.activity.ReceiptActivity;
 import com.cainiao.adapter.StickyGridAdapter;
 import com.cainiao.base.BaseFragment;
 import com.cainiao.base.MyApp;
 import com.cainiao.bean.Platform;
-import com.cainiao.util.AppUtil;
-import com.cainiao.util.Const;
-import com.cainiao.util.DeviceUtil;
 import com.cainiao.util.DialogUtil;
-import com.cainiao.util.HttpUtil;
-import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
-import com.cainiao.util.Utils;
 import com.cainiao.view.stickygridheaders.StickyGridHeadersGridView;
-import com.lzy.okgo.callback.StringCallback;
-import com.lzy.okgo.model.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +36,7 @@ public class HomeFragment extends BaseFragment implements TextWatcher{
 
     @Override
     protected void init(View view) {
-        checkPermission();
+        checkPermission(true);
         mGridView = view.findViewById(R.id.asset_grid);
         etSearchName = view.findViewById(R.id.et_search_name);
         mList = Platforms.getPlatforms();

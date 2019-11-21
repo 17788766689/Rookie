@@ -36,7 +36,6 @@ public class _918RQWAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
-
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
@@ -53,19 +52,44 @@ public class _918RQWAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            login();
+            getToken();
         }
+    }
+
+    private void getToken(){
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
+                .params("time",n)
+                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
+                            login();
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
     }
 
     /**
      * 登录
      */
     private void login() {
+
+
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
                 .params("device_version", "")
+               .params("verifyid","123123123")
+                .params("token",token)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

@@ -5,8 +5,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.support.v4.content.ContextCompat;
+
 import com.cainiao.R;
 import com.cainiao.base.BaseActivity;
+import com.cainiao.base.BaseFragment;
 import com.cainiao.fragment.CommonFragment;
 import com.cainiao.fragment.CountFragment;
 import com.cainiao.fragment.HomeFragment;
@@ -16,6 +20,8 @@ import com.cainiao.service.KeepAliveService;
 import com.cainiao.util.Const;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.view.BottomBar;
+import com.cainiao.view.toasty.MyToast;
+
 import java.util.List;
 
 
@@ -24,6 +30,7 @@ public class MainActivity extends BaseActivity {
     private BottomBar bottomBar;
     private Intent mServiceIntent;
     private UpdateStatusReceiver mReceiver;
+    private static final int PERMISSION_SETTING_CODE = 202;
 
     class UpdateStatusReceiver extends BroadcastReceiver {
         @Override
@@ -82,9 +89,6 @@ public class MainActivity extends BaseActivity {
                 .build();
     }
 
-
-
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -117,5 +121,20 @@ public class MainActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {   //屏蔽返回按钮
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(bottomBar.getCurrentFragment() == null || requestCode != PERMISSION_SETTING_CODE) return;
+        BaseFragment fragment = (BaseFragment) bottomBar.getCurrentFragment();
+        for (String permission : fragment.getPermissionList()) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) { //还有未申请的权限
+                MyToast.error(getString(R.string.deviceId_not_allow));
+                finish();
+                return;
+            }
+        }
+        fragment.getDeviceId();
     }
 }

@@ -1,7 +1,6 @@
 package com.cainiao.base;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -23,26 +21,27 @@ import android.view.ViewGroup;
 
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
-import com.cainiao.activity.MainActivity;
 import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.HttpUtil;
-import com.cainiao.util.LogUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
-import com.zinc.libpermission.annotation.Permission;
-import com.zinc.libpermission.annotation.PermissionCanceled;
-import com.zinc.libpermission.annotation.PermissionDenied;
-import com.zinc.libpermission.bean.CancelInfo;
-import com.zinc.libpermission.bean.DenyInfo;
-import com.zinc.libpermission.utils.JPermissionUtil;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public abstract class BaseFragment extends Fragment {
+
+    private boolean update;
+
+    private static final int PERMISSION_REQUEST_CODE = 201;
+    private static final int PERMISSION_SETTING_CODE = 202;
+    private List<String> mPermissionList = new ArrayList<>();
 
 
     @Nullable
@@ -105,57 +104,65 @@ public abstract class BaseFragment extends Fragment {
         }
 
         findUserCallback();
-        index();  //检查更新和通知
-
+        if(Const.FLAG) checkUpdate();  //检查更新和通知
     }
+
 
 
 
     /**
-     * 申请授权并处理“允许权限”的回调
+     * 检查权限
      */
-    @Permission(value={Manifest.permission.READ_PHONE_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE })
-    protected void checkPermission(){
-        getDeviceId();
-    }
+    protected void checkPermission(boolean update) {
+        this.update = update;
+        mPermissionList.clear();
+        String[] permissions = new String[]{
+                Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+        };
+        /** 判断哪些权限未授予，以便必要的时候重新申请*/
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(getActivity(), permission) != PackageManager.PERMISSION_GRANTED) {
+                mPermissionList.add(permission);
+            }
+        }
 
-    //用户取消授权
-    @PermissionCanceled()
-    private void cancel(CancelInfo cancelInfo) {
-        MyToast.error(MyApp.getContext().getString(R.string.deviceId_goto_setting_power));
-        //前往开启权限的界面
-        JPermissionUtil.goToMenu(getActivity());
-    }
-
-    //用户拒绝授权并勾选了“不再提示”
-    @PermissionDenied()
-    private void deny(DenyInfo denyInfo) {
-        MyToast.error(MyApp.getContext().getString(R.string.deviceId_goto_setting_power));
-        //前往开启权限的界面
-        JPermissionUtil.goToMenu(getActivity());
+        /**
+         * 判断存储委授予权限的集合是否为空
+         */
+        if (mPermissionList.isEmpty() || Build.VERSION.SDK_INT < Build.VERSION_CODES.M) { //未授予的权限为空，表示都授予了
+            getDeviceId();
+        } else {
+            permissions = mPermissionList.toArray(new String[mPermissionList.size()]);//将List转为数组
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        }
     }
 
     /**
      * 获取手机IMEI
      * @return
      */
-    private void getDeviceId() {
+    public void getDeviceId() {
         try {
             TelephonyManager manager = (TelephonyManager) MyApp.getContext().getSystemService(Context.TELEPHONY_SERVICE);
             Method method = manager.getClass().getMethod("getImei", int.class);
             String deviceId = (String) method.invoke(manager, 0);
             Utils.setDeviceId(deviceId);
+//            LogUtil.e("deviceId：" + deviceId);
         } catch (Exception e) {
 //            LogUtil.e("获取deviceId出错：" + e.toString());
+        }finally {
+            findUser();
         }
-        findUser();
     }
 
 
     /**
      * 检查更新
      */
-    protected void index(){
+    protected void checkUpdate(){
+        Const.FLAG = false;
         HttpUtil.index(AppUtil.getVersionCode(getActivity()), new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -219,6 +226,27 @@ public abstract class BaseFragment extends Fragment {
         if(TextUtils.isEmpty(url)) return;
         AppUtil.downloadApk(getActivity(), url, cancelable);
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode != PERMISSION_REQUEST_CODE) return;
+        for (int i = 0; i < grantResults.length; i++) {  //读取IMEI权限授予回调
+            if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
+
+                MyToast.error(getString(R.string.deviceId_not_allow));
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                intent.setData(uri);
+                getActivity().startActivityForResult(intent, PERMISSION_SETTING_CODE);
+                return;
+            }
+        }
+        getDeviceId();
+    }
+
+    public List<String> getPermissionList(){return mPermissionList;}
 
     protected void init(View view) {}
     public abstract int getLayoutResId();

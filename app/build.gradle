@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'android-aspectjx' //添加这一行
 
 android {
     compileSdkVersion 27
@@ -7,13 +6,15 @@ android {
         applicationId "com.cainiao"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 16
-        versionName "1.2.4"
+        versionCode 19
+        versionName "1.2.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true //是否开启混淆
+            shrinkResources true //删除没用的资源文件
+            zipAlignEnabled true //优化zip文件
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -34,7 +35,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
-    implementation 'com.github.zincPower:JPermission:0.5'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -51,5 +51,4 @@ dependencies {
     implementation files('libs/lite-orm-1.9.2.jar')
     //implementation 'com.github.:Toasty:2.0.6'
     implementation 'org.jsoup:jsoup:1.10.3'
-    implementation 'org.jetbrains:annotations:15.0'
 }

@@ -85,7 +85,7 @@ public class JXLYAction extends BaseAction {
                         String reData = response.body().toString();
                         int index = reData.indexOf("captcha/gen_img?key=");
                         yzmKey = reData.substring(index + 20, index + 52);
-                        String imgUrl = "https://api.ch5s.cn:14141/captcha/gen_img?key=" + yzmKey+"&time="+new Date();
+                        String imgUrl = "https://api.ch5s.cn:14141/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
                         sendMsg("get_verifycode", imgUrl);
                     }
                 });
@@ -101,7 +101,7 @@ public class JXLYAction extends BaseAction {
                 .params("pwd", mParams.getPassword())
                 .params("captcha", mParams.getVerifyCode())
                 .params("captchaKey", yzmKey)
-                .headers("Sec-Fetch-Mode","cors")
+                .headers("Sec-Fetch-Mode", "cors")
                 .headers("Referer", "https://wx.ch5s.cn/workerLogin")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
@@ -148,7 +148,7 @@ public class JXLYAction extends BaseAction {
                 .headers("x-rn-access-token", accessToken)
                 .headers("x-rn-user-id", userId)
                 .headers("x-rn-platform", platform)
-                .headers("Sec-Fetch-Mode","cors")
+                .headers("Sec-Fetch-Mode", "cors")
                 .headers("Referer", "https://wx.ch5s.cn/workerIndex")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
@@ -205,7 +205,7 @@ public class JXLYAction extends BaseAction {
                 .headers("x-rn-access-token", accessToken)
                 .headers("x-rn-user-id", userId)
                 .headers("x-rn-platform", platform)
-                .headers("Sec-Fetch-Mode","cors")
+                .headers("Sec-Fetch-Mode", "cors")
                 .headers("Referer", "https://wx.ch5s.cn/workerIndex")
                 .headers("Content-Type", "application/json;charset=UTF-8")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
@@ -216,8 +216,8 @@ public class JXLYAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (2000 == jsonObject.getIntValue("code")) {
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW)+"店铺名:"+shopName);
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jinxiuleyuan, 3000);
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW) + "店铺名:" + shopName);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()) + ",店铺名:" + shopName, R.raw.jinxiuleyuan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

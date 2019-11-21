@@ -122,7 +122,9 @@ public class BMTAction extends BaseAction {
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
-                            } else {
+                            } else if("任务数据获取失败".equals(obj.getString("msg"))){
+                                sendLog("暂时没有任务");
+                            }else {
                                 sendLog(obj.getString("msg"));  //继续检测任务
                             }
                         } catch (Exception e) {

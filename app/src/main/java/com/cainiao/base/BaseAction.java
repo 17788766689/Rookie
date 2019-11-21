@@ -26,7 +26,7 @@ import java.util.List;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class BaseAction implements Serializable {
+public class BaseAction{
 
 
     public void start(Platform platform) throws Exception {}

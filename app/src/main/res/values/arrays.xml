@@ -79,4 +79,10 @@
         <item>3天单</item>
     </string-array>
 
+    <!--卡丁车-->
+    <string-array name="receipt_type_12">
+        <item>精刷单</item>
+        <item>标签单</item>
+    </string-array>
+
 </resources>

@@ -4,40 +4,32 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
 import com.cainiao.base.MyApp;
-import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
-/**
- * 51芒果派
- */
-public class _51MGPAction extends BaseAction {
-    private boolean isStart;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
+/**
+ * 卡丁车
+ */
+public class KDCAction extends BaseAction {
+    private boolean isStart;
     private Handler mHandler;
-    private String cookie = "";
+    private String token = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
@@ -65,24 +57,35 @@ public class _51MGPAction extends BaseAction {
      * 登录
      */
     private void login() {
+        Map map = new HashMap();
+        map.put("mobile", mParams.getAccount());
+        map.put("password", mParams.getPassword());
+        map.put("code", "");
+        String param = JSON.toJSONString(map);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, param);
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/login/Login?returnUrl=/", mPlatform.getHost())
-                .params("UserName", mParams.getAccount())
-                .params("Password", mParams.getPassword())
+        HttpClient.getInstance().post("/chaoshua/app/user/login", mPlatform.getHost())
+                .upRequestBody(body)
+                .headers("token", "null")
+                .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getBooleanValue("Success")) {    //登录成功
-                                cookie = response.headers().get("Set-Cookie").toString();
+                            if ("success".equals(jsonObject.getString("msg"))) {    //登录成功
                                 sendLog("登录成功！");
+                                token = jsonObject.getJSONObject("data").getString("token");
                                 updateParams(mPlatform);
-                                getAccount();
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
                             } else {
-                                sendLog(jsonObject.getString("Message"));
-                                MyToast.error(jsonObject.getString("Message"));
+                                sendLog(jsonObject.getString("msg"));
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -94,61 +97,33 @@ public class _51MGPAction extends BaseAction {
     }
 
     /**
-     * 获取买号
-     */
-    private void getAccount() {
-        HttpClient.getInstance().post("/ReceiptTask", mPlatform.getHost())
-                .headers("Cookie", cookie)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            Document doc = Jsoup.parse(response.body());
-                            Elements tbData = doc.select(".accountlist").select(".cell-item");
-                            if (tbData.size() > 0) {    //获取买号成功
-                                mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
-                                List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
-                                }
-                                showBuyerNum(JSON.toJSONString(list));
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
-                            } else { //无可用的买号
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
-                                stop();
-                            }
-                        } catch (Exception e) {
-                            sendLog("获取买号异常！");
-                            stop();
-                        }
-                    }
-                });
-    }
-
-    /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
-                .headers("Cookie", cookie)
+        Map map = new HashMap();
+        map.put("orderStyle", 2);
+        map.put("taskStyleMode", 0);
+        map.put("page", 1);
+        map.put("size", 10);
+        map.put("taskId", "");
+        map.put("type", "Android");
+        String param = JSON.toJSONString(map);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON, param);
+        HttpClient.getInstance().post("/chaoshua/app/user/task/getList", mPlatform.getHost())
+                .upRequestBody(body)
+                .headers("token", token)
+                .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject array = JSONObject.parseObject(response.body());
-                            if (array.getBooleanValue("Success")) {
+                            if (array.getIntValue("total") > 0) {
                                 sendLog("检测到任务领取中...");
-                                if (array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getDoubleValue("CommissionFee") > mParams.getMinCommission()){
-                                    lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
-                                }else {
-                                    sendLog("佣金低于你设置的最小佣金,自动过滤");
-                                }
+                                lqTask(String.valueOf(array.getJSONArray("data").getJSONObject(0).getIntValue("taskId")));
                             } else {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }
@@ -186,25 +161,24 @@ public class _51MGPAction extends BaseAction {
      * @param taskId 任务id
      */
     private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
-                .params("orderId", taskId)
-                .headers("Cookie", cookie)
+        HttpClient.getInstance().post("/chaoshua/app/user/mission/submit/" + taskId + "/Android", mPlatform.getHost())
+                .headers("token", token)
+                .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
+                            if ("success".equals(jsonObject.getString("msg"))) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw._51mangguopai, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaolanshu, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
-                                stop();
                             } else {
-                                sendLog(jsonObject.getString("Message"));
+                                sendLog(jsonObject.getString("msg"));
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");

@@ -113,34 +113,34 @@ public class SLB2Action extends BaseAction {
                             {
                                 if (TextUtils.isEmpty(response.body())) return;
                                 JSONObject obj = JSONObject.parseObject(response.body());
-                                if (!"success".equals(obj.getString("status")))return;
-                                    HttpClient.getInstance().post("/api/user.php", mPlatform.getHost())
-                                            .params("id", "getUserTaskStatus")
-                                            .headers("Cookie", cookie)
-                                            .headers("Content-Type", "application/json")
-                                            .headers("X-Requested-With", "XMLHttpRequest")
-                                            .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                                            .execute(new StringCallback() {
-                                                @Override
-                                                public void onSuccess(Response<String> response) {
-                                                    try {
-                                                        if (TextUtils.isEmpty(response.body())) return;
-                                                        JSONObject obj = JSONObject.parseObject(response.body());
-                                                        if ("ok".equals(obj.getString("msg")) && null !=obj.getJSONObject("data") && 0 == obj.getJSONObject("data").getInteger("z")) {
-                                                            sendLog("接单成功,店铺名:"+obj.getJSONObject("data").getJSONObject("task").getString("shop"));
-                                                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.suanluobo, 3000);
-                                                            addTask("酸萝卜");
-                                                            updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                                            isStart = false;
-                                                        } else {
-                                                            sendLog("继续检测任务");
-                                                        }
-                                                    } catch (Exception e) {
-                                                        sendLog("检测任务异常");  //接单异常
+                                if (!"success".equals(obj.getString("status"))) return;
+                                HttpClient.getInstance().post("/api/user.php", mPlatform.getHost())
+                                        .params("id", "getUserTaskStatus")
+                                        .headers("Cookie", cookie)
+                                        .headers("Content-Type", "application/json")
+                                        .headers("X-Requested-With", "XMLHttpRequest")
+                                        .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                                        .execute(new StringCallback() {
+                                            @Override
+                                            public void onSuccess(Response<String> response) {
+                                                try {
+                                                    if (TextUtils.isEmpty(response.body())) return;
+                                                    JSONObject obj = JSONObject.parseObject(response.body());
+                                                    if ("ok".equals(obj.getString("msg")) && null != obj.getJSONObject("data") && 0 == obj.getJSONObject("data").getInteger("z")) {
+                                                        sendLog("接单成功,店铺名:" + obj.getJSONObject("data").getJSONObject("task").getString("shop"));
+                                                        receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName() + ",店铺名" + obj.getJSONObject("data").getJSONObject("task").getString("shop")), R.raw.suanluobo, 3000);
+                                                        addTask("酸萝卜");
+                                                        updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                                        isStart = false;
+                                                    } else {
+                                                        sendLog("继续检测任务");
                                                     }
+                                                } catch (Exception e) {
+                                                    sendLog("检测任务异常");  //接单异常
                                                 }
+                                            }
 
-                                            });
+                                        });
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常");  //接单异常

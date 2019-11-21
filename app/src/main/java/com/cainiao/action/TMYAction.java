@@ -147,7 +147,6 @@ public class TMYAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        System.out.println(mParams.getType());
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
                 .params("UserId", userId)

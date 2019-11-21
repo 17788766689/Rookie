@@ -3,7 +3,6 @@ package com.cainiao.action;
 import android.os.Handler;
 import android.text.TextUtils;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
@@ -12,23 +11,19 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-
 /**
- * 隔壁王叔叔
+ * 红色水果堂
  */
-public class GBWSSAction extends BaseAction {
+public class HSSGTAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -63,7 +58,7 @@ public class GBWSSAction extends BaseAction {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/index/Apprentice/getlogin.html", mPlatform.getHost())
                 .params("userName", mParams.getAccount())
-                .params("password", mParams.getPassword())
+                .params("password", Utils.md5(mParams.getPassword()))
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
@@ -93,7 +88,7 @@ public class GBWSSAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("登录异常");  //接单异常
                     }
                 });
     }
@@ -106,7 +101,6 @@ public class GBWSSAction extends BaseAction {
                 .headers("Cookie",cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("Version","1.0")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -116,7 +110,7 @@ public class GBWSSAction extends BaseAction {
                             JSONObject obj = JSONObject.parseObject(response.body());
                             if (obj.getInteger("status") == 200) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.gebiwangshushu, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.hongseshuiguotan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

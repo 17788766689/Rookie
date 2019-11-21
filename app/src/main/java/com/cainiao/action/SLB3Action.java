@@ -128,7 +128,7 @@ public class SLB3Action extends BaseAction {
                                                         JSONObject obj = JSONObject.parseObject(response.body());
                                                         if ("ok".equals(obj.getString("msg")) && null !=obj.getJSONObject("data") && 0 == obj.getJSONObject("data").getInteger("z")) {
                                                             sendLog("接单成功,店铺名:"+obj.getJSONObject("data").getJSONObject("task").getString("shop"));
-                                                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.suanluobo, 3000);
+                                                            receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getJSONObject("data").getJSONObject("task").getString("shop"), R.raw.suanluobo, 3000);
                                                             addTask("酸萝卜");
                                                             updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                                             isStart = false;

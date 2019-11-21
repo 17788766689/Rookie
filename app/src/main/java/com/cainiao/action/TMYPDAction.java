@@ -35,6 +35,8 @@ public class TMYPDAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
+    int index = 0;
+    private JSONArray accountArray;
 
     @Override
     public void start(Platform platform) {
@@ -118,16 +120,20 @@ public class TMYPDAction extends BaseAction {
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             JSONArray array = jsonObject.getJSONArray("obj");
+
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                mParams.setBuyerNum(new BuyerNum("-1","自动切换"));
+                                accountArray = array;
                                 List<BuyerNum> list = new ArrayList<>();
+                                list.add(new BuyerNum("-1", "自动切换"));
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
                                     list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                sendLog("如果有买号已经接满了,可以自动手动选择买号,接单效率更高");
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
@@ -147,15 +153,26 @@ public class TMYPDAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        System.out.println(mParams.getType());
         long n = new Date().getTime();
+        String accountId = "";
+        if(mParams.getBuyerNum().getId().equals("-1")){
+            if(accountArray.size() == index+1){
+                index = 0;
+                accountId = accountArray.getJSONObject(index).getString("Id");
+            }else{
+                accountId = accountArray.getJSONObject(index).getString("Id");
+                index++;
+            }
+        }else{
+            accountId = mParams.getBuyerNum().getId();
+        }
         HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
                 .params("TaskType", mParams.getType())
                 .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
-                .params("AccountIdList", mParams.getBuyerNum().getId()+",")
+                .params("AccountIdList", accountId+",")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -192,19 +209,18 @@ public class TMYPDAction extends BaseAction {
                     public void onFinish() {
                         super.onFinish();
                         if (isStart) {
-                            //取最小频率和最大频率直接的随机数值作为刷单间隔
-                            int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startTask();
-                                }
-                            }, period);
+                                //取最小频率和最大频率直接的随机数值作为刷单间隔
+                                int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startTask();
+                                    }
+                                }, period);
                         }
                     }
                 });
     }
-
 
     @Override
     public void stop() {

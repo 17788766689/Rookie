@@ -47,7 +47,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
 
     @Override
     protected void init(View view) {
-        checkPermission();
+        checkPermission(false);
         mGridView = view.findViewById(R.id.asset_grid);
         etSearchName = view.findViewById(R.id.et_search_name);
         mList = Platforms.getLatestPlaforms();

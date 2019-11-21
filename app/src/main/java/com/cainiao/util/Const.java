@@ -42,7 +42,7 @@ public class Const {
     public static String STATUS_ACTION;
 
     public static String DEFAULT_ID;  //默认的imei，用来判断是否进行了获取imei的操作
-
+    public static boolean FLAG;
 
     private static void init(){
         STATUS_ACTION = "com.cainiao.status";
@@ -71,6 +71,7 @@ public class Const {
         AJW_VA = 3;
         KSHG_AW = 4;
         DEBUG_MODE = true;
+        FLAG = true;
     }
 
 }

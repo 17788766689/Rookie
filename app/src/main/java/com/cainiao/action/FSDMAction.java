@@ -218,7 +218,7 @@ public class FSDMAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (2000 == jsonObject.getIntValue("code")) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW)+"店铺名:"+shopName);
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.fongshoudamai, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+shopName, R.raw.fongshoudamai, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
