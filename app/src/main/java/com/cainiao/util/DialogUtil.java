@@ -4,13 +4,22 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.JavascriptInterface;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
+import com.cainiao.activity.WebActivity;
 import com.cainiao.view.AlertDialog;
 import com.cainiao.view.LoadDialog;
+import com.lzy.okgo.callback.StringCallback;
+import com.lzy.okgo.model.Response;
 
 /**
  * Created by WJH on 2017/8/7.
@@ -19,6 +28,8 @@ import com.cainiao.view.LoadDialog;
 public class DialogUtil {
 
     private android.app.AlertDialog noticeDialog = null;
+    private android.app.AlertDialog verifyDialog = null;
+    private WebView mWebView;
 
     private DialogUtil() {
     }
@@ -187,8 +198,95 @@ public class DialogUtil {
         noticeDialog.show();
     }
 
+
+    /**
+     * 显示滑块验证码对话框
+     */
+    public void showVerifyDialog(Context context, String pkgName, VerifyCallback callback) {
+        this.mCallback = callback;
+        View view = LayoutInflater.from(context).inflate(
+                R.layout.layout_verify, null);
+        mWebView = view.findViewById(R.id.web_view);
+        if("io.dcloud.UNIE9BC8DE".equals(pkgName)){// 918人气王获取token
+            getToken("http://www.zhyichao.com");
+        }else if ("io.dcloud.UNI89500DB".equals(pkgName)){// 欢乐购
+            getToken("http://app.biaoqiandan.com");
+        }else if("io.dcloud.UNIE7AC320".equals(pkgName)){ // 芒果叮咚
+            getToken("http://xiaomangguo.zhyichao.com");
+        }else if ("io.dcloud.UNI55AAAAA".equals(pkgName)){ // 淘抢单
+            getToken("http://www.51qiangdanwang.com");
+        }
+
+        verifyDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(true).create();
+        verifyDialog.show();
+    }
+
+
     public void setDownloadProgress(int progress) {
         if (loadDialog != null) loadDialog.setProgress(progress);
     }
 
+
+    /**
+     * 918人气王系列平台
+     */
+    private void getToken(String url){
+        HttpClient.getInstance().get("", url+"/api/index/getToken")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        if(TextUtils.isEmpty(response.body())) return;
+                        JSONObject obj = JSONObject.parseObject(response.body());
+                        JSONObject dataObj = obj.getJSONObject("data");
+                        loadVerifyCode(JSONObject.toJSONString(dataObj));
+                    }
+                });
+    }
+
+    /**
+     * 加载滑块验证码
+     * @param paramJson
+     */
+    private void loadVerifyCode(String paramJson){  //918人气王登录新增两个字段：token和verifyid
+        String url = "http://platform.ckzs.online/verify/v5/index.html";
+        JSInterface jSInterface = new JSInterface(paramJson);
+        mWebView.addJavascriptInterface(jSInterface, "android");
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
+        mWebView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.loadUrl(url);
+    }
+
+
+    class JSInterface{
+
+        private String paramJson;
+        private String token;
+
+        public JSInterface(String paramJson){
+            this.paramJson = paramJson;
+            JSONObject obj = JSONObject.parseObject(paramJson);
+            token = obj.getJSONObject("data").getString("token");
+        }
+
+        @JavascriptInterface
+        public String getV5VerifyParamJson(){
+            return paramJson;
+        }
+
+        @JavascriptInterface
+        public void setV5VerifyResultJson(String verifyId) {
+            if(!TextUtils.equals(verifyId, "1") && !TextUtils.equals(verifyId, "0")){ //1时为点击图片上关闭的按钮，0时为点击“确认”按钮
+                if(mCallback != null) mCallback.onSuccess(token, verifyId);
+            }
+            verifyDialog.cancel();
+            verifyDialog = null;
+        }
+    }
+
+    private VerifyCallback mCallback;
+    public interface VerifyCallback{
+        void onSuccess(String token, String verifyId);
+    }
 }

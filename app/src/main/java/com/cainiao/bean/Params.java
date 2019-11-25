@@ -49,6 +49,7 @@ public class Params {
 
     private String shopName;// 不接店铺
 
+
     public Params(){}
 
     public Params(int minFrequency, int maxFrequency){
@@ -230,4 +231,6 @@ public class Params {
     public boolean isFilterCheck() {
         return filterCheck;
     }
+
+
 }

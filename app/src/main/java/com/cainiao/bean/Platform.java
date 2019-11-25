@@ -57,6 +57,12 @@ public class Platform implements Serializable {
     @Ignore
     private int maxFrequency;  //接单最大频率
 
+    @Ignore
+    private String token;  //滑块验证码的token
+
+    @Ignore
+    private String verifyId; //滑块验证码返回的校验id
+
     public Platform(){}
 
     public Platform(Params params, int resId, String name, String pkgName, String host, String downloadUrl, String webUrl, int headerId, int status, int situation, int pageType, BaseAction action) {
@@ -227,6 +233,22 @@ public class Platform implements Serializable {
 
     public void setPageType(int pageType) {
         this.pageType = pageType;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getVerifyId() {
+        return verifyId;
+    }
+
+    public void setVerifyId(String verifyId) {
+        this.verifyId = verifyId;
     }
 
     public String getStatusTip(int status) {

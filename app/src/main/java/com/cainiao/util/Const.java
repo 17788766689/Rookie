@@ -44,6 +44,8 @@ public class Const {
     public static String DEFAULT_ID;  //默认的imei，用来判断是否进行了获取imei的操作
     public static boolean FLAG;
 
+    public static String NEED_VERIFY_PKGS; //需要进行滑块验证码的平台包名，以后添加其他平台的时候两个平台之间可以用","分号隔开
+
     private static void init(){
         STATUS_ACTION = "com.cainiao.status";
         HOST = "http://www.cainiaoqd.com";
@@ -72,6 +74,7 @@ public class Const {
         KSHG_AW = 4;
         DEBUG_MODE = true;
         FLAG = true;
+        NEED_VERIFY_PKGS = "io.dcloud.UNIE9BC8DE,io.dcloud.UNI89500DB,io.dcloud.UNI55AAAAA,io.dcloud.UNIE7AC320";
     }
 
 }

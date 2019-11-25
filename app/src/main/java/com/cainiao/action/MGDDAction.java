@@ -58,23 +58,46 @@ public class MGDDAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            login();
+            getToken();
         }
+    }
+
+    private void getToken(){
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
+                .params("time",n)
+                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
+                                sendLog("请更换IP再开始接单");
+                            }else{
+                                token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
+                                login();
+                            }
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
     }
 
     /**
      * 登录
      */
     private void login() {
-
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
                 .params("device_version", "")
-                .params("publicKey", "")
-                .params("sign", "")
-                .params("time", "")
+                .params("verifyid", mPlatform.getVerifyId())
+                .params("token", mPlatform.getToken())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -91,14 +114,11 @@ public class MGDDAction extends BaseAction {
                                 stop();
                             }
                         } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
-                            MyToast.error("登录异常");
                         }
                     }
-
                 });
-
-
     }
 
     /**

@@ -12,7 +12,7 @@
 
     <string name="network_unavailable">请检查网络是否可用！</string>
 
-    <string name="being_login">正在登陆</string>
+    <string name="being_login">正在登录</string>
     <string name="receipt_start">开始接单</string>
     <string name="receipt_stop">停止接单</string>
     <string name="receipt_default_data">登录后选择买号</string>

@@ -30,6 +30,7 @@ import com.cainiao.service.MyService;
 import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
 import com.cainiao.util.DbUtil;
+import com.cainiao.util.DialogUtil;
 import com.cainiao.util.HttpUtil;
 import com.cainiao.util.LogUtil;
 import com.cainiao.util.Platforms;
@@ -69,6 +70,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private String buyerNumStr;
     private UpdateReceiver mReceiver;
     private Random mRandom;
+
 
     @Override
     public int getLayoutResId() {
@@ -132,11 +134,20 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         switch (view.getId()) {
             case R.id.tv_start:
                 if (!getParams()) return;
-                mPlatform.setStart(true);
-                mPlatform.setRefreshVerifyCode(false);
-                Platforms.addRunningPlatform(mPlatform);
-                Platforms.setCurrPlatform(mPlatform);
-                startService(new Intent(this, MyService.class));
+                if(Const.NEED_VERIFY_PKGS.contains(mPlatform.getPkgName())){   //包含有滑块验证码的平台，需要先加载滑块验证码进行验证
+                    DialogUtil.get().showVerifyDialog(this, mPlatform.getPkgName(), new DialogUtil.VerifyCallback(){  //滑块验证码验证之后的回调，目前验证失败返回的verifyId和成功的verifyId一致
+                        @Override
+                        public void onSuccess(String token, String verifyId) {
+//                            LogUtil.e("token: " + token);
+//                            LogUtil.e("verifyId: " + verifyId);
+                            mPlatform.setToken(token);
+                            mPlatform.setVerifyId(verifyId);
+                            startReceipt();
+                        }
+                    });  //callback后面的参数要写在这里，}和)之间，}之前的代码时callback里面的，不然就写在callback前面
+                }else{
+                    startReceipt();
+                }
                 break;
             case R.id.tv_stop:
                 mPlatform.setStart(false);
@@ -162,6 +173,17 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 startService(new Intent(this, MyService.class));
                 break;
         }
+    }
+
+    /**
+     * 开始接单
+     */
+    private void startReceipt(){
+        mPlatform.setStart(true);
+        mPlatform.setRefreshVerifyCode(false);
+        Platforms.addRunningPlatform(mPlatform);
+        Platforms.setCurrPlatform(mPlatform);
+        startService(new Intent(this, MyService.class));
     }
 
     @Override
@@ -321,7 +343,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_1;
                 }
                 break;
-            case 2:  //代表平台：51人气王 等（频率、账号、密码、买号、佣金本金）
+            case 2:  //代表平台：918人气王 等（频率、账号、密码、买号、佣金本金、滑块验证码）
                 llReceiptType.setVisibility(View.GONE);
                 break;
             case 3:  //代表平台：51芒果派 等（频率、账号、密码、买号）
@@ -380,6 +402,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 12:  //代表平台：快客、力度 等（频率、账号、密码、账号（任务）类型）
                 if (TextUtils.equals(mPlatform.getName(), "力度")) {
                     resId = R.array.receipt_type_8;
+                    ((TextView) findViewById(R.id.tv_type)).setText("任务类型：");
+                }else if(TextUtils.equals(mPlatform.getName(),"卡丁车")){
+                    resId = R.array.receipt_type_12;
                     ((TextView) findViewById(R.id.tv_type)).setText("任务类型：");
                 } else {
                     resId = R.array.receipt_type_7;

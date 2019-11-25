@@ -36,8 +36,6 @@ public class KeepAliveService extends Service{
     private PowerManager.WakeLock wakelock;
 
 
-
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

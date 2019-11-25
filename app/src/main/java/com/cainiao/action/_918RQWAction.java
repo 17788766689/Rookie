@@ -67,8 +67,12 @@ public class _918RQWAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
-                            login();
+                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
+                                sendLog("请更换IP再开始接单");
+                            }else{
+                                token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
+                                login();
+                            }
                         } catch (Exception e) {
                             sendLog("登录异常！");
                             stop();
@@ -81,15 +85,13 @@ public class _918RQWAction extends BaseAction {
      * 登录
      */
     private void login() {
-
-
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
                 .params("device_version", "")
-               .params("verifyid","123123123")
-                .params("token",token)
+               .params("verifyid", mPlatform.getVerifyId())
+                .params("token", mPlatform.getToken())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

@@ -19,17 +19,18 @@ import com.lzy.okgo.model.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * 卡丁车
+ * 天时
  */
-public class KDCAction extends BaseAction {
+public class TSAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
-    private String token = "";
+    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
@@ -57,35 +58,30 @@ public class KDCAction extends BaseAction {
      * 登录
      */
     private void login() {
-        Map map = new HashMap();
-        map.put("mobile", mParams.getAccount());
-        map.put("password", mParams.getPassword());
-        map.put("code", "");
-        String param = JSON.toJSONString(map);
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, param);
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/chaoshua/app/user/login", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("token", "null")
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
+        HttpClient.getInstance().post("/shopping_login.do", mPlatform.getHost())
+                .params("login_role","wap")
+                .params("username",mParams.getAccount())
+                .params("password",mParams.getPassword())
+                .headers("Content-Type","application/x-www-form-urlencoded")
+                .headers("Referer","http://tianshizixun.com/user/wap/login.do")
+                .headers("Upgrade-Insecure-Requests","1")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0; MHA-AL00 Build/HUAWEIMHA-AL00; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/6.2 TBS/044304 Mobile Safari/537.36 MicroMessenger/6.7.3.1360(0x26070333) NetType/4G Language/zh_CN Process/tools")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if ("success".equals(jsonObject.getString("msg"))) {    //登录成功
+                            String pattern = ".*提现账号.*";
+                            if(pattern.matches(response.body())){
                                 sendLog("登录成功！");
-                                token = jsonObject.getJSONObject("data").getString("token");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
                             } else {
-                                sendLog(jsonObject.getString("msg"));
-                                MyToast.error(jsonObject.getString("msg"));
+                                sendLog("账号或密码错误");
+                                MyToast.error("账号或密码错误");
                                 stop();
                             }
                         } catch (Exception e) {
@@ -101,12 +97,8 @@ public class KDCAction extends BaseAction {
      */
     private void startTask() {
         Map map = new HashMap();
-        if("1".equals(mParams.getType())){
-            map.put("taskStyleMode", 0);
-        }else{
-            map.put("taskStyleMode", 4);
-        }
         map.put("orderStyle", 2);
+        map.put("taskStyleMode", 0);
         map.put("page", 1);
         map.put("size", 10);
         map.put("taskId", "");
@@ -116,7 +108,6 @@ public class KDCAction extends BaseAction {
         RequestBody body = RequestBody.create(JSON, param);
         HttpClient.getInstance().post("/chaoshua/app/user/task/getList", mPlatform.getHost())
                 .upRequestBody(body)
-                .headers("token", token)
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -166,7 +157,6 @@ public class KDCAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/chaoshua/app/user/mission/submit/" + taskId + "/Android", mPlatform.getHost())
-                .headers("token", token)
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -177,7 +167,7 @@ public class KDCAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if ("success".equals(jsonObject.getString("msg"))) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.kadingche, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.hongchangkeji, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
