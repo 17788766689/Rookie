@@ -140,9 +140,13 @@ public class QTLYAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject array = JSONObject.parseObject(response.body());
                             if (null != array && 2000 == array.getIntValue("code") && array.getJSONObject("data").getJSONArray("list").size() > 0) {
-                                sendLog("检测到任务领取中...");
-                                lqTask(String.valueOf(array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getIntValue("id")));
                                 shopName = array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getString("shopName");
+                                if(shopName != null && shopName.equals(mParams.getShopName())){
+                                    sendLog("店铺名:"+shopName+",跳过不接");
+                                }else{
+                                    sendLog("检测到任务领取中...");
+                                    lqTask(String.valueOf(array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getIntValue("id")));
+                                }
                             } else {
                                 sendLog(array.getString("msg"));  //继续检测任务
                             }

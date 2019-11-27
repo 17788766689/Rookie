@@ -14,8 +14,6 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -26,12 +24,13 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 淘抢单
+ * 旺店宝
  */
-public class TQDAction extends BaseAction {
+public class WDBAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String token = "";
+    private String userId = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
@@ -53,33 +52,8 @@ public class TQDAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            getToken();
+            login();
         }
-    }
-
-    private void getToken(){
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
-                .params("time",n)
-                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
-                                sendLog("请更换IP再开始接单");
-                            }else{
-                                token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
-                                login();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
-                    }
-                });
     }
 
     /**
@@ -87,31 +61,39 @@ public class TQDAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
+        HttpClient.getInstance().post("/api/Login/LoginByMobile", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
-                .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "")
-                .params("verifyid", mPlatform.getVerifyId())
-                .params("token", mPlatform.getToken())
+                .params("password", mParams.getPassword())
+                .params("client_id", "BF7817FD2E8651B6FC4C102F607EA1CD")
+                .params("client_secret", "AFB5D053C0D6EE9E9B2796333AB2EAC8")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("message"));
-                            if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                            sendLog(jsonObject.getString("msg"));
+                            if (jsonObject.getIntValue("errcode") == 0) {    //登录成功
                                 updateParams(mPlatform);
-                                token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                                token = jsonObject.getJSONObject("obj").getString("Token");
+                                userId = jsonObject.getJSONObject("obj").getString("UserId");
                                 getAccount();
                             } else {
-                                MyToast.error(jsonObject.getString("message"));
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
                             sendLog("登录异常！");
                             stop();
                         }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog("登录异常");  //接单异常
+                        stop();
                     }
                 });
     }
@@ -121,13 +103,13 @@ public class TQDAction extends BaseAction {
      */
     private void getAccount() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/index/get_taobao_info", mPlatform.getHost())
-                .params("type", "1")
-                .params("page", "1")
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=1") + n))
-                .params("time", n)
+        HttpClient.getInstance().post("/api/Member/GetBindPlatformAccountList", mPlatform.getHost())
+                .params("UserId", userId)
+                .params("Token", token)
+                .params("PlatId", 1)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -135,15 +117,14 @@ public class TQDAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-
-                            JSONArray array = jsonObject.getJSONObject("data").getJSONArray("info");
+                            JSONArray array = jsonObject.getJSONArray("obj");
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("name")));
+                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
-                                    list.add(new BuyerNum(obj.getString("id"), obj.getString("name")));
+                                    list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
@@ -167,33 +148,47 @@ public class TQDAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
-                .headers("Authorization", token)
-                .params("page", "1")
-                .params("type", mParams.getType())
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=" + mParams.getType()) + n))
-                .params("time", n)
+        HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
+                .params("UserId", userId)
+                .params("Token", token)
+                .params("TaskType", mParams.getType())
+                .params("Page", 1)
+                .params("PageSize", 12)
+                .params("PlatId", 1)
+                .params("MaxAdvancePayMoney", 5000)
+                .params("AccountId", mParams.getBuyerNum().getId())
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
-                            for (int i = 0, len = array.size(); i < len; i++) {
-                                JSONObject object = array.getJSONObject(i);
-                                if (object.getIntValue("publish_status") == 0
-                                        && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
-                                        && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
-                                    sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
-                                    lqTask(object.getString("id"));
+                            JSONObject obj = JSONObject.parseObject(response.body());
+                            if (null != obj.getString("msg") && !("".equals(obj.getString("msg")))) {
+                                sendLog(obj.getString("msg"));
+                            } else {
+                                JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
+                                if (null != array && array.size() != 0) {
+                                    for (int i = 0, len = array.size(); i < len; i++) {
+                                        JSONObject object = array.getJSONObject(i);
+                                        if(object.getDouble("CommissionAvailable") >= mParams.getMinCommission()&& object.getDouble("AdvancePaymentMoney") <= mParams.getMaxPrincipal()){
+                                            sendLog("检测到任务领取中...");
+                                            lqTask(object.getString("TaskListNo"));
+                                            break;
+                                        }else{
+                                            sendLog("任务不符合要求,跳过");
+                                        }
+                                    }
+                                } else {
+                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                                 }
                             }
-                            sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
                         }
                     }
+
 
                     @Override
                     public void onError(Response<String> response) {
@@ -225,12 +220,13 @@ public class TQDAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/accept_work", mPlatform.getHost())
-                .headers("Authorization", token)
-                .params("id", taskId)
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n))
-                .params("time", n)
+        HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
+                .params("UserId", userId)
+                .params("Token", token)
+                .params("AccountId", mParams.getBuyerNum().getId())
+                .params("TaskListNo", taskId)
                 .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
 
                     @Override
@@ -238,55 +234,20 @@ public class TQDAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("code") == 1) {    //接单成功
-                                getTask();
-                            } else {
-                                sendLog(jsonObject.getString("message"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 检查任务
-     */
-    private void getTask() {
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/my_works", mPlatform.getHost())
-                .params("status", "1")
-                .params("page", "1")
-                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&status=1") + n))
-                .params("time", n)
-                .headers("Authorization", token)
-                .headers("Content-Type", "application/json")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-//                        LogUtil.e("response: " + response.body());
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-
-                            JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
-                            if (array.size() > 0) {    //获取买号成功
-                                JSONObject obj = array.getJSONObject(0);
-                                sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
+                            if (jsonObject.getIntValue("errcode") == 0 && "接单成功".equals(jsonObject.getString("msg"))) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.wangdianbao, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
-                            } else { //无可用的买号
-                                sendLog("空任务，过滤");
+                            } else {
+                                sendLog(jsonObject.getString("msg"));
                             }
                         } catch (Exception e) {
-                            stop();
-                            MyToast.error("获取买号异常");
+                            sendLog("领取任务异常！");
                         }
                     }
                 });

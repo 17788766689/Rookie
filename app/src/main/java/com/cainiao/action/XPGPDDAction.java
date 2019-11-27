@@ -14,7 +14,6 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
@@ -26,9 +25,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 淘抢单
+ * 小苹果拼多多
  */
-public class TQDAction extends BaseAction {
+public class XPGPDDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String token = "";
@@ -36,7 +35,6 @@ public class TQDAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
-
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
@@ -91,7 +89,7 @@ public class TQDAction extends BaseAction {
                 .params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
                 .params("device_version", "")
-                .params("verifyid", mPlatform.getVerifyId())
+               .params("verifyid", mPlatform.getVerifyId())
                 .params("token", mPlatform.getToken())
                 .execute(new StringCallback() {
                     @Override
@@ -104,6 +102,7 @@ public class TQDAction extends BaseAction {
                                 updateParams(mPlatform);
                                 token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
                                 getAccount();
+                                getTask();
                             } else {
                                 MyToast.error(jsonObject.getString("message"));
                                 stop();
@@ -132,6 +131,7 @@ public class TQDAction extends BaseAction {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
+
                             if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
@@ -159,6 +159,7 @@ public class TQDAction extends BaseAction {
                             stop();
                         }
                     }
+
                 });
     }
 
@@ -187,6 +188,7 @@ public class TQDAction extends BaseAction {
                                         && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
                                     lqTask(object.getString("id"));
+                                    break;
                                 }
                             }
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务

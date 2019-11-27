@@ -239,19 +239,54 @@ public class HLGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (jsonObject.getIntValue("code") == 1) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.huanlegou, 3000);
-                                }
-                                count++;
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
+                                getTask();
                             } else {
                                 sendLog(jsonObject.getString("message"));
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 检查任务
+     */
+    private void getTask() {
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/api/assign/my_works", mPlatform.getHost())
+                .params("status", "1")
+                .params("page", "1")
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&status=1") + n))
+                .params("time", n)
+                .headers("Authorization", token)
+                .headers("Content-Type", "application/json")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+//                        LogUtil.e("response: " + response.body());
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+
+                            JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
+                            if (array.size() > 0) {    //获取买号成功
+                                JSONObject obj = array.getJSONObject(0);
+                                sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
+                                if (count == 0) {
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                }
+                                count++;
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else { //无可用的买号
+                                sendLog("空任务，过滤");
+                            }
+                        } catch (Exception e) {
+                            stop();
+                            MyToast.error("获取买号异常");
                         }
                     }
                 });

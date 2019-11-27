@@ -45,6 +45,7 @@ import com.cainiao.action.TQDAction;
 import com.cainiao.action.TSAction;
 import com.cainiao.action.TSKJAction;
 import com.cainiao.action.TXLYAction;
+import com.cainiao.action.WDBAction;
 import com.cainiao.action.WTKJAction;
 import com.cainiao.action.WWDAction;
 import com.cainiao.action.XBXAction;
@@ -54,6 +55,7 @@ import com.cainiao.action.XJLAction;
 import com.cainiao.action.XLSAction;
 import com.cainiao.action.XMCAction;
 import com.cainiao.action.XMGAction;
+import com.cainiao.action.XPGPDDAction;
 import com.cainiao.action.XZGAction;
 import com.cainiao.action.YDZAction;
 import com.cainiao.action.ZCMAction;
@@ -129,6 +131,8 @@ public class Platforms {
             //第一行
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(派单)", "com.p3066672015", "https://api.damingduo.cn", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYPDAction()));
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(抢单)", "com.p3066672015.rpm", "https://api.damingduo.cn", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.wangdianbao, "旺店宝", "com.a2398577387.kfg", "https://api.naomiebie.cn", "", "www.cainiaoqd.com", 0, Const.TLSHE, 2, 0, new WDBAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaopingguopdd, "小苹果(拼多多)", "io.dcloud.UNIB205D0A", "http://www.91xiaopingguo.com", "https://fir.im/s6qm", "", 0, Const.TLSHE, 0, 0, new XPGPDDAction()));
             mList.add(new Platform(new Params(4000, 5000), R.mipmap.xiaozhanggui, "小掌柜", "com.xiaozhanggui", "http://xzg.707607.cn", "", "http://xzg.707607.cn/login?returnUrl=/", 0, Const.TLSHE, 1, 2, new XZGAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://app.biaoqiandan.com", "https://fir.im/tbrp", "", 0, Const.TLSHE, 0, 0, new HLGAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://www.51qiangdanwang.com", "https://fir.im/l5y2", "", 0, Const.TLSHE, 0, 0, new TQDAction()));
@@ -185,7 +189,6 @@ public class Platforms {
             mList.add(new Platform(new Params(500,800),R.mipmap.mifengwo, "蜜蜂窝", "com.zhizuanling.app", "https://www.991zhizuanling.com", "", "", 0, Const.BJSHA, 0, 3, new MFWAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.maotouying, "猫头鹰", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
             mList.add(new Platform(new Params(3200,4500),R.mipmap.miaomiaomiao, "喵喵喵", "com.miaomiaomiao", "http://sdjh.daiyun057.cn", "", "http://sdjh.daiyun057.cn/login?returnUrl=/", 0, Const.TLSHE, 1, 3, new MMMAction()));
-//            mList.add(new Platform(new Params(0,0),R.mipmap.mizhifu, "米之富", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第十二行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.mengxiangjia, "梦想家", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 13, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.mingyun, "鸣云", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
@@ -277,7 +280,7 @@ public class Platforms {
              mList.add(new Platform(new Params(2500,4000),R.mipmap.jinxiuleyuan, "锦绣乐园", "com.jinxiuleyuan", "https://api.ch5s.cn:14141", "", "https://wx.ch5s.cn/workerLogin", 1, Const.BJSHA, 1, 13, new JXLYAction()));
             mList.add(new Platform(new Params(2500, 4000), R.mipmap.ningmengshu, "柠檬树", "com.ningmengshu", "http://xijiashangye.com:8080", "", "http://xijiashangye.com:8080/workerLogin", 1, Const.TLSHE, 1, 7, new NMSAction()));
             mList.add(new Platform(new Params(3000,4000),R.mipmap.maomaomi, "猫猫咪打款", "com.maomaomi", "http://www.wushanba.com", "", "http://www.wushanba.com/wap/Login.aspx", 1, Const.TLSHE, 1, 1, new MMMDkAction()));
-            mList.add(new Platform(new Params(2500,4000),R.mipmap.qiutianleyuan, "秋天乐园", "com.qiutianleyuan", "http://api.pk1165.com:8080", "", "http://wx.cgfrc.cn:8081/workerLogin", 1, Const.BJSHA, 1, 13, new QTLYAction()));
+            mList.add(new Platform(new Params(2500,4000),R.mipmap.qiutianleyuan, "秋天乐园", "com.qiutianleyuan", "http://api.pk1165.com:8080", "", "http://wx.cgfrc.cn:8081/workerLogin", 1, Const.BJSHA, 1, 20, new QTLYAction()));
 //            //第三行
 ////            mList.add(new Platform(new Params(0,0),R.mipmap.qishikeji, "骑士科技", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.qilin, "麒麟", "com.platform8", "", "", "", 1, Const.TLSHE, 0, 7, null));
@@ -317,8 +320,9 @@ public class Platforms {
     public static Map<String, Integer> getPlatformIcons(){
         Map<String, Integer> map = new HashMap<>();
         map.put("51mangguopai", R.mipmap._51mangguopai);
-        map.put("51renqiwang", R.mipmap._51renqiwang);
         map.put("51zuanqian", R.mipmap._51zhuanqian);
+        map.put("wangdianbao", R.mipmap.wangdianbao);
+        map.put("xiaopingguopdd", R.mipmap.xiaopingguopdd);
         map.put("aimi", R.mipmap.aimi);
         map.put("axilili", R.mipmap.axilili);
         map.put("baibaizuan", R.mipmap.baibaizhuan);
@@ -333,12 +337,9 @@ public class Platforms {
         map.put("dashuwang", R.mipmap.dashuwang);
         map.put("dingdanmao", R.mipmap.dingdangmao);
         map.put("duoduohuayuan", R.mipmap.duoduohuayuan);
-        map.put("ershixion", R.mipmap.ershixion);
         map.put("facaishu", R.mipmap.facaishu);
         map.put("fongshoudamai", R.mipmap.fongshoudamai);
         map.put("gebiwanshushu", R.mipmap.gebiwangshu);
-        map.put("gongxiangke", R.mipmap.gongxiangke);
-        map.put("gubiwanshushu", R.mipmap.gubiwanshushu);
         map.put("guli", R.mipmap.guli);
         map.put("hongchangkeji", R.mipmap.hongchangkeji);
         map.put("hongpingguo", R.mipmap.hongpingguo);
@@ -368,7 +369,6 @@ public class Platforms {
         map.put("miaomiaomiao", R.mipmap.miaomiaomiao);
         map.put("mifengwo", R.mipmap.mifengwo);
         map.put("mingyun", R.mipmap.mingyun);
-        map.put("mizhifu", R.mipmap.mizhifu);
         map.put("muguakeji", R.mipmap.muguakeji);
         map.put("ningmengpai", R.mipmap.ningmengpai);
         map.put("ningmengshu", R.mipmap.ningmengshu);
@@ -376,12 +376,9 @@ public class Platforms {
         map.put("niuyouguo", R.mipmap.niuyouguo);
         map.put("paipaidan", R.mipmap.paipaidan);
         map.put("panguoguo", R.mipmap.panguoguo);
-        map.put("pengyouquan", R.mipmap.pengyouquan);
-        map.put("pinjinbi", R.mipmap.pinjinbi);
         map.put("qianshouwenhua", R.mipmap.qianshouwenhua);
         map.put("qilin", R.mipmap.qilin);
         map.put("qingningmeng", R.mipmap.qingningmeng);
-        map.put("qishikeji", R.mipmap.qishikeji);
         map.put("qiutianleyuan", R.mipmap.qiutianleyuan);
         map.put("renqidou", R.mipmap.renqidou);
         map.put("renqiyun", R.mipmap.renqiyun);
@@ -397,7 +394,6 @@ public class Platforms {
         map.put("taobaoquan", R.mipmap.taobaoquan);
         map.put("taomimi", R.mipmap.taomimi);
         map.put("taopaipai", R.mipmap.taopaipai);
-        map.put("taosange", R.mipmap.taosange);
         map.put("teshuakeji", R.mipmap.teshuakeji);
         map.put("tianshi", R.mipmap.tianshi);
         map.put("tianxileyuan", R.mipmap.tianxileyuan);
@@ -406,7 +402,6 @@ public class Platforms {
         map.put("weitaokeji", R.mipmap.weitaokeji);
         map.put("xiandanshenghuo", R.mipmap.xiandanshenghuo);
         map.put("xiangchiniurou", R.mipmap.xiangchiniurou);
-        map.put("xiaobaitu", R.mipmap.xiaobaitu);
         map.put("xiaobaixiang", R.mipmap.xiaobaixiang);
         map.put("xiaogou360", R.mipmap.xiaogou360);
         map.put("xiaoheizhu", R.mipmap.xiaoheizhu);
@@ -426,10 +421,8 @@ public class Platforms {
         map.put("xihongshi", R.mipmap.xihongshi);
         map.put("xilanhua", R.mipmap.xilanhua);
         map.put("xinchuangquan", R.mipmap.xinchuangquan);
-        map.put("xinhong3", R.mipmap.xinhong3);
         map.put("xinshijie", R.mipmap.xinshijie);
         map.put("xishuashua", R.mipmap.xishuashua);
-        map.put("xubaofang", R.mipmap.xubaofang);
         map.put("yanleduo", R.mipmap.yanleduo);
         map.put("youdanwang", R.mipmap.youdanwang);
         map.put("youdanzuo", R.mipmap.youdanzuo);
@@ -445,8 +438,8 @@ public class Platforms {
         map.put("ziningmeng", R.mipmap.ziningmeng);
         map.put("zuankeban", R.mipmap.zuankeban);
         map.put("zuanlatiao", R.mipmap.zuanlatiao);
-        map.put("zuanyoumi", R.mipmap.zuanyoumi);
         map.put("mangguodingdong", R.mipmap.mangguodingdong);
+        map.put("kadingche", R.mipmap.kadingche);
         return map;
     }
 

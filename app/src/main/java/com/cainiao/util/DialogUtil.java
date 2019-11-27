@@ -215,6 +215,8 @@ public class DialogUtil {
             getToken("http://xiaomangguo.zhyichao.com");
         }else if ("io.dcloud.UNI55AAAAA".equals(pkgName)){ // 淘抢单
             getToken("http://www.51qiangdanwang.com");
+        }else if("io.dcloud.UNIB205D0A".equals(pkgName)){ // 小苹果(拼多多)
+            getToken("http://www.91xiaopingguo.com");
         }
 
         verifyDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(true).create();

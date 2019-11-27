@@ -74,7 +74,7 @@ public class Const {
         KSHG_AW = 4;
         DEBUG_MODE = true;
         FLAG = true;
-        NEED_VERIFY_PKGS = "io.dcloud.UNIE9BC8DE,io.dcloud.UNI89500DB,io.dcloud.UNI55AAAAA,io.dcloud.UNIE7AC320";
+        NEED_VERIFY_PKGS = "io.dcloud.UNIE9BC8DE,io.dcloud.UNI89500DB,io.dcloud.UNI55AAAAA,io.dcloud.UNIE7AC320,io.dcloud.UNIB205D0A";
     }
 
 }
