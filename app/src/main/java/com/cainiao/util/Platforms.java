@@ -14,6 +14,7 @@ import com.cainiao.action.HCKJAction;
 import com.cainiao.action.HLGAction;
 import com.cainiao.action.HPGAction;
 import com.cainiao.action.HSSGTAction;
+import com.cainiao.action.JDMTAction;
 import com.cainiao.action.JLZAction;
 import com.cainiao.action.JXKJAction;
 import com.cainiao.action.JXLYAction;
@@ -170,7 +171,7 @@ public class Platforms {
 //            mList.add(new Platform(new Params(0,0),R.mipmap.huzhudianshang, "互助电商", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 7, null));
 //            //第八行
            mList.add(new Platform(new Params(3000,5000),R.mipmap.jinlizhuan, "锦鲤赚", "com.jinlizuan", "https://jlapi.6ji6.com", "", "https://jlapi.6ji6.com", 0, Const.TLSHE, 1, 7, new JLZAction()));
-           //mList.add(new Platform(new Params(2000,3500),R.mipmap.jingdongmaitian, "京东麦田", "com.jingdongmaitian", "http://www.jdmaitian.cn", "", "http://www.jdmaitian.cn/", 0, Const.TLSHE, 1, 1, new JDMTAction()));
+            mList.add(new Platform(new Params(2000,3500),R.mipmap.jingdongmaitian, "京东麦田", "com.jingdongmaitian", "http://www.jdmaitian.cn", "", "http://www.jdmaitian.cn/", 0, Const.TLSHE, 1, 1, new JDMTAction()));
             // mList.add(new Platform(new Params(2000,3500),R.mipmap.jingdongmaitian, "京东麦田", "com.jingdongmaitian", "", "", "", 0, Const.TLSHE, 0, 1, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.jutaozhan, "聚淘栈", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 5, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.kuaidan, "快单", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 11, null));
