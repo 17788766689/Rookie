@@ -66,6 +66,7 @@ public class GBWSSAction extends BaseAction {
                 .params("password", mParams.getPassword())
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer","http://www.haisirui.xin//index/Apprentice")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -102,11 +103,11 @@ public class GBWSSAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/index/Apprentice/meet_task?t=0." + new Date().getTime(), mPlatform.getHost())
+        HttpClient.getInstance().get("/public/index.php/index/Apprentice/meety_task?t=0." + new Date().getTime(), mPlatform.getHost())
                 .headers("Cookie",cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("Version","1.0")
+                .headers("Referer","http://www.haisirui.xin/index.php/index/Apprentice/receive_task")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override

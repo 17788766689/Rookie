@@ -19,6 +19,7 @@ import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.lzy.okgo.request.base.Request;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,20 +58,20 @@ public class HLGAction extends BaseAction {
         }
     }
 
-    private void getToken(){
+    private void getToken() {
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
-                .params("time",n)
-                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
+                .params("time", n)
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + n))
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
+                            if ("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))) {
                                 sendLog("请更换IP再开始接单");
-                            }else{
+                            } else {
                                 token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
                                 login();
                             }
@@ -87,34 +88,37 @@ public class HLGAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
+        Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
+        request.params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "")
-                .params("verifyid", mPlatform.getVerifyId())
-                .params("token", mPlatform.getToken())
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("message"));
-                            if (jsonObject.getIntValue("code") == 1) {    //登录成功
-                                updateParams(mPlatform);
-                                token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
-                                getAccount();
-                            } else {
-                                MyToast.error(jsonObject.getString("message"));
-                                stop();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
+                .params("device_version", "");
+        if(!(TextUtils.equals(mPlatform.getToken(), "1") || TextUtils.equals(mPlatform.getToken(), "123456789"))){   //token不为1时才多提交这两个参数
+            request.params("verifyid", mPlatform.getVerifyId())
+                    .params("token", mPlatform.getToken());
+        }
+        request.execute(new StringCallback() {
+            @Override
+            public void onSuccess(Response<String> response) {
+                try {
+                    if (TextUtils.isEmpty(response.body())) return;
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    sendLog(jsonObject.getString("message"));
+                    if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                        updateParams(mPlatform);
+                        token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                        getAccount();
+                    } else {
+                        MyToast.error(jsonObject.getString("message"));
+                        stop();
                     }
-                });
+                } catch (Exception e) {
+                    sendLog("登录异常！");
+                    stop();
+                }
+            }
+        });
     }
+
     /**
      * 获取买号
      */
@@ -273,9 +277,9 @@ public class HLGAction extends BaseAction {
                             JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0);
-                                sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
+                                sendLog("接单成功,店铺名:" + obj.getString("shop_name"));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()) + "，店铺名:" + obj.getString("shop_name"), R.raw.manguodingdon, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());

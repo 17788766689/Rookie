@@ -13,6 +13,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.activity.WebActivity;
@@ -20,6 +21,8 @@ import com.cainiao.view.AlertDialog;
 import com.cainiao.view.LoadDialog;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+
+import org.w3c.dom.Text;
 
 /**
  * Created by WJH on 2017/8/7.
@@ -207,6 +210,7 @@ public class DialogUtil {
         View view = LayoutInflater.from(context).inflate(
                 R.layout.layout_verify, null);
         mWebView = view.findViewById(R.id.web_view);
+        verifyDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(true).create();
         if("io.dcloud.UNIE9BC8DE".equals(pkgName)){// 918人气王获取token
             getToken("http://www.zhyichao.com");
         }else if ("io.dcloud.UNI89500DB".equals(pkgName)){// 欢乐购
@@ -219,8 +223,6 @@ public class DialogUtil {
             getToken("http://www.91xiaopingguo.com");
         }
 
-        verifyDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(true).create();
-        verifyDialog.show();
     }
 
 
@@ -240,7 +242,12 @@ public class DialogUtil {
                         if(TextUtils.isEmpty(response.body())) return;
                         JSONObject obj = JSONObject.parseObject(response.body());
                         JSONObject dataObj = obj.getJSONObject("data");
-                        loadVerifyCode(JSONObject.toJSONString(dataObj));
+                        if(TextUtils.equals(dataObj.getJSONObject("data").getString("token"), "1") || TextUtils.equals(dataObj.getJSONObject("data").getString("token"), "123456789")){
+                            if(mCallback != null) mCallback.onSuccess("1", "");
+                        }else{
+                            loadVerifyCode(JSONObject.toJSONString(dataObj));
+                            verifyDialog.show();
+                        }
                     }
                 });
     }

@@ -72,9 +72,9 @@ public class Const {
         BLSA = 2;
         AJW_VA = 3;
         KSHG_AW = 4;
-        DEBUG_MODE = true;
+        DEBUG_MODE = false;
         FLAG = true;
-        NEED_VERIFY_PKGS = "io.dcloud.UNIE9BC8DE,io.dcloud.UNI89500DB,io.dcloud.UNI55AAAAA,io.dcloud.UNIE7AC320,io.dcloud.UNIB205D0A";
+        NEED_VERIFY_PKGS = "io.dcloud.UNI89500DB,io.dcloud.UNI55AAAAA,io.dcloud.UNIE7AC320,io.dcloud.UNIB205D0A";
     }
 
 }
