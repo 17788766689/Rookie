@@ -35,6 +35,8 @@ public class WDBAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
+    int index = 0;
+    private JSONArray accountArray;
 
     @Override
     public void start(Platform platform) {
@@ -102,61 +104,79 @@ public class WDBAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Member/GetBindPlatformAccountList", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("PlatId", 1)
-                .headers("Authorization", token)
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
+        {
+            long n = new Date().getTime();
+            HttpClient.getInstance().post("/api/Member/GetBindPlatformAccountList", mPlatform.getHost())
+                    .params("UserId", userId)
+                    .params("Token", token)
+                    .params("PlatId", 1)
+                    .headers("Authorization", token)
+                    .headers("Content-Type", "application/json")
+                    .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            try {
+                                if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray array = jsonObject.getJSONArray("obj");
-                            if (array.size() > 0) {    //获取买号成功
-                                JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
-                                List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = array.size(); i < len; i++) {
-                                    obj = array.getJSONObject(i);
-                                    list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                JSONArray array = jsonObject.getJSONArray("obj");
+
+                                if (array.size() > 0) {    //获取买号成功
+                                    JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
+                                    mParams.setBuyerNum(new BuyerNum("-1","自动切换"));
+                                    accountArray = array;
+                                    List<BuyerNum> list = new ArrayList<>();
+                                    list.add(new BuyerNum("-1", "自动切换"));
+                                    for (int i = 0, len = array.size(); i < len; i++) {
+                                        obj = array.getJSONObject(i);
+                                        list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                    }
+                                    showBuyerNum(JSON.toJSONString(list));
+                                    sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                    sendLog("如果有买号已经接满了,可以自动手动选择买号,接单效率更高");
+                                    MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                    updateStatus(mPlatform, 3); //正在接单的状态
+                                    startTask();
+                                } else { //无可用的买号
+                                    sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                    stop();
                                 }
-                                showBuyerNum(JSON.toJSONString(list));
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
-                            } else { //无可用的买号
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                            } catch (Exception e) {
+                                sendLog("获取买号异常！");
                                 stop();
                             }
-                        } catch (Exception e) {
-                            sendLog("获取买号异常！");
-                            stop();
                         }
-                    }
-                });
+                    });
+        }
     }
+
 
     /**
      * 开始任务
      */
-    private void startTask() {
+    private void startTask(){
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/GetTaskList", mPlatform.getHost())
+        String accountId = "";
+        if(mParams.getBuyerNum().getId().equals("-1")){
+            if(accountArray.size() == index+1){
+                index = 0;
+                accountId = accountArray.getJSONObject(index).getString("Id");
+            }else{
+                accountId = accountArray.getJSONObject(index).getString("Id");
+                index++;
+            }
+        }else{
+            accountId = mParams.getBuyerNum().getId();
+        }
+        HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
                 .params("TaskType", mParams.getType())
-                .params("Page", 1)
-                .params("PageSize", 12)
-                .params("PlatId", 1)
+                .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
-                .params("AccountId", mParams.getBuyerNum().getId())
+                .params("VersionControl","1.0.4")
+                .params("AccountIdList", accountId+",")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -165,24 +185,17 @@ public class WDBAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (null != obj.getString("msg") && !("".equals(obj.getString("msg")))) {
-                                sendLog(obj.getString("msg"));
-                            } else {
-                                JSONArray array = obj.getJSONObject("obj").getJSONArray("TaskList");
-                                if (null != array && array.size() != 0) {
-                                    for (int i = 0, len = array.size(); i < len; i++) {
-                                        JSONObject object = array.getJSONObject(i);
-                                        if(object.getDouble("CommissionAvailable") >= mParams.getMinCommission()&& object.getDouble("AdvancePaymentMoney") <= mParams.getMaxPrincipal()){
-                                            sendLog("检测到任务领取中...");
-                                            lqTask(object.getString("TaskListNo"));
-                                            break;
-                                        }else{
-                                            sendLog("任务不符合要求,跳过");
-                                        }
-                                    }
-                                } else {
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            if(obj.getInteger("errcode") == 0 || obj.getInteger("errcode") == 3){
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                if (count == 0) {
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.wangdianbao, 3000);
                                 }
+                                count++;
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }else{
+                                sendLog(obj.getString("msg"));
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -213,45 +226,6 @@ public class WDBAction extends BaseAction {
                 });
     }
 
-    /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
-                .params("UserId", userId)
-                .params("Token", token)
-                .params("AccountId", mParams.getBuyerNum().getId())
-                .params("TaskListNo", taskId)
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
-                .execute(new StringCallback() {
-
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("errcode") == 0 && "接单成功".equals(jsonObject.getString("msg"))) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.wangdianbao, 3000);
-                                }
-                                count++;
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(jsonObject.getString("msg"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
 
 
     @Override

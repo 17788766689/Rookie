@@ -162,8 +162,6 @@ public class MMMDkAction extends BaseAction {
                             if (list.size() > 0) {
                                 sendLog("检测到任务领取中...");
                                 lqTask(list.get(0).select(".btn_0").attr("taskid"));
-                                System.out.println(list.get(0).select(".btn_0").attr("taskid"));
-                                System.out.println(list.get(0));
                             } else {
                                sendLog("继续检测任务");
                             }

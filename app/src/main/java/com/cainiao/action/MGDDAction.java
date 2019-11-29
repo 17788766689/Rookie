@@ -19,6 +19,7 @@ import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.lzy.okgo.request.base.Request;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,13 +93,15 @@ public class MGDDAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
+        Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
+        request.params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "")
-                .params("verifyid", mPlatform.getVerifyId())
-                .params("token", mPlatform.getToken())
-                .execute(new StringCallback() {
+                .params("device_version", "");
+        if(!(TextUtils.equals(mPlatform.getToken(), "1") || TextUtils.equals(mPlatform.getToken(), "123456789"))){   //token不为1时才多提交这两个参数
+            request.params("verifyid", mPlatform.getVerifyId())
+                    .params("token", mPlatform.getToken());
+        }
+                request.execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {

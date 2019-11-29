@@ -19,6 +19,7 @@ import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+import com.lzy.okgo.request.base.Request;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -52,47 +53,25 @@ public class _918RQWAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            getToken();
+            login();
         }
     }
 
-    private void getToken(){
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
-                .params("time",n)
-                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
-                                sendLog("请更换IP再开始接单");
-                            }else{
-                                token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
-                                login();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
-                    }
-                });
-    }
 
     /**
      * 登录
      */
     private void login() {
+        long n = new Date().getTime();
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/index/login", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
-                .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "")
-               .params("verifyid", mPlatform.getVerifyId())
-                .params("token", mPlatform.getToken())
-                .execute(new StringCallback() {
+        Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
+        request.params("mobile", mParams.getAccount())
+               .params("password", Utils.md5(mParams.getPassword()))
+               .params("device_version", "")
+                .params("time",n)
+                .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
+
+        request.execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
