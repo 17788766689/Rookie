@@ -49,6 +49,7 @@ import com.cainiao.action.TXLYAction;
 import com.cainiao.action.WDBAction;
 import com.cainiao.action.WTKJAction;
 import com.cainiao.action.WWDAction;
+import com.cainiao.action.WXRWAction;
 import com.cainiao.action.XBXAction;
 import com.cainiao.action.XHZAction;
 import com.cainiao.action.XIAOJLAction;
@@ -138,6 +139,7 @@ public class Platforms {
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://app.biaoqiandan.com", "https://fir.im/tbrp", "", 0, Const.TLSHE, 0, 0, new HLGAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://www.51qiangdanwang.com", "https://fir.im/l5y2", "", 0, Const.TLSHE, 0, 0, new TQDAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "http://xiaomangguo.zhyichao.com", "https://fir.im/r7na", "", 0, Const.TLSHE, 0, 0, new MGDDAction()));
+            mList.add(new Platform(new Params(61000, 62000), R.mipmap.wanxiangrenwu, "万象任务", "io.dcloud.wanxiangrenwu", "https://buyer.ushome.com.cn", "", "https://buyer.ushome.com.cn/#/", 0, Const.TLSHE, 1, 3, new WXRWAction()));
             //第二行
             mList.add(new Platform(new Params(3000, 5000), R.mipmap._918renqiwang, "918人气王", "io.dcloud.UNIE9BC8DE", "http://www.zhyichao.com", "https://fir.im/regy", "", 0, Const.TLSHE, 0, 0, new _918RQWAction()));
 //          mList.add(new Platform(new Params(0,0),R.mipmap._51renqiwang, "51人气王", "com.platform4", "", "", "",0, Const.TLSHE, 0, 2, null));

@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -349,6 +351,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 3:  //代表平台：51芒果派 等（频率、账号、密码、买号）
                 llComm.setVisibility(View.GONE);
                 llReceiptType.setVisibility(View.GONE);
+                if (TextUtils.equals(mPlatform.getName(),"万象任务")){
+                    llVerifyCode.setVisibility(View.VISIBLE);
+                }
                 break;
             case 4:  //代表平台：51赚钱 等（频率、买号、接单类型）
                 resId = R.array.receipt_type_3;
@@ -593,20 +598,28 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
      */
     private void getVerifyCode(String url) {
         if (TextUtils.isEmpty(url)) return;
-        url += "?" + mRandom.nextInt(1000);
-        HttpUtil.getVerifyCode(url, new BitmapCallback() {
-            @Override
-            public void onSuccess(Response<Bitmap> response) {
-                Bitmap bitmap = response.body();
-                if (bitmap != null) inVerifyCode.setImageBitmap(bitmap);
-                Headers headers = response.headers();
-                String cookie = headers.get("Set-Cookie");
-                if (!TextUtils.isEmpty(cookie)) {
-                    mPlatform.setVerifyCodeCookie(cookie);
-                    Platforms.setCurrPlatform(mPlatform);
+        if (url.contains("base64")){
+            String pureBase64Encoded = url.substring(url.indexOf(",")  + 1);
+            byte[] decodedString = Base64.decode(pureBase64Encoded, Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            if (decodedByte != null) inVerifyCode.setImageBitmap(decodedByte);
+            Platforms.setCurrPlatform(mPlatform);
+        }else{
+            url += "?" + mRandom.nextInt(1000);
+            HttpUtil.getVerifyCode(url, new BitmapCallback() {
+                @Override
+                public void onSuccess(Response<Bitmap> response) {
+                    Bitmap bitmap = response.body();
+                    if (bitmap != null) inVerifyCode.setImageBitmap(bitmap);
+                    Headers headers = response.headers();
+                    String cookie = headers.get("Set-Cookie");
+                    if (!TextUtils.isEmpty(cookie)) {
+                        mPlatform.setVerifyCodeCookie(cookie);
+                        Platforms.setCurrPlatform(mPlatform);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
