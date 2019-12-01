@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
@@ -14,31 +13,26 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 /**
- * 万象任务
+ * 派派单
  */
-public class WXRWAction extends BaseAction {
+public class PPDAction extends BaseAction {
     private boolean isStart;
+
     private Handler mHandler;
-    private String accountId = "";
-    private String token = "";
-    private String signature = "";
+    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
@@ -48,7 +42,6 @@ public class WXRWAction extends BaseAction {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
 
 //        isStart = true;
 //        updatePlatform(mPlatform);
@@ -63,51 +56,28 @@ public class WXRWAction extends BaseAction {
         }
     }
 
-    public void getVerifyCode(Platform platform) {
-        HttpClient.getInstance().get("/wem/rest/verify/code","https://buyer.ushome.com.cn")
-                .headers("X-Token","")
-                .headers("Referer","https://buyer.ushome.com.cn/")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        if (TextUtils.isEmpty(response.body())) return;
-                        JSONObject jsonObject = JSONObject.parseObject(response.body());
-                        String imgUrl = ""+jsonObject.getString("imgInfo");
-                        signature = jsonObject.getString("signature");
-                        sendMsg("get_verifycode", imgUrl);
-                    }
-                });
-    }
-
     /**
      * 登录
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/wem/rest/appUser/login", mPlatform.getHost())
-                .params("phoneNum", mParams.getAccount())
-                .params("pwd", mParams.getPassword())
-                .params("accountId","")
-                .params("signature",signature)
-                .params("verifyCode",mParams.getVerifyCode())
-                .headers("Referer","https://buyer.ushome.com.cn/")
-                .headers("Sec-Fetch-Mode","cors")
-                .headers("Sec-Fetch-Site","same-origin")
+        HttpClient.getInstance().post("/login/Login?returnUrl=/", mPlatform.getHost())
+                .params("UserName", mParams.getAccount())
+                .params("Password", mParams.getPassword())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (200 ==  jsonObject.getIntValue("code")) {    //登录成功
+                            if (jsonObject.getBooleanValue("Success")) {    //登录成功
+                                cookie = response.headers().get("Set-Cookie").toString();
                                 sendLog("登录成功！");
-                                accountId = jsonObject.getString("accountId");
-                                token = jsonObject.getString("token");
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                getVerifyCode(mPlatform);
-                                MyToast.error(jsonObject.getString("errMsg"));
+                                sendLog(jsonObject.getString("Message"));
+                                MyToast.error(jsonObject.getString("Message"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -122,28 +92,21 @@ public class WXRWAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        HttpClient.getInstance().post("/wem/rest/buyAccount/list", mPlatform.getHost())
-                .params("accountId",accountId)
-                .headers("Referer","https://buyer.ushome.com.cn/")
-                .headers("X-Token",token)
+        HttpClient.getInstance().post("/ReceiptTask", mPlatform.getHost())
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray tbData = jsonObject.getJSONObject("data").getJSONArray("list");
+                            Document doc = Jsoup.parse(response.body());
+                            Elements tbData = doc.select(".accountlist").select(".cell-item");
                             if (tbData.size() > 0) {    //获取买号成功
-                                JSONObject obj = tbData.getJSONObject(0);
+                                mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    obj = tbData.getJSONObject(i);
-                                    if (1 == obj.getIntValue("accountType")){
-                                        list.add(new BuyerNum(obj.getString("id"), obj.getString("accountName")));
-                                    }
+                                    list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
                                 }
-                                BuyerNum buyerNum = list.get(0);
-                                mParams.setBuyerNum(new BuyerNum(buyerNum.getId(), buyerNum.getName()));
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
@@ -165,30 +128,27 @@ public class WXRWAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/wem/rest/order/queryOrder", mPlatform.getHost())
-                .params("buyAccountId",mParams.getBuyerNum().getId())
-                .params("accountId",accountId)
-                .params("buyAccountTppe",1)
-                .headers("Referer","https://buyer.ushome.com.cn/")
-                .headers("X-Token",token)
+        HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
+                .params("id", mParams.getBuyerNum().getId())
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (null != jsonObject.getJSONObject("data")) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.wanxiang, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                                stop();
+                            JSONObject array = JSONObject.parseObject(response.body());
+                            if (array.getBooleanValue("Success")) {
+                                sendLog("检测到任务领取中...");
+                                if (array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getDoubleValue("CommissionFee") > mParams.getMinCommission()){
+                                    lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                }else {
+                                    sendLog("佣金低于你设置的最小佣金,自动过滤");
+                                }
                             } else {
-                                sendLog(jsonObject.getString("errMsg"));
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }
                         } catch (Exception e) {
-                            sendLog("继续检测任务");
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -221,26 +181,25 @@ public class WXRWAction extends BaseAction {
      * @param taskId 任务id
      */
     private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/user/addGradTaskOrder", mPlatform.getHost())
-                .params("accountId",mParams.getBuyerNum().getId())
-                .params("taskId",taskId)
-                .params("sign","xx1")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+        HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
+                .params("id", mParams.getBuyerNum().getId())
+                .params("orderId", taskId)
+                .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("code") == 1) {    //接单成功
+                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaobaixiang, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.paipaidan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                                 stop();
                             } else {
-                                sendLog(jsonObject.getString("msg"));
+                                sendLog(jsonObject.getString("Message"));
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");

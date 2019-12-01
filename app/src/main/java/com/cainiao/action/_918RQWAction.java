@@ -256,7 +256,7 @@ public class _918RQWAction extends BaseAction {
                                 JSONObject obj = array.getJSONObject(0);
                                 sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw._918renqiwang, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());

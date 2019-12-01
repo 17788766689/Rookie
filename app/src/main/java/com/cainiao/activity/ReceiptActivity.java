@@ -434,7 +434,11 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 15:  //代表平台：红苹果 等（账号、密码、接单类型）
                 llBuyerNum.setVisibility(View.GONE);
                 llComm.setVisibility(View.GONE);
-                resId = R.array.receipt_type_5;
+                if(TextUtils.equals("麒麟",mPlatform.getName())){
+                    resId = R.array.receipt_type_13;
+                }else{
+                    resId = R.array.receipt_type_5;
+                }
                 break;
             case 16:  //代表平台：淘拍拍 等（频率、账号、验证码）
                 llPwd.setVisibility(View.GONE);

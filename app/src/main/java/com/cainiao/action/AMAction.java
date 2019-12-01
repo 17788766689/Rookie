@@ -209,7 +209,7 @@ public class AMAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (!("任务已被抢：101".equals(jsonObject.getString("message")))) {    //接单成功
+                            if (jsonObject.getInteger("code") == 200 || "请先完成进行中的任务方可继续接取".equals(jsonObject.getString("message"))) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.aimi, 3000);
                                 addTask(mPlatform.getName());

@@ -161,7 +161,9 @@ public class JXLYAction extends BaseAction {
                                 sendLog("检测到任务领取中...");
                                 lqTask(String.valueOf(array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getIntValue("id")));
                                 shopName = array.getJSONObject("data").getJSONArray("list").getJSONObject(0).getString("shopName");
-                            } else {
+                            } else if("".equals(array.getString("msg")) || null == array.getString("msg")){
+                                sendLog("可能账号出现问题了哦,请联系平台客服");  //继续检测任务
+                            }else {
                                 sendLog(array.getString("msg"));  //继续检测任务
                             }
                         } catch (Exception e) {

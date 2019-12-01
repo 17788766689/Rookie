@@ -142,8 +142,11 @@ public class MMMAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject array = JSONObject.parseObject(response.body());
                             if (array.getBooleanValue("Success")) {
-                                sendLog("检测到任务领取中...");
-                                lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                if (array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getDoubleValue("CommissionFee") > mParams.getMinCommission()){
+                                    lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                }else {
+                                    sendLog("佣金低于你设置的最小佣金,自动过滤");
+                                }
                             } else {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }

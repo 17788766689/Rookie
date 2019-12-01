@@ -1,0 +1,31 @@
+package com.cainiao.util;
+
+import android.content.Context;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+public class ScriptUtil{
+
+    /**
+     *  执行js文件的函数，并返回结果
+     * @param context 上下文对象
+     * @param jsName js文件名
+     * @param methodName js文件里面要执行的函数名
+     * @param args js文件里面要执行的函数的参数
+     * @return
+     */
+    public static String invokeJsFile(Context context, String jsName, String methodName, Object... args){
+        try {
+            InputStream is = context.getAssets().open(jsName);
+//            ScriptEngineManager manager = new Sc
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+}
+
+

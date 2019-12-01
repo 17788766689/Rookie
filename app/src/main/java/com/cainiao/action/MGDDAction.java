@@ -59,7 +59,7 @@ public class MGDDAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            getToken();
+            login();
         }
     }
 
@@ -92,16 +92,16 @@ public class MGDDAction extends BaseAction {
      * 登录
      */
     private void login() {
+        long n = new Date().getTime();
         sendLog(MyApp.getContext().getString(R.string.being_login));
         Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
         request.params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "");
-        if(!(TextUtils.equals(mPlatform.getToken(), "1") || TextUtils.equals(mPlatform.getToken(), "123456789"))){   //token不为1时才多提交这两个参数
-            request.params("verifyid", mPlatform.getVerifyId())
-                    .params("token", mPlatform.getToken());
-        }
-                request.execute(new StringCallback() {
+                .params("device_version", "")
+                .params("time",n)
+                .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
+
+        request.execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {

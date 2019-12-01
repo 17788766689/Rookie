@@ -53,7 +53,7 @@ public class XPGPDDAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            getToken();
+            login();
         }
     }
 
@@ -87,14 +87,15 @@ public class XPGPDDAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
+        long n = new Date().getTime();
+        sendLog(MyApp.getContext().getString(R.string.being_login));
         Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
         request.params("mobile", mParams.getAccount())
                 .params("password", Utils.md5(mParams.getPassword()))
-                .params("device_version", "");
-        if(!(TextUtils.equals(mPlatform.getToken(), "1") || TextUtils.equals(mPlatform.getToken(), "123456789"))){   //token不为1时才多提交这两个参数
-            request.params("verifyid", mPlatform.getVerifyId())
-                    .params("token", mPlatform.getToken());
-        }
+                .params("device_version", "")
+                .params("time",n)
+                .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
+
         request.execute(new StringCallback() {
             @Override
             public void onSuccess(Response<String> response) {
@@ -281,7 +282,7 @@ public class XPGPDDAction extends BaseAction {
                                 JSONObject obj = array.getJSONObject(0);
                                 sendLog("接单成功,店铺名:" + obj.getString("shop_name"));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()) + "，店铺名:" + obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()) + "，店铺名:" + obj.getString("shop_name"), R.raw.xiaopingguopdd, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());

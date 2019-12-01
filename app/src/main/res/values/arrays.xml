@@ -85,4 +85,10 @@
         <item>标签单</item>
     </string-array>
 
+    <!--麒麟-->
+    <string-array name="receipt_type_13">
+        <item>普通任务</item>
+        <item>隔日任务</item>
+    </string-array>
+
 </resources>
