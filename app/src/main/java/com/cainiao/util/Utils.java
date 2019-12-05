@@ -26,24 +26,26 @@ public class Utils {
 
     private static String deviceId = Const.DEFAULT_ID;
 
-    public static void setDeviceId(String id){
+    public static void setDeviceId(String id) {
         deviceId = id;
     }
 
-    public static String getDeviceId(){return  deviceId;}
+    public static String getDeviceId() {
+        return deviceId;
+    }
 
     /**
      * 获取：Pseudo-Unique ID, 这个在任何Android手机中都有效
+     *
      * @return
      */
     public static String getUuid() {
         DeviceUtil.getInstance().init(MyApp.getContext());
         String android = DeviceUtil.getInstance().getDeviceId();
-        return md5(android+deviceId);
+        return md5(android + deviceId);
     }
 
     /**
-     *
      * @param arg3
      * @param arg4
      * @return SHA加密
@@ -54,15 +56,13 @@ public class Utils {
             Mac v1 = Mac.getInstance(v0);
             v1.init(new SecretKeySpec(arg4.getBytes(), v0));
             arg3 = Base64.encodeToString(v1.doFinal(arg3.getBytes("UTF-8")), 2);
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             arg3 = "";
         }
         return arg3;
     }
 
     /**
-     *
      * @param arg5
      * @return 随机数
      */
@@ -70,7 +70,7 @@ public class Utils {
         Random v0 = new Random();
         StringBuffer v1 = new StringBuffer();
         int v2;
-        for(v2 = 0; v2 < arg5; ++v2) {
+        for (v2 = 0; v2 < arg5; ++v2) {
             v1.append("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(v0.nextInt(62)));
         }
 
@@ -79,6 +79,7 @@ public class Utils {
 
     /**
      * md5加密
+     *
      * @param source
      * @return
      */
@@ -109,9 +110,10 @@ public class Utils {
 
     /**
      * 将str内容复制到剪贴板
+     *
      * @param str
      */
-    public static void setClipboardStr(String str){
+    public static void setClipboardStr(String str) {
         //获取剪贴板管理器：
         ClipboardManager cm = (ClipboardManager) MyApp.getContext().getSystemService(Context.CLIPBOARD_SERVICE);
         // 创建普通字符型ClipData
@@ -122,27 +124,29 @@ public class Utils {
 
     /**
      * 判断str是否是整数
+     *
      * @param str
      * @return
      */
-    public static boolean isInteger(String str){
+    public static boolean isInteger(String str) {
         return TextUtils.isEmpty(str) ? false : str.matches("[0-9]+");
     }
 
-    public static int dp2px(float dpValue){
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,dpValue, MyApp.getContext().getResources().getDisplayMetrics());
+    public static int dp2px(float dpValue) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, MyApp.getContext().getResources().getDisplayMetrics());
     }
 
     /**
      * 获取时间戳 URL签名
+     *
      * @param url
      * @return
      * @throws MalformedURLException
      * @throws UnsupportedEncodingException
      * @throws NoSuchAlgorithmException
      */
-    public static String getTimestampUrl(String url){
-        if(TextUtils.isEmpty(url)) return "";
+    public static String getTimestampUrl(String url) {
+        if (TextUtils.isEmpty(url)) return "";
         String encryptKey = "d198309bbdb905b80f99ccbafb99ce9bb6b8b298";
         URL urlObj = null;
         try {
@@ -172,16 +176,26 @@ public class Utils {
     /**
      * 禁用掉Xposed
      */
-    public static void disable(){
+    public static void disable() {
         try {
             Field field = ClassLoader.getSystemClassLoader()
                     .loadClass("de.robv.android.xposed.XposedBridge")
                     .getField("disableHooks");
             field.setAccessible(true);
             field.set(null, true);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public static String getRandomNickname(int length) {
+        String val = "";
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            val += String.valueOf(random.nextInt(10));
+        }
+        return val;
     }
 
 }

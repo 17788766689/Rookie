@@ -11,7 +11,6 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -19,11 +18,12 @@ import com.lzy.okgo.model.Response;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 
 /**
- * 红苹果
+ * 乐多多
  */
-public class HPGAction extends BaseAction {
+public class LDDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -42,7 +42,7 @@ public class HPGAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
-            cookie = "apprentice_remember_user=deleted;";
+            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -52,43 +52,46 @@ public class HPGAction extends BaseAction {
     }
 
     /**
+     * 获取验证码
+     */
+    public void getVerifyCode(Platform platform) {
+        sendMsg("get_verifycode", "http://www.zhupw.com/captcha.jpg?" + new Date().getTime());
+    }
+
+    /**
      * 登录
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/public/apprentice.php/passport/ajax_login.html", mPlatform.getHost())
+        HttpClient.getInstance().post("/login", mPlatform.getHost())
                 .params("username", mParams.getAccount())
-                .params("password", Utils.md5(mParams.getPassword()))
-                .params("remember",1)
-                .params("callback","/public/apprentice.php")
-                .params("t","0."+new Date().getTime())
-                .headers("Content-Type", "application/json")
-                .headers("X-Requested-With", "XMLHttpRequest")
+                .params("password", mParams.getPassword())
+                .params("captcha", mParams.getVerifyCode())
+                .headers("Cookie", mPlatform.getVerifyCodeCookie())
+                .headers("Referer", "http://www.zhupw.com/login")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("msg"));
-                            if (1 == jsonObject.getIntValue("success")) {    //登录成功
-                                List<String> list = response.headers().values("Set-Cookie");
-                                for (String str : list) {
-                                    cookie += str.substring(0, str.indexOf(";")) + ";";
-                                }
-                                updateParams(mPlatform);
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
-                            } else {
-                                MyToast.error(jsonObject.getString("msg"));
-                                stop();
-                            }
-                        } catch (Exception e) {
+                        //try {
+                        if (TextUtils.isEmpty(response.body())) return;
+                        if (response.body().indexOf("首页") != -1) {    //登录成功
+                            sendLog("登录成功");
+                            updateParams(mPlatform);
+                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                            updateStatus(mPlatform, 3); //正在接单的状态
+                            startTask();
+                        } else {
+                            sendLog("账号或密码错误");
+                            getVerifyCode(mPlatform);
+                            MyToast.error("账号或者密码错误");
                             stop();
-                            sendLog("登录异常");  //接单异常
                         }
+                        //} catch (Exception e) {
+                            /*stop();
+                            getVerifyCode(mPlatform);
+                            sendLog("登录异常");*/  //接单异常
+                        //}
                     }
 
                     @Override
@@ -103,25 +106,10 @@ public class HPGAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        String normal = "0";
-        String activity = "0";
-        String traffic = "0";
-        if(mParams.getType().equals("1")){
-            normal = "1";
-        }else if(mParams.getType().equals("2")){
-            activity = "1";
-        }else if(mParams.getType().equals("3")){
-            traffic = "1";
-        }
-
-        HttpClient.getInstance().get("/public/apprentice.php/task/ajax_queue_up", mPlatform.getHost())
-                .params("t","0."+new Date().getTime())
-                .params("normal",normal)
-                .params("activity",activity)
-                .params("traffic",traffic)
-                .headers("Cookie",cookie)
-                .headers("Content-Type", "application/json")
+        HttpClient.getInstance().post("/client/orderbuytask/changeOrderStatus", mPlatform.getHost())
+                .headers("Cookie", mPlatform.getVerifyCodeCookie())
                 .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "http://www.zhupw.com/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -129,15 +117,17 @@ public class HPGAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            System.out.println(obj.getString("task"));
-                            if (obj.getString("task") != null && obj.getString("task").length()> 0) {
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.hongpingguo, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
+                            if (obj.getInteger("code") == 0 && "inTask".equals(obj.getString("msg"))) {
+                                sendLog("检测到任务自动领取中");
+                                if (obj.getJSONObject("orderTask").getInteger("type") == 0) {
+                                    lqTask("/client/orderbuytask/businessBuyInfo?businessBuyId" + obj.getJSONObject("orderTask").getString("projectBuyId"));
+                                } else {
+                                    lqTask("/client/browseTask/businessBrowseInfo?businessBrowseId" + obj.getJSONObject("orderTask").getString("projectBrowseId"));
+                                }
+                            } else if (obj.getInteger("code") == 500) {
+                                sendLog("暂时没有任务");
                             } else {
-                                sendLog(obj.getString("message"));  //继续检测任务
+                                sendLog("暂时没有合适的任务");  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常");  //接单异常
@@ -162,6 +152,41 @@ public class HPGAction extends BaseAction {
                                     startTask();
                                 }
                             }, period);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 领取任务
+     *
+     * @param url
+     */
+    private void lqTask(String url) {
+
+        long n = new Date().getTime();
+        HttpClient.getInstance().post(url, mPlatform.getHost())
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "http://www.zhupw.com/")
+                .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .execute(new StringCallback() {
+
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getString("msg").equals("success")) {
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.leduoduo, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });

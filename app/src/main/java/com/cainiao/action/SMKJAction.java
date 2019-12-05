@@ -24,7 +24,7 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 /**
- * 鸿昌科技
+ * 三木科技
  */
 public class SMKJAction extends BaseAction {
     private boolean isStart;
@@ -102,7 +102,7 @@ public class SMKJAction extends BaseAction {
     private void startTask() {
         Map map = new HashMap();
         map.put("orderStyle", 2);
-        map.put("taskStyleMode", 0);
+        map.put("taskStyleMode", mParams.getType());
         map.put("page", 1);
         map.put("size", 10);
         map.put("taskId", "");

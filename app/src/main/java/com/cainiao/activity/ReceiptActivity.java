@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -42,6 +43,7 @@ import com.cainiao.view.toasty.MyToast;
 import com.litesuits.orm.db.assit.QueryBuilder;
 import com.lzy.okgo.callback.BitmapCallback;
 import com.lzy.okgo.model.Response;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,6 +98,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         tvBtn1.setOnClickListener(this);
         tvBtn2.setOnClickListener(this);
         spBuyerNum.setOnItemSelectedListener(this);
+        spReceiptType.setOnItemSelectedListener(this);  //接单类型
         inVerifyCode.setOnClickListener(this);
 //        updateBtnStatus();
 
@@ -191,15 +194,23 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void onItemSelected(AdapterView<?> view, View view1, int i, long l) {
         mPlatform = Platforms.getCurrPlatform();
-        if (mBuyerNums == null || mBuyerNums.size() <= i || mPlatform.getParams() == null || !mPlatform.isStart())
-            return;
-        //选择新的买号之后通知Service，使用新的买号进行刷单
-        BuyerNum buyerNum = mBuyerNums.get(i);
+        if (mPlatform.getParams() == null || !mPlatform.isStart()) return;
         Params params = mPlatform.getParams();
-        params.setBuyerNum(buyerNum);
-        params.setBuyerNumIndex(i);
+
+        if(view == spReceiptType){  //改变接单类型
+            if(spReceiptType.getSelectedItemPosition() == params.getTypeIndex()) return;  //下标相同不做处理
+            params.setType(String.valueOf(spReceiptType.getSelectedItemPosition() + 1));  //接单类型
+            params.setTypeIndex(spReceiptType.getSelectedItemPosition());   //接单类型选中的下标
+            refreshLogView("将在下一次发起请求时自动切换接单类型",true);
+        }else{ //改变买号
+            if(mBuyerNums == null || mBuyerNums.size() <= i || params.getBuyerNumIndex() == i) return; //下标相同不做处理
+            //选择新的买号之后通知Service，使用新的买号进行刷单
+            BuyerNum buyerNum = mBuyerNums.get(i);
+            params.setBuyerNum(buyerNum);
+            params.setBuyerNumIndex(i);
+            refreshLogView("接单买号切换为" + params.getBuyerNum().getName(), true);
+        }
         mPlatform.setParams(params);
-        refreshLogView("接单买号切换为" + params.getBuyerNum().getName(), true);
         Platforms.setCurrPlatform(mPlatform);
         startService(new Intent(this, MyService.class));
     }
@@ -436,8 +447,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llComm.setVisibility(View.GONE);
                 if(TextUtils.equals("麒麟",mPlatform.getName())){
                     resId = R.array.receipt_type_13;
-                }else{
+                }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
+                }else{
+                    resId = R.array.receipt_type_11;
                 }
                 break;
             case 16:  //代表平台：淘拍拍 等（频率、账号、验证码）
@@ -474,7 +487,11 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     llFilter.setVisibility(View.VISIBLE);
                 }else if(TextUtils.equals(mPlatform.getPkgName(),"com.a2398577387.kfg")){
                     resId = R.array.receipt_type_1;
-                } else {
+                } else if(TextUtils.equals(mPlatform.getName(),"大师兄")){
+                    resId = R.array.receipt_type_3;
+                }else if(TextUtils.equals(mPlatform.getName(),"赚辣条(抢单)")){
+                    resId = R.array.receipt_type_4;
+                }else {
                     resId = R.array.receipt_type_2;
                 }
                 break;

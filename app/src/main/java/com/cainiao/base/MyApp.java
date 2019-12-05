@@ -1,13 +1,16 @@
 package com.cainiao.base;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Build;
 
+import com.cainiao.util.AppUtil;
 import com.cainiao.util.Const;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.litesuits.orm.LiteOrm;
 import com.litesuits.orm.db.DataBaseConfig;
+import com.tencent.bugly.crashreport.CrashReport;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -31,6 +34,7 @@ public class MyApp extends Application{
         setDatabase();
         Utils.disable();
         disableAPIDialog();
+        initBugly();
         MyToast.init(this, Const.DEBUG_MODE,true); //用法见https://github.com/hss01248/Toasty
     }
 
@@ -69,6 +73,22 @@ public class MyApp extends Application{
 
     public static LiteOrm getLiteOrm(){
         return liteOrm;
+    }
+
+    /**
+     * 初始化bugly
+     */
+    private void initBugly(){
+        // 获取当前进程名
+//        String processName = AppUtil.getProcessName(android.os.Process.myPid());
+        // 设置是否为上报进程，主要是防止多进程的时候不同进程同时上报导致流量的损耗和性能的下降，这里设置只在主进程才上报
+//        CrashReport.UserStrategy strategy = new CrashReport.UserStrategy(getApplicationContext());
+//        strategy.setUploadProcess(processName == null || processName.equals(getPackageName()));
+        // 初始化Bugly
+        CrashReport.initCrashReport(getApplicationContext(), Const.BUGLY_APP_ID, Const.DEBUG_MODE);
+
+        //测试bugly的时候可以人为制造一个Crash，方便查看崩溃日志是否有在控制台输出以及是否有上传后台
+//        CrashReport.testJavaCrash();  //用这行代码进行崩溃测试
     }
 
     /**

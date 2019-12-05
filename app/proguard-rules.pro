@@ -156,3 +156,7 @@
 #lite-orm
 -dontwarn com.litesuits.orm.**
 -keep class com.litesuits.orm.**{*;}
+
+#bugly
+-dontwarn com.tencent.bugly.**
+-keep public class com.tencent.bugly.**{*;}

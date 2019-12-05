@@ -6,8 +6,8 @@ android {
         applicationId "com.cainiao"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 26
-        versionName "1.3.4"
+        versionCode 28
+        versionName "1.3.6"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -51,4 +51,6 @@ dependencies {
     implementation files('libs/lite-orm-1.9.2.jar')
     //implementation 'com.github.:Toasty:2.0.6'
     implementation 'org.jsoup:jsoup:1.10.3'
+
+    implementation 'com.tencent.bugly:crashreport:latest.release' //其中latest.release指代最新Bugly SDK版本号，也可以指定明确的版本号，例如2.1.9
 }

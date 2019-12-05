@@ -46,6 +46,8 @@ public class Const {
 
     public static String NEED_VERIFY_PKGS; //需要进行滑块验证码的平台包名，以后添加其他平台的时候两个平台之间可以用","分号隔开
 
+    public static String BUGLY_APP_ID;  //腾讯bugly注册的appid
+
     private static void init(){
         STATUS_ACTION = "com.cainiao.status";
         HOST = "http://www.cainiaoqd.com";
@@ -72,9 +74,10 @@ public class Const {
         BLSA = 2;
         AJW_VA = 3;
         KSHG_AW = 4;
-        DEBUG_MODE = false;
+        DEBUG_MODE = false;  //开发时可以设置为true，方便查看日志进行调试，正式打包的时候再设置为false
         FLAG = true;
         NEED_VERIFY_PKGS = "";
+        BUGLY_APP_ID = "d00e1532f0";
     }
 
 }

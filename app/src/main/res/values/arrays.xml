@@ -18,10 +18,10 @@
         <item>预售任务</item>
     </string-array>
 
-    <!--51赚钱-->
+    <!--51赚钱  大师兄-->
     <string-array name="receipt_type_3">
-        <item>淘宝成交任务</item>
-        <item>京东成交任务</item>
+        <item>淘宝</item>
+        <item>京东</item>
     </string-array>
 
     <!--阿西里里、私房钱-->

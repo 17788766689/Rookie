@@ -137,6 +137,7 @@ public class RRLTAction extends BaseAction {
                                         && Float.parseFloat(object.getString("payment")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("payment"), object.getString("commission")));
                                     lqTask(object.getString("id"));
+                                    break;
                                 }
                             }
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务

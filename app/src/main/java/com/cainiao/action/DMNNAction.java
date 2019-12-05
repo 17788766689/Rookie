@@ -10,20 +10,18 @@ import com.cainiao.base.MyApp;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
+import com.cainiao.util.HYNCUtils;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Random;
 
 /**
- * 红苹果
+ * 达姆牛牛
  */
-public class HPGAction extends BaseAction {
+public class DMNNAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -42,7 +40,7 @@ public class HPGAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
-            cookie = "apprentice_remember_user=deleted;";
+            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -55,15 +53,14 @@ public class HPGAction extends BaseAction {
      * 登录
      */
     private void login() {
+        String r = HYNCUtils.md5("account"+mParams.getAccount()+"password"+mParams.getPassword()+"~244!@#~$$~");
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/public/apprentice.php/passport/ajax_login.html", mPlatform.getHost())
-                .params("username", mParams.getAccount())
-                .params("password", Utils.md5(mParams.getPassword()))
-                .params("remember",1)
-                .params("callback","/public/apprentice.php")
-                .params("t","0."+new Date().getTime())
+        HttpClient.getInstance().post("/user/login", mPlatform.getHost())
+                .params("account", mParams.getAccount())
+                .params("password", mParams.getPassword())
+                .headers("Cookie","tmp_cc="+r)
+                .headers("Referer","http://wx.q64b.cn/wap/")
                 .headers("Content-Type", "application/json")
-                .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -72,11 +69,8 @@ public class HPGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
-                            if (1 == jsonObject.getIntValue("success")) {    //登录成功
-                                List<String> list = response.headers().values("Set-Cookie");
-                                for (String str : list) {
-                                    cookie += str.substring(0, str.indexOf(";")) + ";";
-                                }
+                            if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
+                                cookie = jsonObject.getJSONObject("data").getString("token");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
@@ -103,41 +97,24 @@ public class HPGAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        String normal = "0";
-        String activity = "0";
-        String traffic = "0";
-        if(mParams.getType().equals("1")){
-            normal = "1";
-        }else if(mParams.getType().equals("2")){
-            activity = "1";
-        }else if(mParams.getType().equals("3")){
-            traffic = "1";
-        }
-
-        HttpClient.getInstance().get("/public/apprentice.php/task/ajax_queue_up", mPlatform.getHost())
-                .params("t","0."+new Date().getTime())
-                .params("normal",normal)
-                .params("activity",activity)
-                .params("traffic",traffic)
-                .headers("Cookie",cookie)
-                .headers("Content-Type", "application/json")
-                .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+        HttpClient.getInstance().post("/task", mPlatform.getHost())
+                .headers("Auth-Token", cookie)
+                .headers("Referer", "http://ql.qishikj.cn/home/")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            System.out.println(obj.getString("task"));
-                            if (obj.getString("task") != null && obj.getString("task").length()> 0) {
+                            if (obj.getString("msg").equals("领取成功")) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.hongpingguo, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.damuniuniu, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {
-                                sendLog(obj.getString("message"));  //继续检测任务
+                                sendLog(obj.getString("msg"));  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常");  //接单异常
