@@ -42,7 +42,6 @@ public class MGDDAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
-
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
@@ -63,30 +62,6 @@ public class MGDDAction extends BaseAction {
         }
     }
 
-    private void getToken(){
-        long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/index/getToken", mPlatform.getHost())
-                .params("time",n)
-                .params("sign",  Utils.md5("renqiwangjiamifangzhiwaigua" +n))
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if("手速太快，网络瘫痪。".equals(jsonObject.getString("message"))){
-                                sendLog("请更换IP再开始接单");
-                            }else{
-                                token = jsonObject.getJSONObject("data").getJSONObject("data").getString("token");
-                                login();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
-                    }
-                });
-    }
 
     /**
      * 登录
@@ -100,28 +75,28 @@ public class MGDDAction extends BaseAction {
                 .params("device_version", "")
                 .params("time",n)
                 .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
-
+        request.headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920");
         request.execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("message"));
-                            if (jsonObject.getIntValue("code") == 1) {    //登录成功
-                                updateParams(mPlatform);
-                                token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
-                                getAccount();
-                            } else {
-                                MyToast.error(jsonObject.getString("message"));
-                                stop();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
+            @Override
+            public void onSuccess(Response<String> response) {
+                try {
+                    if (TextUtils.isEmpty(response.body())) return;
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    sendLog(jsonObject.getString("message"));
+                    if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                        updateParams(mPlatform);
+                        token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                        getAccount();
+                    } else {
+                        MyToast.error(jsonObject.getString("message"));
+                        stop();
                     }
-                });
+                } catch (Exception e) {
+                    sendLog("登录异常！");
+                    stop();
+                }
+            }
+        });
     }
 
     /**
@@ -136,10 +111,12 @@ public class MGDDAction extends BaseAction {
                 .params("time", n)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
+
                             if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
@@ -163,10 +140,11 @@ public class MGDDAction extends BaseAction {
                                 stop();
                             }
                         } catch (Exception e) {
+                            sendLog("获取买号异常！");
                             stop();
-                            MyToast.error("获取买号异常");
                         }
                     }
+
                 });
     }
 
@@ -181,8 +159,9 @@ public class MGDDAction extends BaseAction {
                 .params("type", mParams.getType())
                 .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=" + mParams.getType()) + n))
                 .params("time", n)
-                .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -195,13 +174,14 @@ public class MGDDAction extends BaseAction {
                                         && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
                                         && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
+                                    ffh(object.getString("id"));
                                     lqTask(object.getString("id"));
                                     break;
                                 }
                             }
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                         } catch (Exception e) {
-                            sendLog("检测任务异常");
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -229,36 +209,88 @@ public class MGDDAction extends BaseAction {
     }
 
     /**
-     * 领取任务
-     *
-     * @param taskId 任务id
+     * 测试防封号
      */
-    private void lqTask(String taskId) {
+    private void ffh(String id){
         long n = new Date().getTime();
-        Map map = new HashMap();
-        map.put("id", taskId);
-        map.put("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n));
-        map.put("time", n);
-        String param = JSON.toJSONString(map);
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, param);
-        HttpClient.getInstance().post("/api/assign/accept_work", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("Authorization", token)
-                .headers("Content-Type", "application/json")
+        HttpClient.getInstance().post("/api/assign/get_task_detail", mPlatform.getHost())
+                .params("id", id)
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id="+id) + n))
+                .params("time", n)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            System.out.println(JSON.toJSONString(jsonObject));
+                        } catch (Exception e) {
+
+                        }
+                    }
+                });
+
+        HttpClient.getInstance().post("/api/index/get_user_info", mPlatform.getHost())
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + n))
+                .params("time", n)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            System.out.println(JSON.toJSONString(jsonObject));
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
+
+        HttpClient.getInstance().post("/api/index/get_taobao_info", mPlatform.getHost())
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua"  + n))
+                .params("time", n)
+                .headers("Authorization", token)
+                .headers("Content-Type", "application/json")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+
+                    }
+
+                });
+    }
+
+    /**
+     * 领取任务
+     *
+     * @param taskId 任务id
+     */
+    private void lqTask(String taskId) {
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/api/assign/accept_work", mPlatform.getHost())
+                .headers("Authorization", token)
+                .params("id", taskId)
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n))
+                .params("time", n)
+                .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
+                .execute(new StringCallback() {
+
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (jsonObject.getIntValue("code") == 1) {    //接单成功
-                               getTask();
+                                getTask();
                             } else {
                                 sendLog(jsonObject.getString("message"));
                             }
                         } catch (Exception e) {
-                            sendLog("领取任务异常");
+                            sendLog("领取任务异常！");
                         }
                     }
                 });
@@ -274,8 +306,9 @@ public class MGDDAction extends BaseAction {
                 .params("page", "1")
                 .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&status=1") + n))
                 .params("time", n)
-                .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -289,7 +322,7 @@ public class MGDDAction extends BaseAction {
                                 JSONObject obj = array.getJSONObject(0);
                                 sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+"，店铺名:"+obj.getString("shop_name"), R.raw.manguodingdon, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());
@@ -305,9 +338,6 @@ public class MGDDAction extends BaseAction {
                     }
                 });
     }
-
-
-
 
 
     @Override

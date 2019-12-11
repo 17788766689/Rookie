@@ -70,7 +70,7 @@ public class _918RQWAction extends BaseAction {
                .params("device_version", "")
                 .params("time",n)
                 .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
-
+        request.headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920");
         request.execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -106,6 +106,7 @@ public class _918RQWAction extends BaseAction {
                 .params("time", n)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -154,6 +155,8 @@ public class _918RQWAction extends BaseAction {
                 .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=" + mParams.getType()) + n))
                 .params("time", n)
                 .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -166,6 +169,7 @@ public class _918RQWAction extends BaseAction {
                                         && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
                                         && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
+                                    ffh(object.getString("id"));
                                     lqTask(object.getString("id"));
                                     break;
                                 }
@@ -200,6 +204,60 @@ public class _918RQWAction extends BaseAction {
     }
 
     /**
+     * 测试防封号
+     */
+    private void ffh(String id){
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("/api/assign/get_task_detail", mPlatform.getHost())
+        .params("id", id)
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id="+id) + n))
+                .params("time", n)
+        .execute(new StringCallback() {
+            @Override
+            public void onSuccess(Response<String> response) {
+                try {
+                    if (TextUtils.isEmpty(response.body())) return;
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    System.out.println(JSON.toJSONString(jsonObject));
+                } catch (Exception e) {
+
+                }
+            }
+        });
+
+        HttpClient.getInstance().post("/api/index/get_user_info", mPlatform.getHost())
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + n))
+                .params("time", n)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            System.out.println(JSON.toJSONString(jsonObject));
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
+
+        HttpClient.getInstance().post("/api/index/get_taobao_info", mPlatform.getHost())
+                .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua"  + n))
+                .params("time", n)
+                .headers("Authorization", token)
+                .headers("Content-Type", "application/json")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+
+                    }
+
+                });
+    }
+
+    /**
      * 领取任务
      *
      * @param taskId 任务id
@@ -212,6 +270,8 @@ public class _918RQWAction extends BaseAction {
                 .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("id=" + taskId) + n))
                 .params("time", n)
                 .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
 
                     @Override
@@ -241,8 +301,9 @@ public class _918RQWAction extends BaseAction {
                 .params("page", "1")
                 .params("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&status=1") + n))
                 .params("time", n)
-                .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("Authorization", token)
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

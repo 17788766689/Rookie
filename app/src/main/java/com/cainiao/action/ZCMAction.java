@@ -132,6 +132,10 @@ public class ZCMAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if(null == mParams.getBuyerNum() || null == mParams.getBuyerNum().getId()){
+            getAccount();
+            return;
+        }
         HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
                 .params("id", mParams.getBuyerNum().getId())
                 .headers("Cookie", cookie)

@@ -41,13 +41,14 @@ public class XJLAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
+        updateBuyerId();
 
 //        isStart = true;
 //        updatePlatform(mPlatform);
@@ -117,6 +118,7 @@ public class XJLAction extends BaseAction {
                             if (tbData.size() > 0) {    //获取买号成功
                                 JSONObject obj = tbData.getJSONObject(0);
                                 mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("account")));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
                                     obj = tbData.getJSONObject(i);
@@ -144,7 +146,7 @@ public class XJLAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().post("/user/getTaskOrderList", mPlatform.getHost())
-                .params("userAccountId",mParams.getBuyerNum().getId())
+                .params("userAccountId",buyerId)
                 .params("type",1)
                 .params("channelType",1)
                 .headers("Cookie",cookie)
@@ -200,7 +202,7 @@ public class XJLAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/user/addGradTaskOrder", mPlatform.getHost())
-                .params("accountId",mParams.getBuyerNum().getId())
+                .params("accountId",buyerId)
                 .params("taskId",taskId)
                 .params("type",1)
                 .headers("Cookie",cookie)
@@ -226,6 +228,15 @@ public class XJLAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 

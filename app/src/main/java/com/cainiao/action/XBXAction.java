@@ -41,13 +41,14 @@ public class XBXAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
+        updateBuyerId();
 
 //        isStart = true;
 //        updatePlatform(mPlatform);
@@ -117,6 +118,7 @@ public class XBXAction extends BaseAction {
                             if (tbData.size() > 0) {    //获取买号成功
                                 JSONObject obj = tbData.getJSONObject(0);
                                 mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("account")));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
                                     obj = tbData.getJSONObject(i);
@@ -144,7 +146,7 @@ public class XBXAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().post("/user/getTaskOrderList", mPlatform.getHost())
-                .params("userAccountId",mParams.getBuyerNum().getId())
+                .params("userAccountId",buyerId)
                 .params("sign","xx1")
                 .headers("Cookie",cookie)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
@@ -198,7 +200,7 @@ public class XBXAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/user/addGradTaskOrder", mPlatform.getHost())
-                .params("accountId",mParams.getBuyerNum().getId())
+                .params("accountId",buyerId)
                 .params("taskId",taskId)
                 .params("sign","xx1")
                 .headers("Cookie",cookie)
@@ -224,6 +226,15 @@ public class XBXAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 

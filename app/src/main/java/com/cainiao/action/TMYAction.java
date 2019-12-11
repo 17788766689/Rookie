@@ -35,13 +35,14 @@ public class TMYAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
+        updateBuyerId();
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -121,6 +122,7 @@ public class TMYAction extends BaseAction {
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
                                 mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
@@ -156,7 +158,7 @@ public class TMYAction extends BaseAction {
                 .params("PageSize", 12)
                 .params("PlatId", 1)
                 .params("MaxAdvancePayMoney", 5000)
-                .params("AccountId", mParams.getBuyerNum().getId())
+                .params("AccountId", buyerId)//报错的地方，这个mParams.getBuyerNum()为null了，判断一下，防止有时候买号获取不到的时候这里出错
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -219,7 +221,7 @@ public class TMYAction extends BaseAction {
         HttpClient.getInstance().post("/api/Task/UserDetermineTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
-                .params("AccountId", mParams.getBuyerNum().getId())
+                .params("AccountId", buyerId)
                 .params("TaskListNo", taskId)
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
@@ -248,6 +250,16 @@ public class TMYAction extends BaseAction {
                     }
                 });
     }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
+    }
+
 
 
     @Override

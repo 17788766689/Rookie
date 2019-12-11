@@ -34,21 +34,23 @@ public class TMYPDAction extends BaseAction {
     private String token = "";
     private String userId = "";
     private Platform mPlatform;
+    private String buyerId = "";
     private Params mParams;
     private Random mRandom;
     private int count = 0;
     int index = 0;
-    private JSONArray accountArray;
 
     @Override
     public void start(Platform platform) {
-        if (platform == null) return;
+        if (platform == null || platform.getParams() == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
 
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
+
+        updateBuyerId();
 
         if (!isStart) {    //未开始抢单
             count = 0;
@@ -125,17 +127,17 @@ public class TMYPDAction extends BaseAction {
 
                             if (array.size() > 0) {    //获取买号成功
                                 JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                mParams.setBuyerNum(new BuyerNum("-1","自动切换"));
-                                accountArray = array;
+                                mParams.setBuyerNum(new BuyerNum(obj.getString("Id"),obj.getString("PlatAccount") ));
+                                updateBuyerId();
+
                                 List<BuyerNum> list = new ArrayList<>();
-                                list.add(new BuyerNum("-1", "自动切换"));
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
                                     list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                 }
+
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                sendLog("如果有买号已经接满了,可以自动手动选择买号,接单效率更高");
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
@@ -156,25 +158,14 @@ public class TMYPDAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        String accountId = "";
-        if(mParams.getBuyerNum().getId().equals("-1")){
-            if(accountArray.size() == index+1){
-                index = 0;
-                accountId = accountArray.getJSONObject(index).getString("Id");
-            }else{
-                accountId = accountArray.getJSONObject(index).getString("Id");
-                index++;
-            }
-        }else{
-            accountId = mParams.getBuyerNum().getId();
-        }
+
         HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
                 .params("TaskType", mParams.getType())
                 .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
-                .params("AccountIdList", accountId+",")
+                .params("AccountIdList", buyerId + ",")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -222,6 +213,15 @@ public class TMYPDAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
     @Override

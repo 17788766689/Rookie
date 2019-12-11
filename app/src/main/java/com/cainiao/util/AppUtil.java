@@ -45,6 +45,7 @@ public class AppUtil {
         PackageManager pm = MyApp.getContext().getPackageManager();
         Intent intent = pm.getLaunchIntentForPackage(packname);
         if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             MyApp.getContext().startActivity(intent);
         }
     }
@@ -55,7 +56,7 @@ public class AppUtil {
      */
     public static void openUrlInOuter(String url){
         if(TextUtils.isEmpty(url)) return;
-        MyApp.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+        MyApp.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 
     /**

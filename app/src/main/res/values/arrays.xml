@@ -91,4 +91,10 @@
         <item>隔日任务</item>
     </string-array>
 
+    <!--黑马-->
+    <string-array name="receipt_type_14">
+        <item>推荐任务</item>
+        <item>垫付任务</item>
+    </string-array>
+
 </resources>

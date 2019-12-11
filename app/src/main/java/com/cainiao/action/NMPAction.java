@@ -36,13 +36,14 @@ public class NMPAction extends BaseAction {
     private Random mRandom;
     private int count = 0;
     private String cookie;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
+        updateBuyerId();
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -105,6 +106,7 @@ public class NMPAction extends BaseAction {
 
                             if (tbData.size() > 0) {    //获取买号成功
                                 mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
                                     list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
@@ -131,7 +133,7 @@ public class NMPAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
+                .params("id",buyerId)
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
@@ -183,7 +185,7 @@ public class NMPAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
+                .params("id", buyerId)
                 .params("orderId", taskId)
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
@@ -208,6 +210,14 @@ public class NMPAction extends BaseAction {
                 });
     }
 
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
+    }
 
     @Override
     public void stop() {

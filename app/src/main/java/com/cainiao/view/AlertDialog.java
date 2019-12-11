@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.activity.MainActivity;
+import com.cainiao.base.MyApp;
 import com.cainiao.util.DialogUtil;
 import com.cainiao.util.HttpUtil;
 import com.lzy.okgo.callback.StringCallback;
@@ -44,6 +45,7 @@ public class AlertDialog {
 	private boolean showNegBtn = false;
 
 	public AlertDialog(Context context) {
+		if(context == null) context = MyApp.getContext();
 		this.context = context;
 		WindowManager windowManager = (WindowManager) context
 				.getSystemService(Context.WINDOW_SERVICE);

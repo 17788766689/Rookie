@@ -53,8 +53,10 @@ public class BaseAction{
                 if(this.getClass().equals(platform.getAction().getClass())){
                     platform.setLog(platform.getLog() + LogUtil.formatLog(log) + "\n");
                     int position = list.indexOf(platform);
-                    list.set(position, platform);
-                    Platforms.setPlatforms(list);
+                    if(position >= 0){
+                        list.set(position, platform);
+                        Platforms.setPlatforms(list);
+                    }
                     break;
                 }
             }

@@ -41,6 +41,7 @@ public class XZGAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) {
@@ -51,7 +52,7 @@ public class XZGAction extends BaseAction {
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
-
+        updateBuyerId();
         if (!isStart) {    //未开始抢单
             isStart = true;
             mHandler = new Handler();
@@ -108,6 +109,7 @@ public class XZGAction extends BaseAction {
                             Elements tbData = doc.select(".accountlist").select(".cell-item");
                             if (tbData.size() > 0) {    //获取买号成功
                                 mParams.setBuyerNum(new BuyerNum(tbData.get(0).select("input[name=madouaccounts]").val(), tbData.get(0).select(".shopname").text()));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
                                     list.add(new BuyerNum(tbData.get(i).select("input[name=madouaccounts]").val(), tbData.get(i).select(".shopname").text()));
@@ -134,7 +136,7 @@ public class XZGAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().post("/ReceiptTask/GetReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
+                .params("id",buyerId)
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
@@ -187,7 +189,7 @@ public class XZGAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
+                .params("id", buyerId)
                 .params("orderId", taskId)
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
@@ -211,6 +213,15 @@ public class XZGAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 
