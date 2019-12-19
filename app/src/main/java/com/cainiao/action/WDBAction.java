@@ -34,16 +34,15 @@ public class WDBAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
-    private int count = 0;
-    int index = 0;
-    private JSONArray accountArray;
+    private String buyerId = "";
+    private Integer count;
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
+        updateBuyerId();
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -124,17 +123,14 @@ public class WDBAction extends BaseAction {
 
                                 if (array.size() > 0) {    //获取买号成功
                                     JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
-                                    mParams.setBuyerNum(new BuyerNum("-1","自动切换"));
-                                    accountArray = array;
                                     List<BuyerNum> list = new ArrayList<>();
-                                    list.add(new BuyerNum("-1", "自动切换"));
+                                    mParams.setBuyerNum(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
+                                    updateBuyerId();
                                     for (int i = 0, len = array.size(); i < len; i++) {
                                         obj = array.getJSONObject(i);
                                         list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                     }
                                     showBuyerNum(JSON.toJSONString(list));
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                    sendLog("如果有买号已经接满了,可以自动手动选择买号,接单效率更高");
                                     MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                     updateStatus(mPlatform, 3); //正在接单的状态
                                     startTask();
@@ -157,18 +153,6 @@ public class WDBAction extends BaseAction {
      */
     private void startTask(){
         long n = new Date().getTime();
-        String accountId = "";
-        if(mParams.getBuyerNum().getId().equals("-1")){
-            if(accountArray.size() == index+1){
-                index = 0;
-                accountId = accountArray.getJSONObject(index).getString("Id");
-            }else{
-                accountId = accountArray.getJSONObject(index).getString("Id");
-                index++;
-            }
-        }else{
-            accountId = mParams.getBuyerNum().getId();
-        }
         HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
@@ -176,7 +160,7 @@ public class WDBAction extends BaseAction {
                 .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
                 .params("VersionControl","1.0.4")
-                .params("AccountIdList", accountId+",")
+                .params("AccountIdList", buyerId+",")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -224,6 +208,15 @@ public class WDBAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 

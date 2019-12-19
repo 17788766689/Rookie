@@ -26,7 +26,7 @@ import java.util.Random;
 /**
  * 小蘑菇
  */
-public class XMGAction extends BaseAction {
+public class DJYYAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -34,7 +34,6 @@ public class XMGAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private String token;
-    private String type = "1";
 
     @Override
     public void start(Platform platform) {
@@ -118,26 +117,23 @@ public class XMGAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
+        HttpClient.getInstance().get("/iop/index/taskList?type=1&page=1&page_size=10", mPlatform.getHost())
+                .params("type",mParams.getType())
+                .params("page",1)
+                .params("page_size",10)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Referer","http://yuntao.zhengfuz.com/iop/index/index")
+                .headers("Referer","http://xmt.51zugeju.com/iop/index/index")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            if (TextUtils.isEmpty(response.body())){
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONArray list = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONArray("list");
+                            if(list.size() >0){
+                                sendLog("检测到"+list.size()+"个任务,正在领取中...");
+                           }else {
                                 sendLog("继续检测任务");
-                            }else{
-                                JSONObject obj = JSONObject.parseObject(response.body());
-                                sendLog(obj.getString("msg"));
-                                if ("1".equals(obj.getString("status"))){
-                                    sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaomogu, 3000);
-                                    addTask(mPlatform.getName());
-                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                    isStart = false;
-                                }
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -162,6 +158,66 @@ public class XMGAction extends BaseAction {
                                     startTask();
                                 }
                             }, period);
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 获取token
+     */
+    private void getTask(String url) {
+        String[] str = url.split("=");
+        HttpClient.getInstance().get("/iop/index/attention.html?task_key_id=" + str[1], mPlatform.getHost())
+                .headers("Referer","http://xmt.51zugeju.com/iop/task/task_act.html?task="+str[1])
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Cookie", cookie+"; order_token="+token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            Document doc = Jsoup.parse(response.body());
+                            Elements taskToken = doc.select("input[name=token]");
+                            token = taskToken.val();
+                            lqTask(str[1]);
+                        } catch (Exception e) {
+                            sendLog("获取任务信息异常！");
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 领取任务
+     *
+     * @param taskId 任务id
+     */
+    private void lqTask(String taskId) {
+        HttpClient.getInstance().post("/iop/order/orderDown", mPlatform.getHost())
+                .params("task_key_id", taskId)
+                .params("access_token", token)
+                .headers("Referer","http://xmt.51zugeju.com/iop/index/attention.html?task_key_id="+taskId)
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Cookie", cookie+"; order_token="+token)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            System.out.println(jsonObject);
+                            if (jsonObject.getIntValue("status") == 1) {    //接单成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaomogu, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog(jsonObject.getString("msg"));
+                            }
+                        } catch (Exception e) {
+                            sendLog("领取任务异常！");
                         }
                     }
                 });

@@ -62,7 +62,7 @@ public class LogUtil {
 
     /**打印error级别的log*/
     public static void e(String text){
-        if (Const.DEBUG_MODE && CUR_LEVEL >= E_LEVEL){
+        if (CUR_LEVEL >= E_LEVEL){
             Log.e(TAG, text);
         }
     }

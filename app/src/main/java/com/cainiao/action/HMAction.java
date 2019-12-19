@@ -100,7 +100,7 @@ public class HMAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        HttpClient.getInstance().post("/mm/pages/binded_account", mPlatform.getHost())
+        HttpClient.getInstance().get("/mm/pages/binded_account", mPlatform.getHost())
                 .headers("Cookie", cookie)
                 .headers("Referer", "http://www.heima911.com/mm/main")
                 .headers("X-Requested-With", "XMLHttpRequest")
@@ -154,9 +154,10 @@ public class HMAction extends BaseAction {
             HttpClient.getInstance().post("/mm/task/always_task_api", mPlatform.getHost())
                     .params("nick_id", buyerId)
                     .headers("Cookie", cookie)
-                    .headers("Referer", "http://www.heima911.com/mm/user")
+                    .headers("Referer", "http://www.heima911.com/mm/main")
                     .headers("X-Requested-With", "XMLHttpRequest")
                     .headers("Content-Type", "application/json")
+                    .headers("username",mParams.getAccount())
                     .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                     .execute(new StringCallback() {
                         @Override
@@ -200,11 +201,12 @@ public class HMAction extends BaseAction {
                         }
                     });
         }else{
-            HttpClient.getInstance().post("/mm/task/claim_task?task_type=DIANFU", mPlatform.getHost())
+            HttpClient.getInstance().get("/mm/task/go?t=DIANFU", mPlatform.getHost())
                     .headers("Cookie", cookie)
                     .headers("Referer","http://www.heima911.com/mm/user")
                     .headers("X-Requested-With","XMLHttpRequest")
                     .headers("Content-Type", "application/json")
+                    .headers("username",mParams.getAccount())
                     .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                     .execute(new StringCallback() {
                         @Override
@@ -216,6 +218,7 @@ public class HMAction extends BaseAction {
                                         .headers("Referer", "http://www.heima911.com/mm/user")
                                         .headers("X-Requested-With", "XMLHttpRequest")
                                         .headers("Content-Type", "application/json")
+                                        .headers("username",mParams.getAccount())
                                         .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                                         .execute(new StringCallback() {
                                             @Override

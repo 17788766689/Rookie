@@ -168,7 +168,6 @@ public class XPGPDDAction extends BaseAction {
                                         && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
                                         && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
                                     sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
-                                    ffh(object.getString("id"));
                                     lqTask(object.getString("id"));
                                     break;
                                 }
@@ -233,7 +232,6 @@ public class XPGPDDAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            System.out.println(JSON.toJSONString(jsonObject));
                         } catch (Exception e) {
                             sendLog("登录异常！");
                             stop();

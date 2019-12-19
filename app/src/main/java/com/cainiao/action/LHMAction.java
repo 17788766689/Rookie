@@ -37,12 +37,16 @@ public class LHMAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
+    private String buyerId = "";
 
     @Override
     public void start(Platform platform) throws Exception {
         if (platform == null) return;
 //        isStart = true;
+        mPlatform = platform;
+        mParams = platform.getParams();
 //        updatePlatform(mPlatform);
+        updateBuyerId();
 //        updateStatus(platform, Const.AJW_VA);
         if (!isStart) {    //未开始抢单
             mPlatform = platform;
@@ -51,6 +55,7 @@ public class LHMAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
+
             login();
         }
     }
@@ -85,6 +90,7 @@ public class LHMAction extends BaseAction {
                                 if (tbData.size() > 0) {    //获取买号成功
                                     JSONObject obj = tbData.getJSONObject(0); ////默认使用第一个买号
                                     mParams.setBuyerNum(new BuyerNum(obj.getString("tbNo"), obj.getString("tbNo")));
+                                    updateBuyerId();
                                     List<BuyerNum> list = new ArrayList<>();
                                     for (int i = 0, len = tbData.size(); i < len; i++) {
                                         obj = tbData.getJSONObject(i);
@@ -120,7 +126,7 @@ public class LHMAction extends BaseAction {
                 .params("page", "1")
                 .params("rows", "10")
                 .params("taskType", "PT")
-                .params("tbNo", mParams.getBuyerNum().getName())
+                .params("tbNo", buyerId)
                 .headers("Cookie", cookie)
                 .headers("Accept", "application/json, text/javascript, */*; q=0.01")
                 .headers("X-Requested-With", "XMLHttpRequest")
@@ -176,7 +182,7 @@ public class LHMAction extends BaseAction {
     private void lqTask(String taskId) {
         HttpClient.getInstance().post("/buyer/acceptTaskOrder", mPlatform.getHost())
                 .params("taskOrderId", taskId)
-                .params("tbNo", mParams.getBuyerNum().getName())
+                .params("tbNo", buyerId)
                 .params("operationIp", "10.0.0.1")
                 .params("version", "1.0.0")
                 .headers("Cookie", cookie)
@@ -208,6 +214,15 @@ public class LHMAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 

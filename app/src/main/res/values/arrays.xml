@@ -97,4 +97,10 @@
         <item>垫付任务</item>
     </string-array>
 
+    <!--云美贝-->
+    <string-array name="receipt_type_15">
+        <item>立返</item>
+        <item>货返</item>
+    </string-array>
+
 </resources>

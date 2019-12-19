@@ -24,9 +24,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * 小蘑菇
+ * 电竞艺游派单
  */
-public class XMGAction extends BaseAction {
+public class DJYYPDAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -120,7 +120,7 @@ public class XMGAction extends BaseAction {
     private void startTask() {
         HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Referer","http://yuntao.zhengfuz.com/iop/index/index")
+                .headers("Referer","http://xmt.51zugeju.com/iop/index/index")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
@@ -133,8 +133,8 @@ public class XMGAction extends BaseAction {
                                 sendLog(obj.getString("msg"));
                                 if ("1".equals(obj.getString("status"))){
                                     sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaomogu, 3000);
-                                    addTask(mPlatform.getName());
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dianjinyiyou, 3000);
+                                    addTask("电竞艺游");
                                     updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                     isStart = false;
                                 }

@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
@@ -13,42 +14,41 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 /**
- * 大树王
+ * 海贼王
  */
-public class DSWAction extends BaseAction {
+public class HZWAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
-    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
-    private String buyerId = "";
+    private String cookie = "";
+    private String token;
+    private String userId;
+    private Integer count;
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-        updateBuyerId();
+
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
-            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -57,40 +57,57 @@ public class DSWAction extends BaseAction {
         }
     }
 
+
     /**
      * 登录
      */
     private void login() {
-        sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/mm/user/login_handler", mPlatform.getHost())
-                .params("user_name", mParams.getAccount())
+        count = 0;
+        sendLog("正在登录...");
+        HttpClient.getInstance().post("/user/login", mPlatform.getHost())
+                .params("mobile", mParams.getAccount())
                 .params("password", mParams.getPassword())
-                .headers("Referer","http://www.dashuwong.com/mm/user")
-                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getInteger("code") == 0) {    //登录成功
-                                List<String> list = response.headers().values("Set-Cookie");
-                                for (String str : list) {
-                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                            if (0 == jsonObject.getInteger("code")) {    //登录成功
+                                sendLog("登录成功");
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";"));
                                 }
-                                sendLog("登录成功！");
+                                token = jsonObject.getJSONObject("data").getString("token");
+                                userId = jsonObject.getJSONObject("data").getString("id");
                                 updateParams(mPlatform);
-                                getAccount();
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
                             } else {
                                 sendLog(jsonObject.getString("msg"));
                                 MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
-                            sendLog("登录异常！");
                             stop();
+                            sendLog("登录异常");  //接单异常
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        try {
+                            super.onError(response);
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            JSONObject obj = jsonObject.getJSONObject("error");
+                            sendLog(obj.getString("details"));  //接单异常
+                            stop();
+                        } catch (Exception e) {
+                            stop();
+                            sendLog("登录异常");  //接单异常
                         }
                     }
                 });
@@ -99,48 +116,36 @@ public class DSWAction extends BaseAction {
     /**
      * 获取买号
      */
-    private void getAccount() {
-        HttpClient.getInstance().post("/mm/pages/binded_account", mPlatform.getHost())
-                .headers("Cookie", cookie)
-                .headers("Referer","http://www.dashuwong.com/mm/main")
-                .headers("X-Requested-With","XMLHttpRequest")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+    private void getAccount(String id) {
+        long n = new Date().getTime();
+        HttpClient.getInstance().get("/order/order-details", mPlatform.getHost())
+                .params("token", token)
+                .params("userId", userId)
+                .params("type", "2")
+                .params("id", id)
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            Document doc = Jsoup.parse(response.body());
-                            Elements tbData = doc.select("ul").select("li");
-                            if (tbData.size() > 0) {    //获取买号成功
-                                int count =0;
-                                List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    if("绑定成功".equals(tbData.get(i).select(".col-30").select(".unbind-account").text())){
-                                        String href = tbData.get(i).select("a").attr("href");
-                                        href = href.substring(href.indexOf("=")+1,href.length());
-                                        if(count == 0){
-                                            mParams.setBuyerNum(new BuyerNum(href, tbData.get(i).select(".row").select(".col-100").eq(0).text()));
-                                            updateBuyerId();
-                                        }
-                                        count++;
-                                        list.add(new BuyerNum(href, tbData.get(i).select(".row").select(".col-100").eq(0).text()));
-                                    }
+//                        LogUtil.e("response: " + response.body());
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            JSONObject array = jsonObject.getJSONObject("data");
+                            if (jsonObject.getInteger("code") == 0) {    //获取买号成功
+                                if(count == 0){
+                                    count++;
+                                    lqTask(array.getString("taoname"),id);
                                 }
-                                showBuyerNum(JSON.toJSONString(list));
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
                             } else { //无可用的买号
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
-                                stop();
+                               sendLog(jsonObject.getString("msg"));
                             }
                         } catch (Exception e) {
                             sendLog("获取买号异常！");
                             stop();
                         }
                     }
+
                 });
     }
 
@@ -148,30 +153,34 @@ public class DSWAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/mm/task/always_task_api", mPlatform.getHost())
-                .params("nick_id", buyerId)
+        HttpClient.getInstance().get("/order/index", mPlatform.getHost())
+                .params("token", token)
+                .params("page", "1")
+                .params("pageSize", "20")
+                .params("type", "2")
                 .headers("Cookie", cookie)
-                .headers("Referer","http://www.dashuwong.com/mm/user")
-                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (obj.getInteger("code") == 0) {
-                                sendLog("接单成功,店铺名:"+obj.getJSONObject("result").getString("shop_name"));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getJSONObject("result").getString("shop_name"), R.raw.dashuwang, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(obj.getString("msg"));  //继续检测任务
+                            JSONArray array = obj.getJSONObject("data").getJSONArray("data");
+                            for (int i = 0, len = array.size(); i < len; i++) {
+                                JSONObject object = array.getJSONObject(i);
+                                if (object.getInteger("detection") == 1) {
+                                    if(object.getDouble("commission") >= mParams.getMinCommission() && object.getDouble("commodity_price") <= mParams.getMaxPrincipal()){
+                                        sendLog("检测到任务领取中");
+                                        getAccount(object.getString("id"));
+                                    }
+                                }
                             }
+                            sendLog("继续检测任务");
                         } catch (Exception e) {
-                            sendLog("检测任务异常！");
+                            sendLog("检测任务异常");  //接单异常
                         }
                     }
 
@@ -200,28 +209,32 @@ public class DSWAction extends BaseAction {
 
     /**
      * 领取任务
-     *
-     * @param taskId 任务id
+     * @param taobaoName
+     * @param taskId
      */
-    private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id",buyerId)
-                .params("orderId", taskId)
-                .headers("Cookie", cookie)
+    private void lqTask(String taobaoName,String taskId) {
+        long n = new Date().getTime();
+        HttpClient.getInstance().get("/order/order", mPlatform.getHost())
+                .params("token", token)
+                .params("type", "2")
+                .params("taoname", taobaoName)
+                .params("id",taskId)
+                .headers("Content-Type", "application/json")
                 .execute(new StringCallback() {
+
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.miaomiaomiao, 3000);
+                            if (jsonObject.getIntValue("code") == 0) {    //接单成功
+                                sendLog("接单成功,可前往App进行做单");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.haizeiwang, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {
-                                sendLog(jsonObject.getString("Message"));
+                                sendLog(jsonObject.getString("msg"));
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");
@@ -229,16 +242,6 @@ public class DSWAction extends BaseAction {
                     }
                 });
     }
-
-    /**
-     * 更新买号
-     */
-    private void updateBuyerId(){
-        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
-            buyerId = mParams.getBuyerNum().getId();
-        }
-    }
-
 
     @Override
     public void stop() {

@@ -154,6 +154,15 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                             startReceipt();
                         }
                     });  //callback后面的参数要写在这里，}和)之间，}之前的代码时callback里面的，不然就写在callback前面
+                }else if(mPlatform.getPageType() == 9){ //像单多多一样需要打开官网进行登录拿cookie的类型
+                    DialogUtil.get().showWebReceiptDialog(this, mPlatform.getWebUrl(), new DialogUtil.LoginCallback() {
+                        @Override
+                        public void onSuccess(String cookie) {
+                            mPlatform.setCookie(cookie);
+                            setCurrPlatform(mPlatform);
+                            startReceipt();
+                        }
+                    });
                 }else{
                     startReceipt();
                 }
@@ -487,6 +496,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llIgnore.setVisibility(View.VISIBLE);
                 llVerifyCode.setVisibility(View.VISIBLE);
                 break;
+            case 21:  //代表平台：海贼王 等（频率、账号、密码、佣金本金）
+                llBuyerNum.setVisibility(View.GONE);
+                llReceiptType.setVisibility(View.GONE);
+                break;
             case 0:  //代表平台：欢乐购 等(频率、账号、密码、买号、接单类型、佣金本金）
                 if (TextUtils.equals(mPlatform.getName(), "私房钱(抢单)")) {
                     resId = R.array.receipt_type_4;
@@ -497,7 +510,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_3;
                 }else if(TextUtils.equals(mPlatform.getName(),"赚辣条(抢单)")){
                     resId = R.array.receipt_type_4;
-                }else {
+                }else if(TextUtils.equals(mPlatform.getName(),"云美贝")){
+                    resId = R.array.receipt_type_15;
+                }
+                else {
                     resId = R.array.receipt_type_2;
                 }
                 break;

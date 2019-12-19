@@ -14,39 +14,27 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
-import com.cainiao.util.LogUtil;
-import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-
 /**
- * 发财树
+ * 云美贝
  */
-public class FCSAction extends BaseAction {
+public class YMBAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String token = "";
-    private String userId;
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
     private String buyerId = "";
+    private  String type = "2";
 
     @Override
     public void start(Platform platform) {
@@ -54,6 +42,7 @@ public class FCSAction extends BaseAction {
         mPlatform = platform;
         mParams = platform.getParams();
         updateBuyerId();
+
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -72,30 +61,26 @@ public class FCSAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        Map map = new HashMap();
-        map.put("telephone", mParams.getAccount());
-        map.put("password", mParams.getPassword());
-        String param = JSON.toJSONString(map);
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, param);
-        HttpClient.getInstance().post("/tcbuyer/ajaxLogin", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("Content-Type", "application/json")
+        HttpClient.getInstance().post("/app.ashx?action=login_submit", mPlatform.getHost())
+                .params("username", mParams.getAccount())
+                .params("password", mParams.getPassword())
+                .params("isAdmin", 0)
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Referer","http://m.yunmeibei.cn/login.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if ("登录成功".equals(jsonObject.getString("message"))) {    //登录成功
-                                sendLog("登录成功！");
-                                token = jsonObject.getString("token");
-                                userId = jsonObject.getString("buyerId");
+                            sendLog(jsonObject.getString("msgbox"));
+                            if (jsonObject.getIntValue("msg") == 1) {    //登录成功
+                                token = response.headers().get("Set-Cookie").toString();
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                sendLog(jsonObject.getString("message"));
-                                MyToast.error(jsonObject.getString("message"));
+                                MyToast.error(jsonObject.getString("msgbox"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -110,30 +95,26 @@ public class FCSAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        Map map = new HashMap();
-        map.put("buyerId", Integer.valueOf(userId));
-        String param = JSON.toJSONString(map);
-        MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSONType, param);
-        HttpClient.getInstance().post("/tcbuyer/person/findAccount", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("Content-Type", "application/json")
-                .headers("Cookie", "JSESSIONID=" + token)
+        HttpClient.getInstance().get("/app.ashx?action=GetListByNoTask&currPage=1&pageSize=10&type=1&taskType=1&accountId=0&sort=1&_="+new Date().getTime(), mPlatform.getHost())
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Referer","http://m.yunmeibei.cn/index.html")
+                .headers("Cookie",token)
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray tbData = jsonObject.getJSONArray("Accountlist");
+                            JSONArray tbData = jsonObject.getJSONArray("dataCount2");
                             if (tbData.size() > 0) {    //获取买号成功
-                                JSONObject index = tbData.getJSONObject(0);
-                                mParams.setBuyerNum(new BuyerNum(index.getString("id"), index.getString("acountName")));
+                                JSONObject obj = tbData.getJSONObject(0);
+                                mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("accountname")));
                                 updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    index = tbData.getJSONObject(i);
-                                    list.add(new BuyerNum(index.getString("id"), index.getString("acountName")));
+                                    obj = tbData.getJSONObject(i);
+                                    list.add(new BuyerNum(obj.getString("id"), obj.getString("accountname")));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
@@ -156,46 +137,28 @@ public class FCSAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        long time = new Date().getTime();
-        Map map = new HashMap();
-        map.put("deviceType", 2);
-        map.put("accountId", buyerId);
-        map.put("taskType", 1);
-        map.put("pageNo", 1);
-        map.put("time", time);
-        map.put("buyerId", userId);
-        map.put("platform", 1);
-        map.put("token", Utils.md5("TCfghFGH123!@#" + time + userId));
-        String param = JSON.toJSONString(map);
-        MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSONType, param);
-        HttpClient.getInstance().post("/tcbuyer/task/getTaskHallList", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("Content-Type", "application/json")
-                .headers("Cookie", "JSESSIONID=" + token)
+        if(mParams.getType().equals("2")){
+            type = "1";
+        }
+        HttpClient.getInstance().get("/app.ashx?action=GetListByNoTask&currPage=1&pageSize=10&type="+type+"&taskType=1&accountId=0&sort=1&_="+new Date().getTime(), mPlatform.getHost())
+                .headers("Cookie", token)
+                .headers("Referer", "http://m.yunmeibei.cn/index.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray array = jsonObject.getJSONArray("taskList");
-                            if (array.size() > 0) {
-                                sendLog("检测到任务领取中...");
-                                for (int i = 0, len = array.size(); i < len; i++) {
-                                    JSONObject object = array.getJSONObject(i);
-                                    if (object.getDouble("principal") <= mParams.getMaxPrincipal()) {
-                                        sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("principal"), object.getString("commission")));
-                                        lqTask(object.getString("subtaskId"));
-                                    } else {
-                                        sendLog("不符合本金条件过滤掉。。");
-                                    }
+                    public void onSuccess(Response<String> response){
+                        JSONObject obj = JSONObject.parseObject(response.body());
+                        JSONArray array = obj.getJSONArray("dataList");
+                        if(array.size() > 0){
+                            for (int i = 0, len = array.size(); i < len; i++) {
+                                JSONObject object = array.getJSONObject(i);
+                                if(object.getDouble("commission_price") >= mParams.getMinCommission() && object.getDouble("product_price") <= mParams.getMaxPrincipal()){
+                                    sendLog("检测到任务领取中");
+                                    lqTask(object.getString("id"));
                                 }
-                            } else {
-                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }
-                        } catch (Exception e) {
-                            sendLog("检测任务异常！");
+                        }else{
+                            sendLog("继续检测任务");
                         }
                     }
 
@@ -228,28 +191,23 @@ public class FCSAction extends BaseAction {
      * @param taskId 任务id
      */
     private void lqTask(String taskId) {
-        Map map = new HashMap();
-        map.put("deviceType", 2);
-        map.put("accountId", mParams.getBuyerNum().getId());
-        map.put("subtaskId", taskId);
-        map.put("buyerId", userId);
-        map.put("platform", 1);
-        String param = JSON.toJSONString(map);
-        MediaType JSONType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSONType, param);
-        HttpClient.getInstance().post("/tcbuyer/task/receiptTask", mPlatform.getHost())
-                .upRequestBody(body)
-                .headers("Content-Type", "application/json")
-                .headers("Cookie", "JSESSIONID=" + token)
+        HttpClient.getInstance().get("/app.ashx?action=updateOrderStatus", mPlatform.getHost())
+                .params("id",taskId)
+                .params("channelId","3")
+                .params("status","1")
+                .params("strValue",","+buyerId+",2")
+                .headers("Cookie", token)
+                .headers("Referer", "http://m.yunmeibei.cn/index.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if ("领取成功".equals(jsonObject.getString("message"))) {    //接单成功
+                            if (jsonObject.getInteger("IsSuccess") == 1) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.facaishu, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.yunmeibei, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
@@ -272,7 +230,6 @@ public class FCSAction extends BaseAction {
             buyerId = mParams.getBuyerNum().getId();
         }
     }
-
 
     @Override
     public void stop() {

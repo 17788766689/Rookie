@@ -63,6 +63,9 @@ public class Platform implements Serializable {
     @Ignore
     private String verifyId; //滑块验证码返回的校验id
 
+    @Ignore
+    private String cookie; //登录返回的cookie
+
     public Platform(){}
 
     public Platform(Params params, int resId, String name, String pkgName, String host, String downloadUrl, String webUrl, int headerId, int status, int situation, int pageType, BaseAction action) {
@@ -249,6 +252,14 @@ public class Platform implements Serializable {
 
     public void setVerifyId(String verifyId) {
         this.verifyId = verifyId;
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
     }
 
     public String getStatusTip(int status) {
