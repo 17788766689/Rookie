@@ -59,8 +59,6 @@ import okhttp3.Headers;
 public class ReceiptActivity extends BaseActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private ImageView inVerifyCode;
-    private Platform mPlatform;
-    private List<Platform> mList;
     private int position;
     private TextView tvLog, tvStart, tvStop, tvBtn1, tvBtn2;
     private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode,etIgnore;
@@ -76,6 +74,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private Random mRandom;
     private String platformName = "";
 
+    private static final int WEB_RECEIPT_CODE = 100;
 
     @Override
     public int getLayoutResId() {
@@ -90,7 +89,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         Intent intent = getIntent();
         position = intent.getIntExtra("position", 0);
 
-        getCurrPlatform();
+        getCurrPlatform(position);
 
         platformName = mPlatform.getName();
 
@@ -124,7 +123,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         if (tvLog.getLineCount() >= Const.LOG_MAX_LINE) {
             tvLog.setText("");  //清空日志
             mPlatform.setLog("");
-            setCurrPlatform(mPlatform);
+            setCurrPlatform(position, mPlatform);
         }
         /*msg = msg+="\n"+tvLog.getText().toString();
         tvLog.setText(msg);*/
@@ -155,14 +154,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                         }
                     });  //callback后面的参数要写在这里，}和)之间，}之前的代码时callback里面的，不然就写在callback前面
                 }else if(mPlatform.getPageType() == 9){ //像单多多一样需要打开官网进行登录拿cookie的类型
-                    DialogUtil.get().showWebReceiptDialog(this, mPlatform.getWebUrl(), new DialogUtil.LoginCallback() {
-                        @Override
-                        public void onSuccess(String cookie) {
-                            mPlatform.setCookie(cookie);
-                            setCurrPlatform(mPlatform);
-                            startReceipt();
-                        }
-                    });
+                    startActivityForResult(new Intent(this, WebReceiptActivity.class)
+                            .putExtra("url", mPlatform.getWebUrl())
+                            .putExtra("position", position), WEB_RECEIPT_CODE);
                 }else{
                     startReceipt();
                 }
@@ -171,7 +165,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 mPlatform.setStart(false);
                 mPlatform.setRefreshVerifyCode(false);
                 Platforms.rmRunningPlatform(mPlatform);
-                setCurrPlatform(mPlatform);
+                setCurrPlatform(position, mPlatform);
                 startService(new Intent(this, MyService.class));
                 break;
             case R.id.tv_btn1:
@@ -186,7 +180,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case R.id.iv_verify_code:
                 //getVerifyCode(mPlatform.getVerifyCodeUrl());
                 mPlatform.setRefreshVerifyCode(true);
-                setCurrPlatform(mPlatform);
+                setCurrPlatform(position, mPlatform);
                 Platforms.rmRunningPlatform(mPlatform);
                 startService(new Intent(this, MyService.class));
                 break;
@@ -200,13 +194,13 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         mPlatform.setStart(true);
         mPlatform.setRefreshVerifyCode(false);
         Platforms.addRunningPlatform(mPlatform);
-        setCurrPlatform(mPlatform);
+        setCurrPlatform(position, mPlatform);
         startService(new Intent(this, MyService.class));
     }
 
     @Override
     public void onItemSelected(AdapterView<?> view, View view1, int i, long l) {
-        getCurrPlatform();
+        getCurrPlatform(position);
         if (mPlatform.getParams() == null || !mPlatform.isStart()) return;
         Params params = mPlatform.getParams();
 
@@ -224,7 +218,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             refreshLogView("接单买号切换为" + params.getBuyerNum().getName(), true);
         }
         mPlatform.setParams(params);
-        setCurrPlatform(mPlatform);
+        setCurrPlatform(position, mPlatform);
         startService(new Intent(this, MyService.class));
     }
 
@@ -304,7 +298,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setFilterCheck(filter1.isChecked());
         params.setShopName(shopName);
         mPlatform.setParams(params);
-        setCurrPlatform(mPlatform);
+        setCurrPlatform(position, mPlatform);
 
         return true;
     }
@@ -372,6 +366,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 }
                 break;
             case 2:  //代表平台：918人气王 等（频率、账号、密码、买号、佣金本金、滑块验证码）
+                if("口袋精灵".equals(mPlatform.getName())){
+                        llFilter.setVisibility(View.VISIBLE);
+                }
                 llReceiptType.setVisibility(View.GONE);
                 break;
             case 3:  //代表平台：51芒果派 等（频率、账号、密码、买号）
@@ -460,10 +457,12 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 15:  //代表平台：红苹果 等（账号、密码、接单类型）
                 llBuyerNum.setVisibility(View.GONE);
                 llComm.setVisibility(View.GONE);
-                if(TextUtils.equals("麒麟",mPlatform.getName())){
+                if(TextUtils.equals("麒麟",mPlatform.getName()) || TextUtils.equals("小蘑菇",mPlatform.getName()) || TextUtils.equals("电竞艺游",mPlatform.getName()) || TextUtils.equals("征服者",mPlatform.getName())){
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
+                }else if(TextUtils.equals("美丽日记",mPlatform.getName())){
+                    resId = R.array.receipt_type_16;
                 }else{
                     resId = R.array.receipt_type_11;
                 }
@@ -626,7 +625,13 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             names.add(num.getName());
         }
 
-        mAdapter.notifyDataSetChanged();
+        if(mAdapter == null){
+            mAdapter = new ArrayAdapter<>(ReceiptActivity.this,
+                    R.layout.item_buyer_num, R.id.tv_buyer_num, names);
+            spBuyerNum.setAdapter(mAdapter);
+        }else{
+            mAdapter.notifyDataSetChanged();
+        }
 
         Params params = mPlatform.getParams();
         if (params != null) { //买号的回显
@@ -646,7 +651,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             byte[] decodedString = Base64.decode(pureBase64Encoded, Base64.DEFAULT);
             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
             if (decodedByte != null) inVerifyCode.setImageBitmap(decodedByte);
-            setCurrPlatform(mPlatform);
+            setCurrPlatform(position, mPlatform);
         }else{
             url += "?" + mRandom.nextInt(1000);
             HttpUtil.getVerifyCode(url, new BitmapCallback() {
@@ -658,40 +663,20 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     String cookie = headers.get("Set-Cookie");
                     if (!TextUtils.isEmpty(cookie)) {
                         mPlatform.setVerifyCodeCookie(cookie);
-                        setCurrPlatform(mPlatform);
+                        setCurrPlatform(position, mPlatform);
                     }
                 }
             });
         }
     }
 
-    /**
-     * 获取当前的平台
-     */
-    private void getCurrPlatform(){
-        if(position >= 0 && position < mList.size()){
-            mPlatform = mList.get(position);
-        }else{
-            mPlatform = Platforms.getCurrPlatform();
-        }
-    }
 
-    /**
-     * 更新当前的平台，一般是更新平台里的数据
-     * @param platform
-     */
-    private void setCurrPlatform(Platform platform){
-        if(position >= 0 && position < mList.size()){
-            mList.set(position, platform);
-        }
-        Platforms.setCurrPlatform(platform);
-    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (mReceiver != null) unregisterReceiver(mReceiver);
-        getCurrPlatform();
+        getCurrPlatform(position);
         if (mPlatform == null) return;
         mPlatform.setLog(tvLog.getText().toString());
         Params params = mPlatform.getParams();
@@ -703,6 +688,18 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         Platforms.setPlatforms(mList);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode != WEB_RECEIPT_CODE) return;
+        getCurrPlatform(position);
+        String cookie = mPlatform.getCookie();
+        if(!TextUtils.isEmpty(cookie) && cookie.contains("user=")){  //已经登录，开始抢单
+//            LogUtil.e("cookie=====>" + cookie);
+            setCurrPlatform(position, mPlatform);
+            startReceipt();
+        }
+    }
 
     class UpdateReceiver extends BroadcastReceiver {
 

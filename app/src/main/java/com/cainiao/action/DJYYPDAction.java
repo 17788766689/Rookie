@@ -79,15 +79,19 @@ public class DJYYPDAction extends BaseAction {
                                 .params("password", mParams.getPassword())
                                 .params("tok", token)
                                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                                .headers("Origin","http://yuntao.zhengfuz.com")
-                                .headers("Proxy-Connection","keep-alive")
-                                .headers("Referer","http://xmt.51zugeju.com/iop/web/logionapp.html")
-                                .headers("X-Requested-With","XMLHttpRequest")
+                                .headers("Origin", "http://yuntao.zhengfuz.com")
+                                .headers("Proxy-Connection", "keep-alive")
+                                .headers("Referer", "http://xmt.51zugeju.com/iop/web/logionapp.html")
+                                .headers("X-Requested-With", "XMLHttpRequest")
                                 .execute(new StringCallback() {
                                     @Override
                                     public void onSuccess(Response<String> response) {
                                         try {
                                             if (TextUtils.isEmpty(response.body())) return;
+                                            if(response.body().indexOf("频繁") != -1){
+                                                sendLog("请求过于频繁,请几分钟后重试");
+                                                return;
+                                            }
                                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                                             if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
                                                 List<String> cookies = response.headers().values("Set-Cookie");
@@ -118,20 +122,21 @@ public class DJYYPDAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
+        HttpClient.getInstance().get("/iop/index/autoindex100?type=" + mParams.getType(), mPlatform.getHost())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Referer","http://xmt.51zugeju.com/iop/index/index")
+                .headers("Referer", "http://xmt.51zugeju.com/iop/index/index")
+                .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            if (TextUtils.isEmpty(response.body())){
+                            if (TextUtils.isEmpty(response.body())) {
                                 sendLog("继续检测任务");
-                            }else{
+                            } else {
                                 JSONObject obj = JSONObject.parseObject(response.body());
                                 sendLog(obj.getString("msg"));
-                                if ("1".equals(obj.getString("status"))){
+                                if ("1".equals(obj.getString("status"))) {
                                     sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                     receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dianjinyiyou, 3000);
                                     addTask("电竞艺游");

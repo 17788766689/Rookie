@@ -1,12 +1,11 @@
+package com.cainiao.view.stickygridheaders;
+
 /*
  Copyright 2013 Tonic Artos
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
  http://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +13,6 @@
  limitations under the License.
  */
 
-package com.cainiao.view.stickygridheaders;
 
 
 import android.content.Context;
@@ -51,7 +49,7 @@ import java.util.List;
 /**
  * GridView that displays items in sections with headers that stick to the top
  * of the view.
- * 
+ *
  * @author Tonic Artos, Emil Sjölander, caguilar187
  */
 public class StickyGridHeadersGridView extends GridView implements OnScrollListener,
@@ -113,12 +111,12 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
     private DataSetObserver mDataSetObserver = new DataSetObserver() {
         @Override
         public void onChanged() {
-            WGHS();
+            reset();
         }
 
         @Override
         public void onInvalidated() {
-            WGHS();
+            reset();
         }
     };
 
@@ -159,7 +157,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     private View mStickiedHeader;
 
-    private Runnable mTouchModeWGHS;
+    private Runnable mTouchModeReset;
 
     private int mTouchSlop;
 
@@ -203,7 +201,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
     /**
      * Gets the header at an item position. However, the position must be that
      * of a HeaderFiller.
-     * 
+     *
      * @param position Position of HeaderFiller.
      * @return Header View wrapped in HeaderFiller or null if no header was
      *         found.
@@ -222,7 +220,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     /**
      * Get the currently stickied header.
-     * 
+     *
      * @return Current stickied header.
      */
     public View getStickiedHeader() {
@@ -277,7 +275,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
-            int totalItemCount) {
+                         int totalItemCount) {
         if (mScrollListener != null) {
             mScrollListener.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
         }
@@ -409,14 +407,14 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
                                 mTouchMode = TOUCH_MODE_TAP;
                                 header.setPressed(true);
                                 setPressed(true);
-                                if (mTouchModeWGHS != null) {
-                                    removeCallbacks(mTouchModeWGHS);
+                                if (mTouchModeReset != null) {
+                                    removeCallbacks(mTouchModeReset);
                                 }
-                                mTouchModeWGHS = new Runnable() {
+                                mTouchModeReset = new Runnable() {
                                     @Override
                                     public void run() {
                                         mMotionHeaderPosition = NO_MATCHED_HEADER;
-                                        mTouchModeWGHS = null;
+                                        mTouchModeReset = null;
                                         mTouchMode = TOUCH_MODE_REST;
                                         header.setPressed(false);
                                         setPressed(false);
@@ -428,7 +426,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
                                         }
                                     }
                                 };
-                                postDelayed(mTouchModeWGHS,
+                                postDelayed(mTouchModeReset,
                                         ViewConfiguration.getPressedStateDuration());
                             } else {
                                 mTouchMode = TOUCH_MODE_REST;
@@ -497,7 +495,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
         this.mAdapter = new StickyGridHeadersBaseAdapterWrapper(getContext(), this, baseAdapter);
         this.mAdapter.registerDataSetObserver(mDataSetObserver);
-        WGHS();
+        reset();
         super.setAdapter(this.mAdapter);
     }
 
@@ -523,7 +521,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
 
     /**
      * If set to true, headers will ignore horizontal padding.
-     * 
+     *
      * @param b if true, horizontal padding is ignored by headers
      */
     public void setHeadersIgnorePadding(boolean b) {
@@ -661,7 +659,7 @@ public class StickyGridHeadersGridView extends GridView implements OnScrollListe
         }
     }
 
-    private void WGHS() {
+    private void reset() {
         mHeaderBottomPosition = 0;
         swapStickiedHeader(null);
         mCurrentHeaderId = INVALID_ROW_ID;

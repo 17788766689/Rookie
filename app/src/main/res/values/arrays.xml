@@ -103,4 +103,10 @@
         <item>货返</item>
     </string-array>
 
+    <!--美丽日记-->
+    <string-array name="receipt_type_16">
+        <item>先打款任务</item>
+        <item>垫付任务</item>
+    </string-array>
+
 </resources>

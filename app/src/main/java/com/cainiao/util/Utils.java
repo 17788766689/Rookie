@@ -198,4 +198,26 @@ public class Utils {
         return val;
     }
 
+    public static String parmEncryption() {
+        String timestampStr = String.valueOf(System.currentTimeMillis() / 1000);
+        if (timestampStr.length() == 10) {
+            timestampStr = timestampStr.substring(5) + timestampStr.substring(0, 5);
+        }
+        String beforeRandomStr = getRandomNum(4);
+        return getBase32encoding(beforeRandomStr + timestampStr + getRandomNum(6));
+    }
+
+    public static String getRandomNum(int num) {
+        String dataCode = "";
+        for (int i = 0; i < num; i++) {
+            dataCode = dataCode + String.valueOf(Math.round(Math.random() * 9.0d));
+        }
+        return dataCode;
+    }
+
+    public static String getBase32encoding(String originString) {
+        return Base32.encode(originString.getBytes());
+    }
+
+
 }

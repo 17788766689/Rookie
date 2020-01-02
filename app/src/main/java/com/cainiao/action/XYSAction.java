@@ -18,23 +18,26 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 /**
- * 云美贝
+ * 小雨伞
  */
-public class YMBAction extends BaseAction {
+public class XYSAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
-    private String token = "";
+    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
     private String buyerId = "";
-    private  String type = "2";
+    private String uid = "";
 
     @Override
     public void start(Platform platform) {
@@ -42,7 +45,6 @@ public class YMBAction extends BaseAction {
         mPlatform = platform;
         mParams = platform.getParams();
         updateBuyerId();
-
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -61,12 +63,15 @@ public class YMBAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/app.ashx?action=login_submit", mPlatform.getHost())
-                .params("username", mParams.getAccount())
+        HttpClient.getInstance().post("/App/Public/login.html", mPlatform.getHost())
+                .params("rouepage", "pages/login/login")
+                .params("platform_name", "")
+                .params("serverVersion", "100")
+                .params("version", "979")
+                .params("platform", "android")
+                .params("mobile", mParams.getAccount())
                 .params("password", mParams.getPassword())
-                .params("isAdmin", 0)
-                .headers("X-Requested-With","XMLHttpRequest")
-                .headers("Referer","http://m.yunmeibei.cn/login.html")
+                .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -74,13 +79,14 @@ public class YMBAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("msgbox"));
-                            if (jsonObject.getIntValue("msg") == 1) {    //登录成功
-                                token = response.headers().get("Set-Cookie").toString();
+                            sendLog(jsonObject.getString("message"));
+                            if (jsonObject.getInteger("status") == 1) {    //登录成功
+                                cookie = jsonObject.getJSONObject("data").getString("random");
+                                uid = jsonObject.getJSONObject("data").getString("id");
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                MyToast.error(jsonObject.getString("msgbox"));
+                                MyToast.error(jsonObject.getString("message"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -95,10 +101,13 @@ public class YMBAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        HttpClient.getInstance().get("/app.ashx?action=GetListByNoTask&currPage=1&pageSize=10&type=1&taskType=1&accountId=0&sort=1&_="+new Date().getTime(), mPlatform.getHost())
-                .headers("X-Requested-With","XMLHttpRequest")
-                .headers("Referer","http://m.yunmeibei.cn/index.html")
-                .headers("Cookie",token)
+        HttpClient.getInstance().post("/App/User/gettaobaolist.html", mPlatform.getHost())
+                .params("type", "taobao")
+                .params("rouepage", "pages/updatetaobao/updatetaobao")
+                .params("serverVersion", "979")
+                .params("uid", uid)
+                .params("random", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -106,21 +115,19 @@ public class YMBAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray tbData = jsonObject.getJSONArray("dataCount2");
-                            if (tbData.size() > 0) {    //获取买号成功
-                                JSONObject obj = tbData.getJSONObject(0);
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("accountname")));
+                            if ("Success".equals(jsonObject.getString("message")) && jsonObject.getJSONArray("data").size() > 0) {    //获取买号成功
+                                JSONArray array = jsonObject.getJSONArray("data");
+                                mParams.setBuyerNum(new BuyerNum(array.getJSONObject(0).getString("id"), array.getJSONObject(0).getString("tb_account")));
                                 updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    obj = tbData.getJSONObject(i);
-                                    list.add(new BuyerNum(obj.getString("id"), obj.getString("accountname")));
+                                for (int i = 0, len = array.size(); i < len; i++) {
+                                    list.add(new BuyerNum(array.getJSONObject(i).getString("id"), array.getJSONObject(i).getString("tb_account")));
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                receipt();
                             } else { //无可用的买号
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
                                 stop();
@@ -133,33 +140,64 @@ public class YMBAction extends BaseAction {
                 });
     }
 
-    /**
-     * 开始任务
-     */
-    private void startTask() {
-        if(mParams.getType().equals("2")){
-            type = "1";
-        }
-        HttpClient.getInstance().get("/app.ashx?action=GetListByNoTask&currPage=1&pageSize=10&type="+type+"&taskType=1&accountId=0&sort=1&_="+new Date().getTime(), mPlatform.getHost())
-                .headers("Cookie", token)
-                .headers("Referer", "http://m.yunmeibei.cn/index.html")
+    private void receipt() {
+        HttpClient.getInstance().post("/App/User/tasksb", mPlatform.getHost())
+                .params("tb_id", buyerId)
+                .params("rouepage", "pages/xtorderindex/xtorderindex")
+                .params("serverVersion", "979")
+                .params("uid", uid)
+                .params("random", cookie)
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
-                    public void onSuccess(Response<String> response){
-                        JSONObject obj = JSONObject.parseObject(response.body());
-                        JSONArray array = obj.getJSONArray("dataList");
-                        if(array.size() > 0){
-                            for (int i = 0, len = array.size(); i < len; i++) {
-                                JSONObject object = array.getJSONObject(i);
-                                if(object.getDouble("commission_price") >= mParams.getMinCommission() && object.getDouble("product_price") <= mParams.getMaxPrincipal()){
-                                    sendLog("检测到任务领取中");
-                                    lqTask(object.getString("id"));
-                                }
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject array = JSONObject.parseObject(response.body());
+                            sendLog(array.getString("message"));
+                           // if (array.getInteger("status") == 1) {
+                                startTask();
+                            //} else {
+                                //stop();
+                            //}
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
+                        }
+                    }
+                });
+    }
+
+
+    /**
+     * 开始任务
+     */
+    private void startTask() {
+        HttpClient.getInstance().post("/App/Order/gettasktj", mPlatform.getHost())
+                .params("rouepage", "pages/renwuguanli/renwuguanli")
+                .params("serverVersion", "979")
+                .params("uid", uid)
+                .params("random", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject obj = JSONObject.parseObject(response.body());
+                            JSONArray array = obj.getJSONArray("data");
+                            if (array.getJSONObject(0).getInteger("ordercount") > 0) {
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaoyusan, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else {
+                                sendLog("暂时没有任务");
                             }
-                        }else{
-                            sendLog("继续检测任务");
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -187,51 +225,14 @@ public class YMBAction extends BaseAction {
     }
 
     /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/app.ashx?action=updateOrderStatus", mPlatform.getHost())
-                .params("id",taskId)
-                .params("channelId","3")
-                .params("status","1")
-                .params("strValue",","+buyerId+","+type)
-                .headers("Cookie", token)
-                .headers("Referer", "http://m.yunmeibei.cn/index.html")
-                .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getInteger("IsSuccess") == 1) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.yunmeibei, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                                stop();
-                            } else {
-                                sendLog(jsonObject.getString("Message"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
-
-    /**
      * 更新买号
      */
-    private void updateBuyerId(){
-        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+    private void updateBuyerId() {
+        if (mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())) {
             buyerId = mParams.getBuyerNum().getId();
         }
     }
+
 
     @Override
     public void stop() {

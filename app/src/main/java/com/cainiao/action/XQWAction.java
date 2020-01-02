@@ -59,9 +59,9 @@ public class XQWAction extends BaseAction {
                 .params("account", mParams.getAccount())
                 .params("password", mParams.getPassword())
                 .headers("Cookie","tmp_cc="+r)
-                .headers("Referer","http://wx.q64b.cn/wap/")
+                .headers("Referer","http://wx.f706qt.cn/wap/")
                 .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; 8 Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.143 Crosswalk/24.53.595.0 XWEB/112 MMWEBSDK/180803 Mobile Safari/537.36 MMWEBID/4719 MicroMessenger/6.7.3.1360(0x260703B3) NetType/WIFI Language/zh_CN Process/tools")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -99,8 +99,9 @@ public class XQWAction extends BaseAction {
     private void startTask() {
         HttpClient.getInstance().post("/task", mPlatform.getHost())
                 .headers("Auth-Token", cookie)
-                .headers("Referer", "http://ql.qishikj.cn/home/")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36")
+                .headers("Referer","http://wx.f706qt.cn/wap/")
+                .headers("Content-Type", "application/json")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; 8 Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.143 Crosswalk/24.53.595.0 XWEB/112 MMWEBSDK/180803 Mobile Safari/537.36 MMWEBID/4719 MicroMessenger/6.7.3.1360(0x260703B3) NetType/WIFI Language/zh_CN Process/tools")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

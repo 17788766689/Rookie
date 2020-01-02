@@ -229,46 +229,6 @@ public class DialogUtil {
 
     }
 
-    /**
-     * 显示webview登录接单的对话框
-     * @param context
-     * @param url
-     */
-    public void showWebReceiptDialog(Context context, String url, LoginCallback mLoginCallback){
-        View view = LayoutInflater.from(context).inflate(
-                R.layout.layout_web_receipt, null);
-        mWebView = view.findViewById(R.id.web_view);
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        mWebView.requestFocus(View.FOCUS_DOWN);
-        mWebView.loadUrl(url);
-        mWebView.setWebViewClient(new WebViewClient(){
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                CookieManager manager = CookieManager.getInstance();
-                String cookie = manager.getCookie(url);
-                LogUtil.e("cookie: " + cookie);
-                super.onPageFinished(view, url);
-                if(!TextUtils.isEmpty(cookie) && cookie.contains("user=")){ //cookie里包含user_id，则说明已经登录，此时关闭对话框
-//                   verifyDialog.cancel();
-//                   verifyDialog = null;
-                    if(mLoginCallback != null) mLoginCallback.onSuccess(cookie);
-                    MyToast.info("如果已经登录直接按返回键关闭弹窗就可以了");
-                }
-            }
-        });
-        verifyDialog = new android.app.AlertDialog.Builder(context).setView(view).setCancelable(true).create();
-        verifyDialog.show();
-
-    }
-
-
     public void setDownloadProgress(int progress) {
         if (loadDialog != null) loadDialog.setProgress(progress);
     }
@@ -342,8 +302,4 @@ public class DialogUtil {
         void onSuccess(String token, String verifyId);
     }
 
-    private LoginCallback mLoginCallback;
-    public interface LoginCallback{
-        void onSuccess(String cookie);
-    }
 }

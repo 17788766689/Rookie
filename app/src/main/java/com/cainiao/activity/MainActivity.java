@@ -105,6 +105,7 @@ public class MainActivity extends BaseActivity {
                 if(TextUtils.equals(latestPlatform.getPkgName(), allPlatform.getPkgName())){
                     latestPlatform.setName(allPlatform.getName());  //更新平台名称
                     latestPlatform.setResId(allPlatform.getResId());  //更新平台图标
+                    latestPlatform.setStatus(allPlatform.getStatus());  //更新平台状态（限时免费、永久免费或空闲中）
                     //TODO 以后有其他信息更新也需要在这里往下写
                     DbUtil.update(latestPlatform); //全部要更新的信息在内存中更新完之后要更新到数据库
                 }

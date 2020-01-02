@@ -54,7 +54,10 @@ public class DDAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("//api/shop/login?userName="+mParams.getAccount()+"&password="+ Utils.md5(mParams.getPassword())+"&userType=02", mPlatform.getHost())
+        HttpClient.getInstance().post("/api/shop/login", mPlatform.getHost())
+                .params("userName",mParams.getAccount())
+                .params("password",Utils.md5(mParams.getPassword()))
+                .params("userType","02")
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
@@ -107,10 +110,10 @@ public class DDAction extends BaseAction {
                             JSONObject obj = JSONObject.parseObject(response.body());
                             sendLog(obj.getString("returnMsg"));
                             if(obj.getInteger("returnCode")== 1){
-                                sendLog("接单成功,店铺名:"+obj.getString("dpmc"));
+                                sendLog("接单成功,店铺名:"+obj.getString("shop_name"));
                                 Utils.setClipboardStr(obj.getString("shopLink"));
                                 sendLog("商品链接自动复制成功,可粘贴查看！");
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dadou, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getString("shop_name"), R.raw.dadou, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

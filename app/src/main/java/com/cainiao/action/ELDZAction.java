@@ -16,6 +16,7 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -96,7 +97,7 @@ public class ELDZAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().get("/task/get", mPlatform.getHost())
-                .params("secretKey",HYNCUtils.getcryptkey(HYNCUtils.time(), cookie))
+                .params("secretKey",HYNCUtils.getcryptkey(String.valueOf(new Date().getTime() / 1000), cookie))
                 .params("other", mParams.getType())
                 .headers("Auth-Token", cookie)
                 .headers("Referer", "http://ql.qishikj.cn/home/")

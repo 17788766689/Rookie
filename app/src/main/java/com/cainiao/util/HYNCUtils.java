@@ -19,7 +19,7 @@ public class HYNCUtils {
         int v1 = 0;
         String v2 = HYNCUtils.md5(arg8.substring(0, 16));
         arg8 = HYNCUtils.md5(arg8.substring(16, 32));
-        HYNCUtils.keyd = HYNCUtils.getcryptkey();
+        HYNCUtils.keyd = new HYNCUtils().getcryptkey();
         StringBuilder v3 = new StringBuilder();
         v3.append(v2);
         StringBuilder v4 = new StringBuilder();
@@ -79,7 +79,7 @@ public class HYNCUtils {
         return HYNCUtils.keyd + arg7;
     }
 
-    public static String getcryptkey() {
+    public String getcryptkey() {
         long v0 = new Date().getTime();
         long v4 = v0 / 1000;
         StringBuilder v6 = new StringBuilder();
@@ -111,8 +111,5 @@ public class HYNCUtils {
         }
     }
 
-    public static String time() {
-        return String.valueOf(new Date().getTime() / 1000);
-    }
 
 }

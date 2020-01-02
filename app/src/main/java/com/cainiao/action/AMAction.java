@@ -27,8 +27,13 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 
 /**
  * 爱米
@@ -40,25 +45,56 @@ public class AMAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
+    private String cookie = "Platform=Android;";
+    private String xtoken = "";
+    private String buyerId = "";
+
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-
-
+        updateBuyerId();
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
-            isStart = true;
+            cookie = "Platform=Android;";
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            login();
+            getToken();
         }
+    }
+
+    private void getToken() {
+        HttpClient.getInstance().get("/v2/public/option-website", mPlatform.getHost())
+                .headers("Platform", "android")
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            List<String> cookies = response.headers().values("Set-Cookie");
+                            int count = 0;
+                            for (String str : cookies) {
+                                if (count == 0) {
+                                    count = 1;
+                                    xtoken = str.substring(str.indexOf("=") + 1, str.indexOf(";"));
+                                }
+                                cookie += str.substring(0, str.indexOf(";")) + ";";
+                            }
+                            login();
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
     }
 
     /**
@@ -70,7 +106,13 @@ public class AMAction extends BaseAction {
                 .params("mobile", mParams.getAccount())
                 .params("password", mParams.getPassword())
                 .params("type", 0)
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Platform", "Android")
+                .headers("X-XSRF-TOKEN", xtoken)
+                .headers("X-Token", token)
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "https://www.huimi123.com/login")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -80,6 +122,7 @@ public class AMAction extends BaseAction {
                             if (jsonObject.getIntValue("code") == 200) {    //登录成功
                                 sendLog("登录成功！");
                                 token = jsonObject.getJSONObject("data").getString("token");
+                                cookie += "token="+token+";";
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
@@ -98,100 +141,177 @@ public class AMAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        HttpClient.getInstance().get("/v2/account/list", mPlatform.getHost())
+        sendLog("正在获取买号...");
+        HttpClient.getInstance().get("/v2/account/list?type=1&status=1", mPlatform.getHost())
+                .headers("Platform", "Android")
+                .headers("X-XSRF-TOKEN", xtoken)
                 .headers("X-Token", token)
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "https://www.huimi123.com/")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONArray tbData = jsonObject.getJSONObject("data").getJSONArray("list");
-                            if (tbData.size() > 0) {    //获取买号成功
-                                JSONObject obj = tbData.getJSONObject(0);
-                                mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("account")));
-                                List<BuyerNum> list = new ArrayList<>();
-                                for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    obj = tbData.getJSONObject(i);
+                        //try {
+                        if (TextUtils.isEmpty(response.body())) return;
+                        JSONObject jsonObject = JSONObject.parseObject(response.body());
+                        JSONArray tbData = jsonObject.getJSONObject("data").getJSONArray("list");
+                        if (tbData.size() > 0) {    //获取买号成功
+
+
+                            int count = 0;
+                            List<BuyerNum> list = new ArrayList<>();
+                            for (int i = 0, len = tbData.size(); i < len; i++) {
+                                JSONObject obj = tbData.getJSONObject(i);
+                                if (obj.getInteger("status") == 1) {
+                                    if (count == 0) {
+                                        count++;
+                                        mParams.setBuyerNum(new BuyerNum(obj.getString("id"), obj.getString("account")));
+                                        updateBuyerId();
+                                        isStart = true;
+                                        try {
+                                            Thread.sleep(2000);
+                                            startTask();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                    }
                                     list.add(new BuyerNum(obj.getString("id"), obj.getString("account")));
+                                }else{
+                                    sendLog("买号:"+obj.getString("account")+"状态异常,自动过滤");
                                 }
-                                showBuyerNum(JSON.toJSONString(list));
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
-                            } else { //无可用的买号
-                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
-                                stop();
+
                             }
-                        } catch (Exception e) {
-                            sendLog("获取买号异常！");
+                            showBuyerNum(JSON.toJSONString(list));
+                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                            MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                            updateStatus(mPlatform, 3); //正在接单的状态
+
+                        } else { //无可用的买号
+                            sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
                             stop();
                         }
+                      /*  } catch (Exception e) {
+                            sendLog("获取买号异常！");
+                            stop();
+                        }*/
                     }
                 });
+    }
+
+    private void setDefault() {
+        {
+            Map map = new HashMap();
+            map.put("status", "1");
+            map.put("type", "1");
+            map.put("account_id", buyerId);
+            String param = JSON.toJSONString(map);
+            MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(JSON, param);
+            HttpClient.getInstance().post("/v2/account/set-default", mPlatform.getHost())
+                    .upRequestBody(body)
+                    .headers("Platform", "Android")
+                    .headers("X-XSRF-TOKEN", xtoken)
+                    .headers("X-Token", token)
+                    .headers("Cookie", cookie)
+                    .headers("X-Requested-With", "XMLHttpRequest")
+                    .headers("Referer", "https://www.huimi123.com/")
+                    .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            try {
+                                if (TextUtils.isEmpty(response.body())) return;
+                                updateStatus(mPlatform, 3); //正在接单的状态
+
+                            } catch (Exception e) {
+                                sendLog("获取买号异常！");
+                                stop();
+                            }
+                        }
+                    });
+        }
     }
 
     /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/buyer/order/check-set?client_mac=+", mPlatform.getHost())
-                .headers("X-Token", token)
-                .headers("Referer", "https://www.huimi123.com/robwelfare")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        HttpClient.getInstance().get("/buyer/order/list-current?page=1&size=20", mPlatform.getHost())
-                                .headers("X-Token", token)
-                                .headers("Referer", "https://www.huimi123.com/robwelfare")
-                                .headers("User-Agent", "User-Agent: Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                                .execute(new StringCallback() {
-                                    @Override
-                                    public void onSuccess(Response<String> response) {
-                                        try {
-                                            if (TextUtils.isEmpty(response.body())) return;
-                                            JSONObject array = JSONObject.parseObject(response.body());
-                                            if (!(response.body().contains("[]")) && response.body().contains("任务")) {
-                                                sendLog("检测到任务领取中...");
-                                                JSONArray taskArray = array.getJSONObject("data").getJSONArray("list");
-                                                lqTask(String.valueOf(taskArray.getJSONObject(0).getString("id")));
-                                                if (taskArray.size() > 1) {
-                                                    lqTask(String.valueOf(taskArray.getJSONObject(1).getString("id")));
+        {
+            HttpClient.getInstance().get("/v2/account/check-set", mPlatform.getHost())
+                    .headers("Platform", "Android")
+                    .headers("X-XSRF-TOKEN", xtoken)
+                    .headers("X-Token", token)
+                    .headers("Cookie", cookie)
+                    .headers("X-Requested-With", "XMLHttpRequest")
+                    .headers("Referer", "https://www.huimi123.com/")
+                    .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            HttpClient.getInstance().get("/buyer/order/list-current?page=1&size=20", mPlatform.getHost())
+                                    .headers("Platform", "Android")
+                                    .headers("X-XSRF-TOKEN", xtoken)
+                                    .headers("X-Token", token)
+                                    .headers("Cookie", cookie)
+                                    .headers("X-Requested-With", "XMLHttpRequest")
+                                    .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
+                                    .execute(new StringCallback() {
+                                        @Override
+                                        public void onSuccess(Response<String> response) {
+                                            try {
+                                                if (TextUtils.isEmpty(response.body())) return;
+                                                JSONObject array = JSONObject.parseObject(response.body());
+                                                if (!(response.body().contains("[]")) && response.body().contains("任务")) {
+                                                    sendLog("检测到任务领取中...");
+                                                    JSONArray taskArray = array.getJSONObject("data").getJSONArray("list");
+                                                    lqTask(String.valueOf(taskArray.getJSONObject(0).getString("id")));
+                                                    if (taskArray.size() > 1) {
+                                                        lqTask(String.valueOf(taskArray.getJSONObject(1).getString("id")));
+                                                    }
+                                                } else if (200 == array.getInteger("code")) {
+                                                    sendLog("继续检测任务");  //继续检测任务
+                                                } else {
+                                                    sendLog(array.getString("message"));
                                                 }
-                                            } else {
-                                                sendLog("继续检测任务");  //继续检测任务
+                                            } catch (Exception e) {
+                                                sendLog("检测任务异常！");
                                             }
-                                        } catch (Exception e) {
-                                            sendLog("检测任务异常！");
                                         }
-                                    }
-                                });
-                    }
 
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
-                    }
-
-                    @Override
-                    public void onFinish() {
-                        super.onFinish();
-                        if (isStart) {
-                            //取最小频率和最大频率直接的随机数值作为刷单间隔
-                            int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
-                            mHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startTask();
-                                }
-                            }, period);
+                                        @Override
+                                        public void onError(Response<String> response) {
+                                            super.onError(response);
+                                            sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                                        }
+                                    });
                         }
-                    }
-                });
+
+                        @Override
+                        public void onError(Response<String> response) {
+                            super.onError(response);
+                            sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            super.onFinish();
+                            if (isStart) {
+                                //取最小频率和最大频率直接的随机数值作为刷单间隔
+                                int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
+                                mHandler.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        startTask();
+                                    }
+                                }, period);
+                            }
+                        }
+                    });
+        }
+
     }
 
     /**
@@ -201,8 +321,13 @@ public class AMAction extends BaseAction {
      */
     private void lqTask(String taskId) {
         HttpClient.getInstance().get("/v2/task/obtain?order_id=" + taskId, mPlatform.getHost())
+                .headers("Platform", "Android")
+                .headers("X-XSRF-TOKEN", xtoken)
                 .headers("X-Token", token)
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "https://www.huimi123.com/")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -224,6 +349,18 @@ public class AMAction extends BaseAction {
                         }
                     }
                 });
+    }
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId() {
+        if (mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())) {
+            buyerId = mParams.getBuyerNum().getId();
+        }
+        if (isStart) {
+            setDefault();
+        }
     }
 
 

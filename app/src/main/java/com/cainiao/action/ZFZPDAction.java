@@ -99,7 +99,7 @@ public class ZFZPDAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/iop/index/autoindex?type=1", mPlatform.getHost())
+        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
                 .headers("Referer","http://app.zhengfuz.com/iop/index/index.html")
                 .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
                 .headers("Cookie", cookie)

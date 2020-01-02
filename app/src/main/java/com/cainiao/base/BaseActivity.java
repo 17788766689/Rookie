@@ -7,11 +7,19 @@ import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.cainiao.bean.Platform;
+import com.cainiao.util.Platforms;
+
+import java.util.List;
+
 /**
  * Created by 123 on 2019/9/25.
  */
 
 public abstract class BaseActivity extends Activity {
+
+    protected Platform mPlatform;
+    protected List<Platform> mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +32,31 @@ public abstract class BaseActivity extends Activity {
         setContentView(getLayoutResId());
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);//竖屏
         init();
+    }
+
+
+    /**
+     * 获取当前的平台
+     */
+    protected void getCurrPlatform(int position){
+        if(mList == null) mList = Platforms.getPlatforms();
+        if(position >= 0 && position < mList.size()){
+            mPlatform = mList.get(position);
+        }else{
+            mPlatform = Platforms.getCurrPlatform();
+        }
+    }
+
+    /**
+     * 更新当前的平台，一般是更新平台里的数据
+     * @param platform
+     */
+    protected void setCurrPlatform(int position, Platform platform){
+        if(mList == null) mList = Platforms.getPlatforms();
+        if(position >= 0 && position < mList.size()){
+            mList.set(position, platform);
+        }
+        Platforms.setCurrPlatform(platform);
     }
 
     protected void init() {}

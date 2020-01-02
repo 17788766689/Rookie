@@ -31,6 +31,7 @@
         <activity android:name=".activity.MainActivity"/>
         <activity android:name=".activity.ReceiptActivity"/>
         <activity android:name=".activity.WebActivity"/>
+        <activity android:name=".activity.WebReceiptActivity" android:theme="@android:style/Theme.Dialog"/>
 
         <service android:name=".service.MyService" android:priority="1000"/>
         <service android:name=".service.KeepAliveService" android:process=":alive" android:priority="1000"/>

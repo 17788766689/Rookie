@@ -117,6 +117,9 @@ public class HZWAction extends BaseAction {
      * 获取买号
      */
     private void getAccount(String id) {
+        if(count != 0){
+           return;
+        }
         long n = new Date().getTime();
         HttpClient.getInstance().get("/order/order-details", mPlatform.getHost())
                 .params("token", token)
@@ -133,11 +136,10 @@ public class HZWAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             JSONObject array = jsonObject.getJSONObject("data");
                             if (jsonObject.getInteger("code") == 0) {    //获取买号成功
-                                if(count == 0){
-                                    count++;
-                                    lqTask(array.getString("taoname"),id);
-                                }
+                                count = 1;
+                                lqTask(array.getString("taoname"),id);
                             } else { //无可用的买号
+                                count = 0;
                                sendLog(jsonObject.getString("msg"));
                             }
                         } catch (Exception e) {
@@ -145,7 +147,6 @@ public class HZWAction extends BaseAction {
                             stop();
                         }
                     }
-
                 });
     }
 
@@ -235,6 +236,7 @@ public class HZWAction extends BaseAction {
                                 isStart = false;
                             } else {
                                 sendLog(jsonObject.getString("msg"));
+                                count = 0;
                             }
                         } catch (Exception e) {
                             sendLog("领取任务异常！");

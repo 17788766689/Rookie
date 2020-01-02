@@ -16,12 +16,13 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.Date;
 import java.util.Random;
 
 /**
- * 水商共创
+ * 美丽日记
  */
-public class SSGCAction extends BaseAction {
+public class MLRJAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
@@ -58,7 +59,7 @@ public class SSGCAction extends BaseAction {
                 .params("account", mParams.getAccount())
                 .params("password", mParams.getPassword())
                 .headers("Content-Type", "application/json")
-                .headers("Referer", "http://www.chengms.cn/home/")
+                .headers("Referer", "http://ql.qishikj.cn/wap/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -96,10 +97,10 @@ public class SSGCAction extends BaseAction {
      */
     private void startTask() {
         HttpClient.getInstance().get("/task/get", mPlatform.getHost())
-                .params("secretKey",HYNCUtils.getcryptkey(HYNCUtils.time(), cookie))
-                .params("other", mParams.getType())
+                .params("secretKey",HYNCUtils.getcryptkey(String.valueOf(new Date().getTime() / 1000), cookie))
+                .params("type", mParams.getType())
                 .headers("Auth-Token", cookie)
-                .headers("Referer", "http://www.chengms.cn/home/")
+                .headers("Referer", "http://ql.qishikj.cn/home/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -109,7 +110,7 @@ public class SSGCAction extends BaseAction {
                             JSONObject obj = JSONObject.parseObject(response.body());
                             if (obj.getInteger("code") == 0) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.shuishanggongchuang, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.meiliriji, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
