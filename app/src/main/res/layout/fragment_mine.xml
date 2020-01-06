@@ -5,25 +5,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/home_reactive_tips"
-        android:textColor="@android:color/holo_red_light"
-        android:textSize="12sp"
-        android:background="@color/background"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"/>
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/home_reactive_tips"
+      android:textColor="@android:color/holo_red_light"
+      android:textSize="12sp"
+      android:background="@color/background"
+      android:paddingTop="10dp"
+      android:paddingBottom="10dp"
+      android:paddingLeft="10dp"
+      android:paddingRight="10dp"/>
 
-    <ListView
-        android:id="@+id/lv"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="none"/>
+  <ListView
+      android:id="@+id/lv"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:scrollbars="none"/>
 
 
 </LinearLayout>
-
-

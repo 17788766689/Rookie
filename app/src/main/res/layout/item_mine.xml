@@ -7,42 +7,42 @@
     android:padding="10dp"
     android:background="@drawable/selector_list_item">
 
-    <com.cainiao.view.CircleImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:scaleType="centerCrop"
-        android:src="@mipmap/_60x60"
-        app:type="round"
-        app:radius="60dp"/>
+  <com.cainiao.view.CircleImageView
+      android:id="@+id/iv_icon"
+      android:layout_width="60dp"
+      android:layout_height="60dp"
+      android:scaleType="centerCrop"
+      android:src="@mipmap/_60x60"
+      app:type="round"
+      app:radius="60dp"/>
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/iv_icon"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="10dp"
-        android:textColor="@android:color/black"
-        android:textSize="17sp"
-        android:textStyle="bold"/>
+  <TextView
+      android:id="@+id/tv_title"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toRightOf="@id/iv_icon"
+      android:layout_marginLeft="15dp"
+      android:layout_marginTop="10dp"
+      android:textColor="@android:color/black"
+      android:textSize="17sp"
+      android:textStyle="bold"/>
 
-    <TextView
-        android:id="@+id/tv_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_toRightOf="@id/tv_title"
-        android:layout_marginLeft="15dp"
-        android:textSize="12sp"/>
+  <TextView
+      android:id="@+id/tv_msg"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp"
+      android:layout_toRightOf="@id/tv_title"
+      android:layout_marginLeft="15dp"
+      android:textSize="12sp"/>
 
-    <TextView
-        android:id="@+id/tv_tips"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_toRightOf="@id/iv_icon"
-        android:layout_below="@id/tv_title"
-        android:layout_marginLeft="15dp"
-        android:textSize="12sp"/>
+  <TextView
+      android:id="@+id/tv_tips"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="5dp"
+      android:layout_toRightOf="@id/iv_icon"
+      android:layout_below="@id/tv_title"
+      android:layout_marginLeft="15dp"
+      android:textSize="12sp"/>
 </RelativeLayout>

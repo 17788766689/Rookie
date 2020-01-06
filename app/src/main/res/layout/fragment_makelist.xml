@@ -5,49 +5,48 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="10dp"
+      android:orientation="horizontal"
+      android:background="@color/background">
+
+    <EditText
+        android:id="@+id/et_search_name"
+        android:layout_weight="1"
+        android:drawableLeft="@mipmap/search"
+        android:hint="@string/count_search_hint"
+        android:textSize="14sp"
+        style="@style/SearchEditText"/>
+
+    <TextView
+        android:id="@+id/tv_search"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal"
-        android:background="@color/background">
+        android:layout_marginRight="10dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:text="@string/search"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:background="@drawable/selector_blue_btn"/>
 
-        <EditText
-            android:id="@+id/et_search_name"
-            android:layout_weight="1"
-            android:drawableLeft="@mipmap/search"
-            android:hint="@string/count_search_hint"
-            android:textSize="14sp"
-            style="@style/SearchEditText"/>
+  </LinearLayout>
 
-        <TextView
-            android:id="@+id/tv_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
-            android:padding="10dp"
-            android:clickable="true"
-            android:text="@string/search"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:background="@drawable/selector_blue_btn"/>
+  <android.support.v4.widget.SwipeRefreshLayout
+      android:id="@+id/swiperefreshlayout"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
 
-    </LinearLayout>
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swiperefreshlayout"
+    <ListView
+        android:id="@+id/lv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scrollbars="none"/>
 
-        <ListView
-            android:id="@+id/lv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="none"/>
-
-    </android.support.v4.widget.SwipeRefreshLayout>
+  </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>
-

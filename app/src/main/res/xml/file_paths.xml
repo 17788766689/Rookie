@@ -2,17 +2,17 @@
 
 <resources>
 
-        <paths xmlns:android="http://schemas.android.com/apk/res/android">
-            <!--Context.getFilesDir() 位于/data/data/安装目录-->
-            <files-path name="internalPath" path="file" />
-            <!--Context.getCacheDir()-->
-            <cache-path name="cachePath" path="file" />
-            <!--Environment.getExternalStorageDirectory()-->
-            <external-path name="externalPath" path="file" />
-            <!--Context.getExternalFilesDir(null)-->
-            <external-files-path name="externalFPath" path="file" />
+  <paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--Context.getFilesDir() 位于/data/data/安装目录-->
+    <files-path name="internalPath" path="file" />
+    <!--Context.getCacheDir()-->
+    <cache-path name="cachePath" path="file" />
+    <!--Environment.getExternalStorageDirectory()-->
+    <external-path name="externalPath" path="file" />
+    <!--Context.getExternalFilesDir(null)-->
+    <external-files-path name="externalFPath" path="file" />
 
-            <root-path name="root_path" path="."/>
-        </paths>
+    <root-path name="root_path" path="."/>
+  </paths>
 
 </resources>

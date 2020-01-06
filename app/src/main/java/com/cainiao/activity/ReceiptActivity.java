@@ -63,8 +63,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private TextView tvLog, tvStart, tvStop, tvBtn1, tvBtn2;
     private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode,etIgnore;
     private Spinner spBuyerNum, spReceiptType, spAccountType;
-    private CheckBox cb1, cb2, filter1;
-    private LinearLayout llAccount, llPwd, llReceiptUrl, llBuyerNum, llComm, llReceiptType, llVerifyCode, llSmsCode, llAccountType, llCheckbox, llIgnore, llFilter;
+    private CheckBox cb1, cb2, filter1, task1;
+    private LinearLayout llAccount, llPwd, llReceiptUrl, llBuyerNum, llComm, llReceiptType, llVerifyCode, llSmsCode, llAccountType, llCheckbox, llIgnore, llFilter,llTask;
 
     private List<BuyerNum> mBuyerNums;
     private List<String> names;
@@ -296,6 +296,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setPrePaymentCheck(cb1.isChecked());
         params.setLabelCheck(cb2.isChecked());
         params.setFilterCheck(filter1.isChecked());
+        params.setFilterTask(task1.isChecked());
         params.setShopName(shopName);
         mPlatform.setParams(params);
         setCurrPlatform(position, mPlatform);
@@ -339,10 +340,12 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         llAccountType = findViewById(R.id.ll_account_type);
         llCheckbox = findViewById(R.id.ll_checkbox);
         llFilter = findViewById(R.id.ll_filter);
+        llTask = findViewById(R.id.ll_task);
         llIgnore = findViewById(R.id.ll_ignore);
         cb1 = findViewById(R.id.cb1);
         cb2 = findViewById(R.id.cb2);
         filter1 = findViewById(R.id.filter1);
+        task1 = findViewById(R.id.ll_task1);
         inVerifyCode = findViewById(R.id.iv_verify_code);
 
         int resId = R.array.receipt_type_default;
@@ -461,9 +464,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
-                }else if(TextUtils.equals("美丽日记",mPlatform.getName())){
-                    resId = R.array.receipt_type_16;
                 }else if(TextUtils.equals("麦田",mPlatform.getName())) {
+                    llTask.setVisibility(View.VISIBLE);
                     resId = R.array.receipt_type_4;
             }   else{
                     resId = R.array.receipt_type_11;
@@ -500,6 +502,13 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 21:  //代表平台：海贼王 等（频率、账号、密码、佣金本金）
                 llBuyerNum.setVisibility(View.GONE);
                 llReceiptType.setVisibility(View.GONE);
+                break;
+            case 22:  //代表平台：麦田 等（频率、账号、密码、佣金本金、接单类型）
+                llBuyerNum.setVisibility(View.GONE);
+                if("麦田".equals(mPlatform.getName())){
+                    resId = R.array.receipt_type_4;
+                    llTask.setVisibility(View.VISIBLE);
+                }
                 break;
             case 0:  //代表平台：欢乐购 等(频率、账号、密码、买号、接单类型、佣金本金）
                 if (TextUtils.equals(mPlatform.getName(), "私房钱(抢单)")) {
@@ -589,6 +598,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         }
         if (llFilter.getVisibility() == View.VISIBLE) {
             filter1.setChecked(params.isFilterCheck()); //过滤降权号是否选中的回显
+        }
+
+        if (llTask.getVisibility() == View.VISIBLE) {
+            task1.setChecked(params.isFilterCheck()); //不接货返是否选中的回显
         }
     }
 

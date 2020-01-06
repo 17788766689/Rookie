@@ -147,6 +147,7 @@ public class HLGAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)

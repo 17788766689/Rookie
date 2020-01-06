@@ -1,4 +1,3 @@
-
 package com.cainiao.view.stickygridheaders;
 
 import android.database.DataSetObserver;
@@ -9,81 +8,81 @@ import android.widget.ListAdapter;
 
 public class StickyGridHeadersListAdapterWrapper extends BaseAdapter implements
         StickyGridHeadersBaseAdapter {
-    private DataSetObserver mDataSetObserver = new DataSetObserver() {
-        @Override
-        public void onChanged() {
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void onInvalidated() {
-            notifyDataSetInvalidated();
-        }
-    };
-
-    private ListAdapter mDelegate;
-
-    public StickyGridHeadersListAdapterWrapper(ListAdapter adapter) {
-        mDelegate = adapter;
-        if (adapter != null) {
-            adapter.registerDataSetObserver(mDataSetObserver);
-        }
+  private DataSetObserver mDataSetObserver = new DataSetObserver() {
+    @Override
+    public void onChanged() {
+      notifyDataSetChanged();
     }
 
     @Override
-    public int getCount() {
-        if (mDelegate == null) {
-            return 0;
-        }
-        return mDelegate.getCount();
+    public void onInvalidated() {
+      notifyDataSetInvalidated();
     }
+  };
 
-    @Override
-    public int getCountForHeader(int header) {
-        return 0;
-    }
+  private ListAdapter mDelegate;
 
-    @Override
-    public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        return null;
+  public StickyGridHeadersListAdapterWrapper(ListAdapter adapter) {
+    mDelegate = adapter;
+    if (adapter != null) {
+      adapter.registerDataSetObserver(mDataSetObserver);
     }
+  }
 
-    @Override
-    public Object getItem(int position) {
-        if (mDelegate == null) {
-            return null;
-        }
-        return mDelegate.getItem(position);
+  @Override
+  public int getCount() {
+    if (mDelegate == null) {
+      return 0;
     }
+    return mDelegate.getCount();
+  }
 
-    @Override
-    public long getItemId(int position) {
-        return mDelegate.getItemId(position);
-    }
+  @Override
+  public int getCountForHeader(int header) {
+    return 0;
+  }
 
-    @Override
-    public int getItemViewType(int position) {
-        return mDelegate.getItemViewType(position);
-    }
+  @Override
+  public View getHeaderView(int position, View convertView, ViewGroup parent) {
+    return null;
+  }
 
-    @Override
-    public int getNumHeaders() {
-        return 0;
+  @Override
+  public Object getItem(int position) {
+    if (mDelegate == null) {
+      return null;
     }
+    return mDelegate.getItem(position);
+  }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return mDelegate.getView(position, convertView, parent);
-    }
+  @Override
+  public long getItemId(int position) {
+    return mDelegate.getItemId(position);
+  }
 
-    @Override
-    public int getViewTypeCount() {
-        return mDelegate.getViewTypeCount();
-    }
+  @Override
+  public int getItemViewType(int position) {
+    return mDelegate.getItemViewType(position);
+  }
 
-    @Override
-    public boolean hasStableIds() {
-        return mDelegate.hasStableIds();
-    }
+  @Override
+  public int getNumHeaders() {
+    return 0;
+  }
+
+  @Override
+  public View getView(int position, View convertView, ViewGroup parent) {
+    return mDelegate.getView(position, convertView, parent);
+  }
+
+  @Override
+  public int getViewTypeCount() {
+    return mDelegate.getViewTypeCount();
+  }
+
+  @Override
+  public boolean hasStableIds() {
+    return mDelegate.hasStableIds();
+  }
 
 }

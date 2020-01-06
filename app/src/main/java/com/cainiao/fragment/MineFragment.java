@@ -1,13 +1,10 @@
 package com.cainiao.fragment;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.cainiao.R;
-import com.cainiao.activity.MainActivity;
 import com.cainiao.adapter.MineAdapter;
 import com.cainiao.base.BaseFragment;
 import com.cainiao.base.MyApp;
@@ -54,6 +51,7 @@ public class MineFragment extends BaseFragment {
         mList.add(new Mine(R.mipmap._60x60, "购卡地址", "不推荐使用", "点我前往，仅限购买不到激活码的用户使用"));
         mList.add(new Mine(R.mipmap._60x60, "菜鸟抢单App", "下载地址", Const.OUTER_DOWNLOAD_URL));
         mList.add(new Mine(R.mipmap._60x60, "问题反馈", "点我跳转QQ", Const.SERVICE_QQ));
+        mList.add(new Mine(R.mipmap._60x60, "当前版本号", "", AppUtil.getVersionName(getActivity())));
     }
 
     /**

@@ -77,6 +77,24 @@ public class AppUtil {
         return version;
     }
 
+    /**
+     * 获取当前版本
+     *
+     * @param context
+     * @return
+     */
+    public static String getVersionName(Context context) {
+        String versionName = "";
+        try {
+            PackageManager pm = context.getPackageManager();
+            PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), 0);
+            versionName = packageInfo.versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return versionName;
+    }
+
 
     /**
      * 下载APK

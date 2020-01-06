@@ -47,6 +47,9 @@ public class Params {
     @Ignore
     private boolean filterCheck = true;
 
+    @Ignore
+    private boolean filterTask = true;
+
     private String shopName;// 不接店铺
 
 
@@ -232,5 +235,11 @@ public class Params {
         return filterCheck;
     }
 
+    public void setFilterTask(boolean filterTask) {
+        this.filterTask = filterTask;
+    }
 
+    public boolean isFilterTask() {
+        return filterTask;
+    }
 }
