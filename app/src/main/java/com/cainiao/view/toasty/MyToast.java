@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public class MyToast {
-     static Context context;
+    static Context context;
     private static boolean isDebug;
     private static Handler mainHanlder;
 
@@ -236,11 +236,9 @@ public class MyToast {
             }
         });
     }
-
     public static void successBig(int stringResId){
         successBig(ToastyUtils.getStr(stringResId));
     }
-
     public static void errorBig(final CharSequence text){
         if(TextUtils.isEmpty(text)){
             return;
@@ -253,7 +251,6 @@ public class MyToast {
             }
         });
     }
-
     public static void errorBig(int stringResId){
         errorBig(ToastyUtils.getStr(stringResId));
     }

@@ -463,7 +463,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_5;
                 }else if(TextUtils.equals("美丽日记",mPlatform.getName())){
                     resId = R.array.receipt_type_16;
-                }else{
+                }else if(TextUtils.equals("麦田",mPlatform.getName())) {
+                    resId = R.array.receipt_type_4;
+            }   else{
                     resId = R.array.receipt_type_11;
                 }
                 break;

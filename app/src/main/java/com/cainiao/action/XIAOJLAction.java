@@ -179,7 +179,7 @@ public class XIAOJLAction extends BaseAction {
                                             @Override
                                             public void onSuccess(Response<String> response) {
                                                 try {
-                                                   sendLog("暂时没有任务");
+                                                    sendLog("暂时没有任务");
                                                 } catch (Exception e) {
                                                     sendLog("检测任务异常");  //接单异常
                                                 }

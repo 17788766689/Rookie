@@ -1,11 +1,17 @@
 package com.cainiao.activity;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.PowerManager;
+import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 
@@ -57,11 +63,30 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void init() {
+        ignoreBatteryOptimization();
         initView();
         mReceiver = new UpdateStatusReceiver();
         IntentFilter filter = new IntentFilter(Const.STATUS_ACTION);
         registerReceiver(mReceiver,filter);
         updateCommonPlatforms();
+    }
+
+    /**
+     * 忽略电池优化
+     */
+    public void ignoreBatteryOptimization() {
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return;
+
+        boolean hasIgnored = powerManager.isIgnoringBatteryOptimizations(getPackageName());
+        //  判断当前APP是否有加入电池优化的白名单，如果没有，弹出加入电池优化的白名单的设置对话框。
+        if(!hasIgnored) {
+            Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+            intent.setData(Uri.parse("package:" + getPackageName()));
+            ComponentName componentName = intent.resolveActivity(getPackageManager());
+            if(componentName == null) return;
+            startActivity(intent);
+        }
     }
 
     /**
