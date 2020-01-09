@@ -147,8 +147,8 @@ public class HttpUtil {
 
 
     /*
-    * 判断设备 是否使用代理上网，方法名称叫available是为了防止别人分析出有代理检测
-    * */
+     * 判断设备 是否使用代理上网，方法名称叫available是为了防止别人分析出有代理检测
+     * */
     public static boolean available(Context context) {
         String proxyAddress;
         int proxyPort;

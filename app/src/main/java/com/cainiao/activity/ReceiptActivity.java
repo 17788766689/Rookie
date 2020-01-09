@@ -61,10 +61,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
     private ImageView inVerifyCode;
     private int position;
     private TextView tvLog, tvStart, tvStop, tvBtn1, tvBtn2;
-    private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode,etIgnore;
+    private EditText etMinFreq, etMaxFreq, etAccount, etPwd, etMinComm, etMaxPrinc, etReceiptUrl, etVerifyCode, etSmsCode,etIgnore, etImei;
     private Spinner spBuyerNum, spReceiptType, spAccountType;
-    private CheckBox cb1, cb2, filter1, task1;
-    private LinearLayout llAccount, llPwd, llReceiptUrl, llBuyerNum, llComm, llReceiptType, llVerifyCode, llSmsCode, llAccountType, llCheckbox, llIgnore, llFilter,llTask;
+    private CheckBox cb1, cb2, filter1, task1,shenhe,xh,tb,jd,pdd;
+    private LinearLayout llAccount, llPwd, llReceiptUrl, llBuyerNum, llComm, llReceiptType, llVerifyCode, llSmsCode, llAccountType, llCheckbox, llIgnore, llFilter,llTask,llDevice,llType;
 
     private List<BuyerNum> mBuyerNums;
     private List<String> names;
@@ -241,6 +241,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         String verifyCode = etVerifyCode.getText().toString().trim();
         String smsCode = etSmsCode.getText().toString().trim();
         String shopName = etIgnore.getText().toString().trim();
+        String imei = etImei.getText().toString().trim();
 
         if (!Utils.isInteger(minFreq)) minFreq = "1000";  //最小频率默认给1000ms
         if (!Utils.isInteger(maxFreq)) maxFreq = "9999"; //最大频率默认给9999ms
@@ -297,7 +298,13 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         params.setLabelCheck(cb2.isChecked());
         params.setFilterCheck(filter1.isChecked());
         params.setFilterTask(task1.isChecked());
+        params.setXh(xh.isChecked());
+        params.setShenhe(shenhe.isChecked());
+        params.setTb(tb.isChecked());
+        params.setJd(jd.isChecked());
+        params.setPdd(pdd.isChecked());
         params.setShopName(shopName);
+        params.setImei(imei);
         mPlatform.setParams(params);
         setCurrPlatform(position, mPlatform);
 
@@ -322,6 +329,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         etMinComm = findViewById(R.id.et_min_commission);
         etMaxPrinc = findViewById(R.id.et_max_principal);
         etIgnore = findViewById(R.id.et_ignore);
+        etImei = findViewById(R.id.et_imei);
+
         etReceiptUrl = findViewById(R.id.et_receipt_url);
         etVerifyCode = findViewById(R.id.et_verify_code);
         etSmsCode = findViewById(R.id.et_sms_code);
@@ -341,11 +350,18 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         llCheckbox = findViewById(R.id.ll_checkbox);
         llFilter = findViewById(R.id.ll_filter);
         llTask = findViewById(R.id.ll_task);
+        llType = findViewById(R.id.ll_type);
         llIgnore = findViewById(R.id.ll_ignore);
+        llDevice = findViewById(R.id.ll_device);
         cb1 = findViewById(R.id.cb1);
         cb2 = findViewById(R.id.cb2);
         filter1 = findViewById(R.id.filter1);
         task1 = findViewById(R.id.ll_task1);
+        xh = findViewById(R.id.ll_xh);
+        shenhe = findViewById(R.id.ll_shenhe);
+        tb = findViewById(R.id.ll_tb);
+        jd = findViewById(R.id.ll_jd);
+        pdd = findViewById(R.id.ll_pdd);
         inVerifyCode = findViewById(R.id.iv_verify_code);
 
         int resId = R.array.receipt_type_default;
@@ -370,7 +386,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 break;
             case 2:  //代表平台：918人气王 等（频率、账号、密码、买号、佣金本金、滑块验证码）
                 if("口袋精灵".equals(mPlatform.getName())){
-                        llFilter.setVisibility(View.VISIBLE);
+                    llFilter.setVisibility(View.VISIBLE);
                 }
                 llReceiptType.setVisibility(View.GONE);
                 break;
@@ -464,10 +480,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
-                }else if(TextUtils.equals("麦田",mPlatform.getName())) {
-                    llTask.setVisibility(View.VISIBLE);
-                    resId = R.array.receipt_type_4;
-            }   else{
+                }else{
                     resId = R.array.receipt_type_11;
                 }
                 break;
@@ -508,7 +521,17 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 if("麦田".equals(mPlatform.getName())){
                     resId = R.array.receipt_type_4;
                     llTask.setVisibility(View.VISIBLE);
+                    shenhe.setVisibility(View.GONE);
+                    xh.setVisibility(View.GONE);
                 }
+                break;
+            case 23:  //代表平台：钻圈圈 等（频率、账号、密码、佣金本金、买号、设备码）
+                llReceiptType.setVisibility(View.GONE);
+                llDevice.setVisibility(View.VISIBLE);
+                llTask.setVisibility(View.VISIBLE);
+                task1.setVisibility(View.GONE);
+                llType.setVisibility(View.VISIBLE);
+                if(mPlatform.isStart() == false)refreshLogView("如果不是在当前手机上做单,请将做单手机设备码复制到上面设备码输入框中,在我的页面点击获取IMEI",true);
                 break;
             case 0:  //代表平台：欢乐购 等(频率、账号、密码、买号、接单类型、佣金本金）
                 if (TextUtils.equals(mPlatform.getName(), "私房钱(抢单)")) {
@@ -559,6 +582,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         if (paramsList.size() > 0) {   //原来存在参数，则进行数据回显
             params = paramsList.get(0);
             etIgnore.setText(params.getShopName());
+            etImei.setText(params.getImei());
             etMinFreq.setText(String.valueOf(mPlatform.getParams().getMinFrequency()));
             etMaxFreq.setText(String.valueOf(mPlatform.getParams().getMaxFrequency()));
             etAccount.setText(params.getAccount());
@@ -600,8 +624,16 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             filter1.setChecked(params.isFilterCheck()); //过滤降权号是否选中的回显
         }
 
+        if (llType.getVisibility() == View.VISIBLE) {
+            tb.setChecked(params.isTb()); //淘宝
+            jd.setChecked(params.isJd());
+            pdd.setChecked(params.isPdd());
+        }
+
         if (llTask.getVisibility() == View.VISIBLE) {
-            task1.setChecked(params.isFilterCheck()); //不接货返是否选中的回显
+            task1.setChecked(params.isFilterTask()); //不接货返是否选中的回显
+            shenhe.setChecked(params.isShenhe()); //不接审核是否选中的回显
+            xh.setChecked(params.isXh()); //只接花呗、信用卡是否选中的回显
         }
     }
 

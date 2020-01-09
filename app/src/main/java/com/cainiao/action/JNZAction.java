@@ -1,6 +1,5 @@
 package com.cainiao.action;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -8,13 +7,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
-import com.cainiao.activity.ReceiptActivity;
 import com.cainiao.base.BaseAction;
 import com.cainiao.base.MyApp;
 import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
+import com.cainiao.util.HelpUtil;
 import com.cainiao.util.HttpClient;
 import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
@@ -29,9 +28,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * 私房钱抢单
+ * 金牛座
  */
-public class SFQQDAction extends BaseAction {
+public class JNZAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -39,30 +38,26 @@ public class SFQQDAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private int count = 0;
-    private List<String> accountList = new ArrayList<>();
-    private String site = "taobao";
-    private int index = 0;
+    private String data = "";
+    private String version = "20200108";
+    private String buyerId = "";
+    private List<String> accountList;
 
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-        if("2".equals(mParams.getType())){
-            site = "jd";
-        }else if("3".equals(mParams.getType())){
-            site = "pdd";
-        }
-        sendLog("如果需要更换接单类型,请先停止接单再更换");
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
+        updateBuyerId();
 
         if (!isStart) {    //未开始抢单
+            isStart = true;
             accountList = new ArrayList<>();
             cookie = "";
             count = 0;
-            isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
@@ -75,29 +70,30 @@ public class SFQQDAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/login/login", mPlatform.getHost())
-                .params("username", mParams.getAccount())
-                .params("password", Utils.md5(mParams.getPassword()))
-                .params("code", new Random().nextInt(9999))
-                .headers("Referer","http://19sf.cn/login")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+        HttpClient.getInstance().post("/buyer/login/loginByPwd", mPlatform.getHost())
+                .params("account", mParams.getAccount())
+                .params("password", mParams.getPassword())
+                .params("token", "-")
+                .params("version",version)
+                .params("_time",new Date().getTime())
+                .params("terminal","2")
+                .params("terminalSerial","-")
+                .headers("Referer","http://m.q22q22.com/login.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("code") == 1) {//登录成功
-                                List<String> list = response.headers().values("Set-Cookie");
-                                for (String str : list) {
-                                    cookie += str.substring(0, str.indexOf(";")) + ";";
-                                }
+                            if (jsonObject.getIntValue("code") == 0) {//登录成功
+                                data = jsonObject.getJSONObject("data").getString("token");
                                 sendLog("登录成功");
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                sendLog("账号或者密码错误");
-                                MyToast.error(jsonObject.getString("message"));
+                                sendLog(jsonObject.getString("msg"));
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -119,41 +115,39 @@ public class SFQQDAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
+        sendLog("正在获取买号");
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/PersonalCenter/Getbindvestlist?timestamp="+new Date().getTime(), mPlatform.getHost())
-                .params("site",site)
-                .headers("Cookie",cookie)
-                .headers("Content-Type", "application/json")
-                .headers("Referer","http://19sf.cn/login")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+        HttpClient.getInstance().post("/buyer/info/getBindInfo", mPlatform.getHost())
+                .params("token", data)
+                .params("version", version)
+                .params("_time",new Date().getTime())
+                .params("terminal",2)
+                .params("terminalSerial","-")
+                .headers("Referer","http://m.q22q22.com/login.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-//                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             JSONArray array = jsonObject.getJSONArray("data");
                             if (array.size() > 0) {    //获取买号成功
-                                JSONObject obj = array.getJSONObject(0); //默认使用第一个买号
+                                JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
                                 mParams.setBuyerNum(new BuyerNum("-1", "自动切换"));
+                                updateBuyerId();
                                 List<BuyerNum> list = new ArrayList<>();
                                 list.add(new BuyerNum("-1", "自动切换"));
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     obj = array.getJSONObject(i);
-                                    if(obj.getInteger("fblack") == 1){
-                                        if(obj.getInteger("f1") != 3 && mParams.isFilterCheck()){
-                                            sendLog(obj.getString("vestname")+",此号只能接浏览单,已过滤");
+                                    if(obj.getInteger("accountStatus") == 1){
+                                        if(obj.getInteger("frequency") < obj.getInteger("acceptNumber")){
+                                            accountList.add(obj.getString("accountId"));
+                                            list.add(new BuyerNum(obj.getString("accountId"), obj.getString("bindAccountName")));
                                         }else{
-                                            list.add(new BuyerNum(obj.getString("id"), obj.getString("vestname")));
-                                            accountList.add(obj.getString("id"));
+                                            sendLog(obj.getString("bindAccountName")+"今日已接满,自动过滤");
                                         }
-
-                                    }else if(obj.getInteger("f1") == 3){
-                                        list.add(new BuyerNum(obj.getString("id"), obj.getString("vestname")));
-                                        accountList.add(obj.getString("id"));
                                     }
-
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
@@ -164,7 +158,7 @@ public class SFQQDAction extends BaseAction {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
                                 stop();
                             }
-                        } catch (Exception e) {
+                       } catch (Exception e) {
                             sendLog("获取买号异常！");
                             stop();
                         }
@@ -172,57 +166,50 @@ public class SFQQDAction extends BaseAction {
                 });
     }
 
-    /**
-     * 开始任务
-     */
     private void startTask() {
-        if(isStart == false)return;
+        if (isStart == false) return;
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/MyssionHall/GetmissionlistOrVest", mPlatform.getHost())
-                .params("page", 1)
-                .params("missiontype", 2)
-                .params("site", site)
-                .params("time", new Date().getTime())
-                .headers("Cookie",cookie)
-                .headers("Referer","http://19sf.cn/login")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+        if(count < accountList.size()){
+            buyerId = accountList.get(count);
+            count++;
+        }else{
+            count = 0;
+        }
+        HttpClient.getInstance().post("/buyer/order/getAuth", mPlatform.getHost())
+                .params("token", data)
+                .params("version", version)
+                .params("_time",new Date().getTime())
+                .params("terminal",2)
+                .params("terminalSerial","-")
+                .params("accountId",buyerId)
+                .headers("Referer","http://m.q22q22.com/login.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            String str = response.body().substring(response.body().indexOf("==") + 2, response.body().length());
-                            if(str != null && str.length() > 0){
-                                JSONObject obj = JSONObject.parseObject(str);
-                                JSONArray array = obj.getJSONArray("data");
-                                if (array.size() > 0) {
-                                    for (int i = 0, len = array.size(); i < len; i++) {
-                                        obj = array.getJSONObject(i);
-                                        System.out.println(obj.getInteger("commission"));
-                                        if(obj.getDouble("commission") >= (mParams.getMinCommission()*100)){
-                                            sendLog("正在领取第"+(i+1)+"任务,佣金"+(obj.getDouble("commission")/100));
-                                            lqTask(obj.getString("id"),obj.getString("listid"));
-                                        }else{
-                                            sendLog("任务不符合要求,佣金"+(obj.getDouble("commission")/100));
-                                        }
-                                    }
-                                } else {
-                                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
-                                }
-                            }else{
-                                sendLog("继续检测任务");
+                            JSONObject object = JSONObject.parseObject(response.body());
+                            sendLog(object.getString("msg"));
+                            if(object.getInteger("code") == 404){
+                               stop();
+                            }else if(object.getInteger("code") == 1){
+                                sendLog("接单成功");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jinniuzuo, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
                             }
 
                         } catch (Exception e) {
-                            sendLog("检测任务异常！");
+                            sendLog("检测任务异常");
                         }
-                    }
 
+                    }
 
                     @Override
                     public void onError(Response<String> response) {
-                        super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("检测任务异常");  //接单异常
                     }
 
                     @Override
@@ -230,7 +217,7 @@ public class SFQQDAction extends BaseAction {
                         super.onFinish();
                         if (isStart) {
                             //取最小频率和最大频率直接的随机数值作为刷单间隔
-                            int period = mRandom.nextInt(65000 - 60000) + 60000;
+                            int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
                             mHandler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -240,34 +227,52 @@ public class SFQQDAction extends BaseAction {
                         }
                     }
                 });
+
+    }
+
+    /**
+     * 取消任务
+     *
+     * @param orderId
+     */
+    private void closeTask(String orderId) {
+        HttpClient.getInstance().get("/api/order/noOrder", mPlatform.getHost())
+                .params("orderid", orderId)
+                .params("verify", data)
+                .params("ver", version)
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
+                .execute(new StringCallback() {
+
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+
+                        } catch (Exception e) {
+                            sendLog("取消任务异常！");
+                        }
+                    }
+                });
     }
 
     /**
      * 领取任务
-     * @param missionid
-     * @param listid
+     * @param token
+     * @param orderid
      */
-    private void lqTask(String missionid,String listid) {
-        String vestid = "";
-        if("-1".equals(mParams.getBuyerNum().getId()) && accountList.size() != 0){
-            vestid = accountList.get(index);
-            index++;
-            if(index == accountList.size()){
-                index = 0;
-            }
-        }else{
-            vestid = mParams.getBuyerNum().getId();
-        }
+    private void lqTask(String token,String token2,String orderid ,String uuid) {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/MyssionHall/Acquiremission?timestamp="+new Date().getTime(), mPlatform.getHost())
-                .params("site", site)
-                .params("missionid", missionid)
-                .params("vestid",vestid)
-                .params("listid",listid)
-                .headers("Cookie",cookie)
-                .headers("Referer","http://19sf.cn/login")
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+        HttpClient.getInstance().get("/api/order/sureOrderV2", mPlatform.getHost())
+                .params("token", token)
+                .params("data", token2)
+                .params("uuid", uuid)
+                .params("ver",version)
+                .params("verify",data)
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
 
                     @Override
@@ -275,21 +280,34 @@ public class SFQQDAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if(jsonObject.getJSONArray("data").size() != 0){
+                            if(jsonObject.getInteger("code") == 0){
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.sifangqian, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zuanquanquan, 3000);
                                 }
                                 count++;
-                                addTask("私房钱");
+                                addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
+                            }else{
+                                sendLog("继续检测任务");
                             }
+
                         } catch (Exception e) {
                             sendLog("领取任务异常！");
                         }
                     }
                 });
+    }
+
+
+    /**
+     * 更新买号
+     */
+    private void updateBuyerId(){
+        if(mParams.getBuyerNum() != null && !TextUtils.isEmpty(mParams.getBuyerNum().getId())){
+            buyerId = mParams.getBuyerNum().getId();
+        }
     }
 
 

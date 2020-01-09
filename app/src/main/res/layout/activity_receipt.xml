@@ -227,6 +227,30 @@
 
   </LinearLayout>
 
+  <!-- 设备号 -->
+  <LinearLayout
+      android:id="@+id/ll_device"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:paddingLeft="20dp"
+      android:paddingRight="20dp"
+      android:visibility="gone">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:text="设  备  号："/>
+
+    <EditText
+        android:id="@+id/et_imei"
+        android:hint="不填则默认为本机设备号"
+        style="@style/CustomEditText"/>
+
+  </LinearLayout>
+
 
   <!-- 接单类型 -->
   <LinearLayout
@@ -355,6 +379,36 @@
 
   </LinearLayout>
 
+  <!-- 接单类型-->
+  <LinearLayout
+      android:id="@+id/ll_type"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:orientation="horizontal"
+      android:paddingLeft="20dp"
+      android:paddingRight="20dp"
+      android:visibility="gone">
+
+    <CheckBox
+        android:id="@+id/ll_tb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="淘宝"/>
+
+    <CheckBox
+        android:id="@+id/ll_jd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="京东"/>
+
+    <CheckBox
+        android:id="@+id/ll_pdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="拼多多"/>
+
+  </LinearLayout>
+
   <!-- 过滤违规号 -->
   <LinearLayout
       android:id="@+id/ll_filter"
@@ -387,7 +441,19 @@
         android:id="@+id/ll_task1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="不接货返单"/>
+        android:text="不接货返"/>
+
+    <CheckBox
+        android:id="@+id/ll_xh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="只接信用卡.花呗"/>
+
+    <CheckBox
+        android:id="@+id/ll_shenhe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="不接审核单"/>
 
   </LinearLayout>
 

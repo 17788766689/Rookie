@@ -22,74 +22,74 @@ import okhttp3.OkHttpClient;
 
 public class HttpClient {
 
-    private static final int TIMEOUT = 10000;
-    private static HttpClient sInstance;
-    private OkHttpClient mOkHttpClient;
-    private String mLanguage;//语言
-    private String mUrl;
+  private static final int TIMEOUT = 10000;
+  private static HttpClient sInstance;
+  private OkHttpClient mOkHttpClient;
+  private String mLanguage;//语言
+  private String mUrl;
 
-    private HttpClient() {
-        mUrl = Const.BASE_APP_URL;
-    }
+  private HttpClient() {
+    mUrl = Const.BASE_APP_URL;
+  }
 
-    public static HttpClient getInstance() {
+  public static HttpClient getInstance() {
+    if (sInstance == null) {
+      synchronized (HttpClient.class) {
         if (sInstance == null) {
-            synchronized (HttpClient.class) {
-                if (sInstance == null) {
-                    sInstance = new HttpClient();
-                }
-            }
+          sInstance = new HttpClient();
         }
-        return sInstance;
+      }
     }
+    return sInstance;
+  }
 
-    public void init() {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        builder.readTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        builder.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-        builder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
-        builder.retryOnConnectionFailure(true);
+  public void init() {
+    OkHttpClient.Builder builder = new OkHttpClient.Builder();
+    builder.connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+    builder.readTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+    builder.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+    builder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
+    builder.retryOnConnectionFailure(true);
 //        Dispatcher dispatcher = new Dispatcher();
 //        dispatcher.setMaxRequests(20000);
 //        dispatcher.setMaxRequestsPerHost(10000);
 //        builder.dispatcher(dispatcher);
 
-        //输出HTTP请求 响应信息
-        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("http");
-        loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
-        builder.addInterceptor(loggingInterceptor);
-        mOkHttpClient = builder.build();
+    //输出HTTP请求 响应信息
+    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("http");
+    loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
+    builder.addInterceptor(loggingInterceptor);
+    mOkHttpClient = builder.build();
 
-        OkGo.getInstance().init(MyApp.getContext())
-                .setOkHttpClient(mOkHttpClient)
-                .setCacheMode(CacheMode.NO_CACHE)
-                .setRetryCount(1);
+    OkGo.getInstance().init(MyApp.getContext())
+            .setOkHttpClient(mOkHttpClient)
+            .setCacheMode(CacheMode.NO_CACHE)
+            .setRetryCount(1);
 
-    }
+  }
 
-    public GetRequest get(String serviceName, String baseUrl) {
-        if(TextUtils.isEmpty(baseUrl)) baseUrl = mUrl;
-        return OkGo.get(baseUrl + serviceName)
-                .headers("Connection","keep-alive")
-                .tag(serviceName)
-                .params("language", mLanguage);
-    }
+  public GetRequest get(String serviceName, String baseUrl) {
+    if(TextUtils.isEmpty(baseUrl)) baseUrl = mUrl;
+    return OkGo.get(baseUrl + serviceName)
+            .headers("Connection","keep-alive")
+            .tag(serviceName)
+            .params("language", mLanguage);
+  }
 
-    public PostRequest post(String serviceName, String baseUrl) {
-        if(TextUtils.isEmpty(baseUrl)) baseUrl = mUrl;
-        return OkGo.post(baseUrl + serviceName)
-                .headers("Connection","keep-alive")
-                .tag(serviceName)
-                .params("language", mLanguage);
-    }
+  public PostRequest post(String serviceName, String baseUrl) {
+    if(TextUtils.isEmpty(baseUrl)) baseUrl = mUrl;
+    return OkGo.post(baseUrl + serviceName)
+            .headers("Connection","keep-alive")
+            .tag(serviceName)
+            .params("language", mLanguage);
+  }
 
-    public void cancel(String tag) {
-        OkGo.cancelTag(mOkHttpClient, tag);
-    }
+  public void cancel(String tag) {
+    OkGo.cancelTag(mOkHttpClient, tag);
+  }
 
-    public void setLanguage(String language) {
-        mLanguage = language;
-    }
+  public void setLanguage(String language) {
+    mLanguage = language;
+  }
 
 }

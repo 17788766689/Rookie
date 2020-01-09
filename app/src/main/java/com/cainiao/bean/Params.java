@@ -48,10 +48,26 @@ public class Params {
     private boolean filterCheck = true;
 
     @Ignore
-    private boolean filterTask = true;
+    private boolean tb = true;
+
+    @Ignore
+    private boolean jd = true;
+
+    @Ignore
+    private boolean pdd = true;
+
+    @Ignore
+    private boolean filterTask = true;// 不接货反
 
     private String shopName;// 不接店铺
 
+    private String imei;
+
+    @Ignore
+    private boolean shenhe; // 不接审核
+
+    @Ignore
+    private boolean xh; // 只接花呗、信用卡
 
     public Params(){}
 
@@ -241,5 +257,53 @@ public class Params {
 
     public boolean isFilterTask() {
         return filterTask;
+    }
+
+    public void setImei(String imei) {
+        this.imei = imei;
+    }
+
+    public String getImei() {
+        return imei;
+    }
+
+    public void setShenhe(boolean shenhe) {
+        this.shenhe = shenhe;
+    }
+
+    public boolean isShenhe() {
+        return shenhe;
+    }
+
+    public void setXh(boolean xh) {
+        this.xh = xh;
+    }
+
+    public boolean isXh() {
+        return xh;
+    }
+
+    public void setJd(boolean jd) {
+        this.jd = jd;
+    }
+
+    public void setPdd(boolean pdd) {
+        this.pdd = pdd;
+    }
+
+    public void setTb(boolean tb) {
+        this.tb = tb;
+    }
+
+    public boolean isJd() {
+        return jd;
+    }
+
+    public boolean isPdd() {
+        return pdd;
+    }
+
+    public boolean isTb() {
+        return tb;
     }
 }
