@@ -48,6 +48,7 @@ public class MineFragment extends BaseFragment {
         mList = new ArrayList<>();
         mList.add(new Mine(R.mipmap._60x60, "我的菜鸟", a, "点我续费"));
         mList.add(new Mine(R.mipmap._60x60, "获取设备码", "换绑设备时使用", "如需换绑请找客服"));
+        mList.add(new Mine(R.mipmap._60x60, "获取IMEI", "钻圈圈系列平台使用", "点我自动复制"));
         mList.add(new Mine(R.mipmap._60x60, "购卡地址", "不推荐使用", "点我前往，仅限购买不到激活码的用户使用"));
         mList.add(new Mine(R.mipmap._60x60, "菜鸟抢单App", "下载地址", Const.OUTER_DOWNLOAD_URL));
         mList.add(new Mine(R.mipmap._60x60, "问题反馈", "点我跳转QQ", Const.SERVICE_QQ));
@@ -87,13 +88,17 @@ public class MineFragment extends BaseFragment {
                 Utils.setClipboardStr(Utils.getUuid());
                 MyToast.success("设备码复制成功");
                 break;
-            case 2:     //购卡地址
+            case 2:     //获取IMEI
+                Utils.setClipboardStr(Utils.getDeviceId());
+                MyToast.success("IMEI码复制成功");
+                break;
+            case 3:     //购卡地址
                 AppUtil.openUrlInOuter(Const.OUTER_BUY_URL);
                 break;
-            case 3:     //菜鸟抢单App
+            case 4:     //菜鸟抢单App
                 AppUtil.openUrlInOuter(Const.OUTER_DOWNLOAD_URL);
                 break;
-            case 4:     //问题反馈
+            case 5:     //问题反馈
                 if(AppUtil.isInstalled("com.tencent.mobileqq")){
                     AppUtil.openUrlInOuter(Const.SERVICE_URI);
                 }

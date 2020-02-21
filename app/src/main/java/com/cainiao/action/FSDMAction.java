@@ -76,8 +76,8 @@ public class FSDMAction extends BaseAction {
      * 丰收大麦
      */
     public void getVerifyCode(Platform platform) {
-        HttpClient.getInstance().get(":8081/workerLogin?time=" + new Date().getTime(), "http://wx.xdhfnch.cn")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+        HttpClient.getInstance().get("workerLogin?time=" + new Date().getTime(), "http://wx.fsdmff.cn:8081/")
+                .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.117 Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

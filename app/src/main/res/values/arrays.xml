@@ -109,5 +109,12 @@
         <item>垫付任务</item>
     </string-array>
 
-
+    <!--钱逗-->
+    <string-array name="receipt_type_17">
+        <item>淘宝</item>
+        <item>拼多多</item>
+        <item>京东</item>
+        <item>阿里巴巴</item>
+        <item>抖音</item>
+    </string-array>
 </resources>

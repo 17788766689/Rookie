@@ -476,7 +476,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 15:  //代表平台：红苹果 等（账号、密码、接单类型）
                 llBuyerNum.setVisibility(View.GONE);
                 llComm.setVisibility(View.GONE);
-                if(TextUtils.equals("麒麟",mPlatform.getName()) || TextUtils.equals("小蘑菇",mPlatform.getName()) || TextUtils.equals("电竞艺游",mPlatform.getName()) || TextUtils.equals("征服者",mPlatform.getName())){
+                if(TextUtils.equals("麒麟",mPlatform.getName()) || TextUtils.equals("小蘑菇",mPlatform.getName()) || TextUtils.equals("电竞艺游",mPlatform.getName()) || TextUtils.equals("征服者",mPlatform.getName()) || TextUtils.equals("宅仔",mPlatform.getName())){
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
@@ -533,8 +533,15 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llType.setVisibility(View.VISIBLE);
                 if(mPlatform.isStart() == false)refreshLogView("如果不是在当前手机上做单,请将做单手机设备码复制到上面设备码输入框中,在我的页面点击获取IMEI",true);
                 break;
+            case 24:  //代表平台：钱逗 等（频率、账号、密码、接单类型、任务类型、买号）
+                llComm.setVisibility(View.GONE);
+                resId = R.array.receipt_type_17;
+                llReceiptType.setVisibility(View.VISIBLE);
+                llAccountType.setVisibility(View.VISIBLE);
+                break;
             case 0:  //代表平台：欢乐购 等(频率、账号、密码、买号、接单类型、佣金本金）
                 if (TextUtils.equals(mPlatform.getName(), "私房钱(抢单)")) {
+                    if(mPlatform.isStart() == false)refreshLogView("私房钱不支持卡本金,可以在最大本金选项框中设置最大【佣金】,建议设置最大本金(佣金)为8左右",true);
                     resId = R.array.receipt_type_4;
                     llFilter.setVisibility(View.VISIBLE);
                 }else if(TextUtils.equals(mPlatform.getPkgName(),"com.a2398577387.kfg")){

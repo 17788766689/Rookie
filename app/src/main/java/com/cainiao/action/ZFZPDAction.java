@@ -82,7 +82,7 @@ public class ZFZPDAction extends BaseAction {
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                index();
                             } else {
                                 MyToast.error(jsonObject.getString("msg"));
                                 stop();
@@ -95,12 +95,33 @@ public class ZFZPDAction extends BaseAction {
                 });
     }
 
+    private void index(){
+        HttpClient.getInstance().post("/iop/index/index", mPlatform.getHost())
+                .headers("Cookie",cookie)
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            cookie += response.headers().get("Set-Cookie").toString();
+                            startTask();
+                        } catch (Exception e) {
+                            sendLog("登录异常！");
+                            stop();
+                        }
+                    }
+                });
+    }
+
     /**
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false){
+            return;
+        }
         HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
-                .headers("Referer","http://app.zhengfuz.com/iop/index/index.html")
+                .headers("Referer","http://app.zhengfuz.com/iop/index/index")
                 .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {

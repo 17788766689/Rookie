@@ -63,8 +63,7 @@ public class HttpClient {
 
     OkGo.getInstance().init(MyApp.getContext())
             .setOkHttpClient(mOkHttpClient)
-            .setCacheMode(CacheMode.NO_CACHE)
-            .setRetryCount(1);
+            .setCacheMode(CacheMode.NO_CACHE);
 
   }
 

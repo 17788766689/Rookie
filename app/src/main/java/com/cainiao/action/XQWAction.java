@@ -59,7 +59,7 @@ public class XQWAction extends BaseAction {
                 .params("account", mParams.getAccount())
                 .params("password", mParams.getPassword())
                 .headers("Cookie","tmp_cc="+r)
-                .headers("Referer","http://wx.f706qt.cn/wap/")
+                .headers("Referer","http://www.shenjimao.com/wap/")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; 8 Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.143 Crosswalk/24.53.595.0 XWEB/112 MMWEBSDK/180803 Mobile Safari/537.36 MMWEBID/4719 MicroMessenger/6.7.3.1360(0x260703B3) NetType/WIFI Language/zh_CN Process/tools")
                 .execute(new StringCallback() {
@@ -97,9 +97,12 @@ public class XQWAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if(isStart == false){
+            return;
+        }
         HttpClient.getInstance().post("/task", mPlatform.getHost())
                 .headers("Auth-Token", cookie)
-                .headers("Referer","http://wx.f706qt.cn/wap/")
+                .headers("Referer","http://www.shenjimao.com/home/")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; 8 Build/LMY47I; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/53.0.2785.143 Crosswalk/24.53.595.0 XWEB/112 MMWEBSDK/180803 Mobile Safari/537.36 MMWEBID/4719 MicroMessenger/6.7.3.1360(0x260703B3) NetType/WIFI Language/zh_CN Process/tools")
                 .execute(new StringCallback() {

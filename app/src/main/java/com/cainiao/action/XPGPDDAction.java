@@ -146,6 +146,7 @@ public class XPGPDDAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         long n = new Date().getTime();
         HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)
@@ -161,6 +162,10 @@ public class XPGPDDAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
+                            if (JSONObject.parseObject(response.body()).getString("message") != null && !JSONObject.parseObject(response.body()).getString("message").equals("")){
+                                sendLog(JSONObject.parseObject(response.body()).getString("message"));
+                                return;
+                            }
                             JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
                             for (int i = 0, len = array.size(); i < len; i++) {
                                 JSONObject object = array.getJSONObject(i);

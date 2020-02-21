@@ -13,7 +13,6 @@ import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
-import com.cainiao.util.DeviceUtil;
 import com.cainiao.util.HelpUtil;
 import com.cainiao.util.HttpClient;
 import com.cainiao.util.Utils;
@@ -29,9 +28,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * 钻圈圈
+ * 如意宝
  */
-public class ZQQAction extends BaseAction {
+public class RYBAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -67,8 +66,8 @@ public class ZQQAction extends BaseAction {
     private void getVersion() {
         HttpClient.getInstance().get("/api/checkAppUpdate", "http://www.zhuanzhuanduoweb.com:17008")
                 .params("v", version)
-                .params("identify", "zzd")
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .params("identify", "ryb")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
@@ -121,7 +120,7 @@ public class ZQQAction extends BaseAction {
                 .params("ip_mac", ip_mac)
                 .params("ver", version)
                 .params("verify", "")
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
@@ -166,7 +165,7 @@ public class ZQQAction extends BaseAction {
                 .params("ver", version)
                 .params("verify", data)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
@@ -311,7 +310,7 @@ public class ZQQAction extends BaseAction {
                 .params("uuid", uuid)
                 .params("verify", data)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
 
@@ -354,7 +353,7 @@ public class ZQQAction extends BaseAction {
                 .params("uuid", uuid)
                 .params("verify", data)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override
@@ -372,7 +371,7 @@ public class ZQQAction extends BaseAction {
                                     .params("verify", data)
                                     .params("token", HelpUtil.encrypt(key.toString(), object.getJSONObject("data").getString("public_key")))
                                     .headers("Cookie", cookie)
-                                    .headers("X-Requested-With", "com.xmtyq.zzd")
+                                    .headers("X-Requested-With", "com.tech.guo")
                                     .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                                     .execute(new StringCallback() {
                                         @Override
@@ -473,7 +472,7 @@ public class ZQQAction extends BaseAction {
                 .params("verify", data)
                 .params("ver", version)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
 
@@ -503,7 +502,7 @@ public class ZQQAction extends BaseAction {
                 .params("ver",version)
                 .params("verify",data)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
 
@@ -515,7 +514,7 @@ public class ZQQAction extends BaseAction {
                             if(jsonObject.getInteger("code") == 0){
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 if (count == 0) {
-                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.zuanquanquan, 3000);
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.ruyibao, 3000);
                                 }
                                 count++;
                                 addTask(mPlatform.getName());
@@ -570,7 +569,7 @@ public class ZQQAction extends BaseAction {
                 .params("isaccept", isaccept)
                 .params("verify", data)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("X-Requested-With", "com.tech.guo")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
                 .execute(new StringCallback() {
                     @Override

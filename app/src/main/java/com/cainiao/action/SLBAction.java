@@ -54,8 +54,8 @@ public class SLBAction extends BaseAction {
      * 登录
      */
     private void login() {
-        sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/tourist.php", mPlatform.getHost())
+        sendLog(MyApp.getContext().getString(R.string.being_login));http://lemonbaby.com.cn/User/User/login
+        HttpClient.getInstance().post("/User/User/login", mPlatform.getHost())
                 .params("id", "Login")
                 .params("user", mParams.getAccount())
                 .params("pwd", mParams.getPassword())
@@ -100,9 +100,7 @@ public class SLBAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/api/user.php", mPlatform.getHost())
-                .params("id", "queue2")
-                .params("type", "1")
+        HttpClient.getInstance().get("/User/Task/getTaskList/type/1", mPlatform.getHost())
                 .headers("Cookie", cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")

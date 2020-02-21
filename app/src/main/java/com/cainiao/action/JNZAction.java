@@ -190,7 +190,7 @@ public class JNZAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject object = JSONObject.parseObject(response.body());
-                            sendLog(object.getString("msg"));
+
                             if(object.getInteger("code") == 404){
                                stop();
                             }else if(object.getInteger("code") == 1){
@@ -199,8 +199,12 @@ public class JNZAction extends BaseAction {
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
+                                stop();
+                            }else if(object.getString("msg").equals("先休息一下咯")){
+                                sendLog("暂时没有任务");
+                            }else{
+                                sendLog(object.getString("msg"));
                             }
-
                         } catch (Exception e) {
                             sendLog("检测任务异常");
                         }

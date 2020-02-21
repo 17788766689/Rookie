@@ -61,7 +61,7 @@ public class QTLYAction extends BaseAction {
      * 秋天乐园
      */
     public void getVerifyCode(Platform platform) {
-        HttpClient.getInstance().get(":8081/workerLogin?time=" + new Date().getTime(), "http://wx.xdhfnch.cn")
+        HttpClient.getInstance().get(":8081/workerLogin?time=" + new Date().getTime(), "http://wx.pk1165.com")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -69,8 +69,10 @@ public class QTLYAction extends BaseAction {
                         if (TextUtils.isEmpty(response.body())) return;
                         String reData = response.body().toString();
                         int index = reData.indexOf("captcha/gen_img?key=");
-                        yzmKey = reData.substring(index + 20, index + 67);
+                        System.out.println("index="+index);
+                        yzmKey = reData.substring(index + 20, index + 25);
                         String imgUrl = "http://api.pk1165.com:8080/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
+                        System.out.println("key="+yzmKey);
                         sendMsg("get_verifycode", imgUrl);
                     }
                 });
@@ -203,7 +205,7 @@ public class QTLYAction extends BaseAction {
                             if (2000 == jsonObject.getIntValue("code")) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW)+"店铺名:"+shopName);
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+shopName, R.raw.qiutianleyuan, 3000);
-                                addTask(mPlatform.getName());
+                                addTask("秋天乐园");
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                                 stop();

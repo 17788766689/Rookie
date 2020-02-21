@@ -474,7 +474,7 @@
         android:layout_height="match_parent"
         android:textColor="@android:color/black"
         android:gravity="center"
-        android:text="帐号类型："/>
+        android:text="任务类型："/>
 
     <Spinner
         android:id="@+id/sp_account_type"

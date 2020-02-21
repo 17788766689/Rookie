@@ -199,7 +199,7 @@ public class SFQQDAction extends BaseAction {
                                     for (int i = 0, len = array.size(); i < len; i++) {
                                         obj = array.getJSONObject(i);
                                         System.out.println(obj.getInteger("commission"));
-                                        if(obj.getDouble("commission") >= (mParams.getMinCommission()*100)){
+                                        if(obj.getDouble("commission") >= (mParams.getMinCommission()*100) && obj.getDouble("commission") <= (mParams.getMaxPrincipal()*100)){
                                             sendLog("正在领取第"+(i+1)+"任务,佣金"+(obj.getDouble("commission")/100));
                                             lqTask(obj.getString("id"),obj.getString("listid"));
                                         }else{
