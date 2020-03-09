@@ -17,6 +17,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,7 +29,10 @@ public class DDDAction extends BaseAction {
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
-
+    private String cookie;
+    private String tokey;
+    private String callback;
+    private String url = "";
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
@@ -43,6 +47,7 @@ public class DDDAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -51,20 +56,103 @@ public class DDDAction extends BaseAction {
         }
     }
 
+    /**
+     * 登录
+     */
+    private void login() {
+        sendLog(MyApp.getContext().getString(R.string.being_login));
+        HttpClient.getInstance().post("/member/user/login.html", "http://www.027k8.com")
+                .params("mobile",mParams.getAccount())
+                .params("password",mParams.getPassword())
+                .params("j_verify",Utils.randomString(4))
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer", "http://www.027k8.com/login.html")
+                .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("info"));
+                            if (1 == jsonObject.getIntValue("status")) {    //登录成功
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";"))+";";
+                                }
+                                updateParams(mPlatform);
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else {
+                                MyToast.error(jsonObject.getString("info"));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            stop();
+                            sendLog("登录异常");  //接单异常
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                    }
+                });
+    }
+
+    private void index(){
+        callback = "jQuery11130"+Utils.getRandom(16)+"_"+new Date().getTime();
+        HttpClient.getInstance().get("index", "http://www.027k8.com/")
+                .headers("Cookie",mPlatform.getCookie())
+                .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            tokey = response.body().substring(response.body().indexOf("tokey=")+6,response.body().indexOf("=\","));
+                            startTask();
+                        } catch (Exception e) {
+                            stop();
+                            sendLog("登录异常");  //接单异常
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                    }
+                });
+    }
 
     /**
      * 开始任务
      */
     private void startTask() {
-        String url = "/index/dispatch.html";
-        if ("2".equals(mParams.getType())){
+        if (isStart == false)return;
+        if("1".equals(mParams.getType()) &&(!url.equals("/index/dispatch"))){
+            url = "/index/dispatch";
+            index();
+            return;
+        } else if ("2".equals(mParams.getType())&&(!url.equals("/Jd/Index/dispatch"))){
             url = "/Jd/Index/dispatch";
-        }else if("3".equals(mParams.getType())){
+            index();
+            return;
+        }else if("3".equals(mParams.getType())&&(!url.equals("/Pdd/Index/dispatch"))){
             url = "/Pdd/Index/dispatch";
+            index();
+            return;
         }
-        HttpClient.getInstance().post(url, mPlatform.getHost())
+        Random rd = new Random();
+        HttpClient.getInstance().get(url,"http://api.honghou8.com")
+                .params("tokey",tokey)
+                .params("callback",callback)
+                .params("_",new Date().getTime())
                 .headers("Cookie",mPlatform.getCookie())
-                .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
@@ -72,7 +160,10 @@ public class DDDAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject obj = JSONObject.parseObject(response.body());
+                            callback = response.body().substring(0,response.body().indexOf("({"));
+                            String data = response.body().substring(response.body().indexOf("({"),response.body().length());
+                            data = data.substring(1,data.length()-1);
+                            JSONObject obj = JSONObject.parseObject(data);
                             if(1 == obj.getInteger("status") || "isSuccess".equals(obj.getString("info")) || "refundSuccess".equals(obj.getString("info"))){
                                 sendLog("接单成功");
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.danduoduo, 3000);

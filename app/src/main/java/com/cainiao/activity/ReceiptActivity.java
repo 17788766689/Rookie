@@ -453,7 +453,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 }else if(TextUtils.equals(mPlatform.getName(),"卡丁车")){
                     resId = R.array.receipt_type_12;
                     ((TextView) findViewById(R.id.tv_type)).setText("任务类型：");
-                } else {
+                }else {
                     resId = R.array.receipt_type_7;
                 }
                 llBuyerNum.setVisibility(View.GONE);
@@ -480,6 +480,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;
+                }else if(TextUtils.equals("美丽日记",mPlatform.getName())){
+                    resId = R.array.receipt_type_16;
+                }else if(TextUtils.equals("单多多",mPlatform.getName())){
+                    resId = R.array.receipt_type_4;
                 }else{
                     resId = R.array.receipt_type_11;
                 }

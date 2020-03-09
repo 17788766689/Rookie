@@ -15,6 +15,7 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -39,6 +40,7 @@ public class TMYPDAction extends BaseAction {
     private Random mRandom;
     private int count = 0;
     int index = 0;
+    private String appid = "A6010957284142";
 
     @Override
     public void start(Platform platform) {
@@ -62,16 +64,27 @@ public class TMYPDAction extends BaseAction {
         }
     }
 
+    private String getSign(Long time){
+        String clientId = "32422354D41A4E7814D0ACDF510D2167";
+        String clientSecret = "79C8F22AB0DD19B4A74F254A75887DAA";
+        String apikey = "TxRe@5_6A7a#e_8Fr5c1_36El@1a1_u7tFtr@Rg";
+        return Utils.md5(appid+clientId+clientSecret+apikey+time);
+    }
+
     /**
      * 登录
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/api/Login/LoginByMobile", mPlatform.getHost())
-                .params("mobile", mParams.getAccount())
-                .params("password", mParams.getPassword())
-                .params("client_id", "BF7817FD2E8651B6FC4C102F607EA1CD")
-                .params("client_secret", "AFB5D053C0D6EE9E9B2796333AB2EAC8")
+        long n = new Date().getTime();
+        HttpClient.getInstance().post("api/Login/LoginByMobile", mPlatform.getHost())
+                .params("Mobile", mParams.getAccount())
+                .params("PassWord", mParams.getPassword())
+                .params("client_id", "32422354D41A4E7814D0ACDF510D2167")
+                .params("client_secret", "79C8F22AB0DD19B4A74F254A75887DAA")
+                .headers("Timetamp",n+"")
+                .headers("Sign",getSign(n))
+                .headers("AppId",appid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -115,6 +128,9 @@ public class TMYPDAction extends BaseAction {
                 .params("PlatId", 1)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
+                .headers("Timetamp",n+"")
+                .headers("Sign",getSign(n))
+                .headers("AppId",appid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -135,7 +151,6 @@ public class TMYPDAction extends BaseAction {
                                     obj = array.getJSONObject(i);
                                     list.add(new BuyerNum(obj.getString("Id"), obj.getString("PlatAccount")));
                                 }
-
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
@@ -158,7 +173,6 @@ public class TMYPDAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-
         HttpClient.getInstance().post("/api/Task/NewsSystemSendTask", mPlatform.getHost())
                 .params("UserId", userId)
                 .params("Token", token)
@@ -166,7 +180,11 @@ public class TMYPDAction extends BaseAction {
                 .params("PlatIdList", 1+",")
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountIdList", buyerId + ",")
+                .params("AppVersion","0.0.18")
                 .headers("Content-Type", "application/json")
+                .headers("Timetamp",n+"")
+                .headers("Sign",getSign(n))
+                .headers("AppId",appid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override

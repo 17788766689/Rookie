@@ -21,12 +21,6 @@ import com.google.gson.JsonObject;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -76,16 +70,14 @@ public class JXLYAction extends BaseAction {
      * 获取验证码
      */
     public void getVerifyCode(Platform platform) {
-        HttpClient.getInstance().get("/workerLogin?time=" + new Date().getTime(), "https://wx.ch5s.cn")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+        HttpClient.getInstance().get("/#/Login?time=" + new Date().getTime(), "https://wx.ch5s.cn")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         if (TextUtils.isEmpty(response.body())) return;
-                        String reData = response.body().toString();
-                        int index = reData.indexOf("captcha/gen_img?key=");
-                        yzmKey = reData.substring(index + 20, index + 52);
-                        String imgUrl = "https://api.ch5s.cn:14141/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
+                       yzmKey = Utils.getUuid();
+                        String imgUrl = "https://api.ch5s.cn:8442/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
                         sendMsg("get_verifycode", imgUrl);
                     }
                 });
@@ -102,8 +94,8 @@ public class JXLYAction extends BaseAction {
                 .params("captcha", mParams.getVerifyCode())
                 .params("captchaKey", yzmKey)
                 .headers("Sec-Fetch-Mode", "cors")
-                .headers("Referer", "https://wx.ch5s.cn/workerLogin")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("Referer", "https://wx.ch5s.cn/")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1\n")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -144,12 +136,23 @@ public class JXLYAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/task/list_plan?pageNum=1&type=1&pageSize=10&keyLike=&completeFlag=0&cancelFlag=0", mPlatform.getHost())
+        if (isStart == false)return;
+        Map map = new HashMap();
+        map.put("pageNum","1");
+        map.put("pageSize","4");
+        map.put("cancelFlag","0");
+        map.put("flowTypeFlag","0");
+        map.put("type","");
+        String param = JSON.toJSONString(map);
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(JSON,param );
+        HttpClient.getInstance().post("/task/list_plan_worker", mPlatform.getHost())
+                .upRequestBody(body)
                 .headers("x-rn-access-token", accessToken)
                 .headers("x-rn-user-id", userId)
                 .headers("x-rn-platform", platform)
                 .headers("Sec-Fetch-Mode", "cors")
-                .headers("Referer", "https://wx.ch5s.cn/workerIndex")
+                .headers("Referer", "https://wx.ch5s.cn/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -200,17 +203,15 @@ public class JXLYAction extends BaseAction {
      * @param taskId 任务id
      */
     private void lqTask(String taskId) {
-        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(JSON, taskId);
         HttpClient.getInstance().post("/task/accept_task", mPlatform.getHost())
-                .upRequestBody(body)
+                .params("taskId",taskId)
                 .headers("x-rn-access-token", accessToken)
                 .headers("x-rn-user-id", userId)
                 .headers("x-rn-platform", platform)
                 .headers("Sec-Fetch-Mode", "cors")
-                .headers("Referer", "https://wx.ch5s.cn/workerIndex")
+                .headers("Referer", "https://wx.ch5s.cn/")
                 .headers("Content-Type", "application/json;charset=UTF-8")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

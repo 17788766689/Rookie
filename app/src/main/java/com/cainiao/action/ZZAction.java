@@ -124,7 +124,7 @@ public class ZZAction extends BaseAction {
         if(isStart == false)return;
         HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType() , mPlatform.getHost())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .headers("Referer", "http://xmt.51zugeju.com/iop/index/index")
+                .headers("Referer", "http://rengwu.yueban03.top/iop/index/index")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {

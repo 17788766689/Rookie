@@ -132,6 +132,7 @@ public class ZCMAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         if(null == mParams.getBuyerNum() || null == mParams.getBuyerNum().getId()){
             getAccount();
             return;
@@ -147,13 +148,13 @@ public class ZCMAction extends BaseAction {
                             JSONObject array = JSONObject.parseObject(response.body());
                             if (array.getBooleanValue("Success")) {
                                 sendLog("检测到任务领取中...");
-                                if (array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getDoubleValue("CommissionFee") > mParams.getMinCommission()){
-                                    lqTask(String.valueOf(array.getJSONObject("Value").getJSONObject("SellerTaskOrder").getIntValue("Id")));
+                                if (array.getJSONObject("Value").getDoubleValue("CommissionFee") > mParams.getMinCommission()){
+                                    lqTask(String.valueOf(array.getJSONObject("Value").getIntValue("Id")));
                                 }else {
                                     sendLog("佣金低于你设置的最小佣金,自动过滤");
                                 }
                             } else {
-                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                                sendLog(array.getString("Message"));  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");

@@ -35,6 +35,7 @@ public class ZFZPDAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private String token;
+    private String btwaf;
 
     @Override
     public void start(Platform platform) {
@@ -120,9 +121,10 @@ public class ZFZPDAction extends BaseAction {
         if (isStart == false){
             return;
         }
-        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
+        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType()+"&btwaf="+ btwaf, mPlatform.getHost())
                 .headers("Referer","http://app.zhengfuz.com/iop/index/index")
-                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI")
+                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
@@ -131,6 +133,9 @@ public class ZFZPDAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) {
                                 sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                             }else{
+                                if(response.body().indexOf("检测中") != -1){
+                                    btwaf = response.body().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
+                                }
                                 JSONObject jsonObject = JSONObject.parseObject(response.body());
                                 if(1 == jsonObject.getInteger("status")){
                                     sendLog(MyApp.getContext().getString(R.string.KSHG_AW));

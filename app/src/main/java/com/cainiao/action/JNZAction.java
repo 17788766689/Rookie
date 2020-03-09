@@ -39,7 +39,7 @@ public class JNZAction extends BaseAction {
     private Random mRandom;
     private int count = 0;
     private String data = "";
-    private String version = "20200108";
+    private String version = "20200303";
     private String buyerId = "";
     private List<String> accountList;
 
@@ -175,7 +175,7 @@ public class JNZAction extends BaseAction {
         }else{
             count = 0;
         }
-        HttpClient.getInstance().post("/buyer/order/getAuth", mPlatform.getHost())
+        HttpClient.getInstance().post("/buyer/order/allocation", mPlatform.getHost())
                 .params("token", data)
                 .params("version", version)
                 .params("_time",new Date().getTime())

@@ -12,6 +12,7 @@ import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
@@ -35,6 +36,7 @@ public class XMGAction extends BaseAction {
     private Random mRandom;
     private String token;
     private String type = "1";
+    private String btwaf = "";
 
     @Override
     public void start(Platform platform) {
@@ -118,9 +120,13 @@ public class XMGAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+
+        if (isStart == false)return;
+        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType()+"&btwaf="+ btwaf, mPlatform.getHost())
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI")
                 .headers("Referer","http://yuntao.zhengfuz.com/iop/index/index")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Pragma","no-cache")
                 .headers("Cookie", cookie)
                 .execute(new StringCallback() {
                     @Override
@@ -129,6 +135,10 @@ public class XMGAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())){
                                 sendLog("继续检测任务");
                             }else{
+                                if(response.body().indexOf("检测中") != -1){
+                                    btwaf = response.body().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
+                                    return;
+                                }
                                 JSONObject obj = JSONObject.parseObject(response.body());
                                 sendLog(obj.getString("msg"));
                                 if ("1".equals(obj.getString("status"))){
@@ -140,7 +150,7 @@ public class XMGAction extends BaseAction {
                                 }
                             }
                         } catch (Exception e) {
-                            sendLog("检测任务异常！");
+                            sendLog("检测任务异常");
                         }
                     }
 

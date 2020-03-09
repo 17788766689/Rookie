@@ -154,6 +154,7 @@ public class HZWAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         HttpClient.getInstance().get("/order/index", mPlatform.getHost())
                 .params("token", token)
                 .params("page", "1")
@@ -169,7 +170,12 @@ public class HZWAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
+                            if(obj.getString("msg") != null){
+                                sendLog(obj.getString("msg"));
+                                return;
+                            }
                             JSONArray array = obj.getJSONObject("data").getJSONArray("data");
+
                             for (int i = 0, len = array.size(); i < len; i++) {
                                 JSONObject object = array.getJSONObject(i);
                                 if (object.getInteger("detection") == 1) {
