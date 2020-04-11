@@ -65,6 +65,7 @@ public class LHMAction extends BaseAction {
      */
     private void login() throws Exception {
         sendLog(MyApp.getContext().getString(R.string.being_login));
+        System.out.println(mParams.getPassword());
         String n = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         String key2 = Utils.HMACSHA256(Utils.HMACSHA256(Utils.md5(mParams.getPassword()).toLowerCase(), mParams.getAccount()), n);
         HttpClient.getInstance().post("/buyer/login", mPlatform.getHost())
@@ -83,7 +84,10 @@ public class LHMAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if (jsonObject.getIntValue("rspCode") == 0) {    //登录成功
-                                cookie = response.headers().get("Set-Cookie").toString();
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                                }
                                 sendLog("登录成功！");
                                 updateParams(mPlatform);
                                 JSONArray tbData = jsonObject.getJSONObject("buyer").getJSONArray("taoBaoInfos");
@@ -122,14 +126,16 @@ public class LHMAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         HttpClient.getInstance().post("/buyer/queryTaskOrderList", mPlatform.getHost())
                 .params("page", "1")
                 .params("rows", "10")
                 .params("taskType", "PT")
                 .params("tbNo", buyerId)
+                .params("llType","phone")
                 .headers("Cookie", cookie)
-                .headers("Accept", "application/json, text/javascript, */*; q=0.01")
                 .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Accept", "application/json, text/javascript, */*; q=0.01")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

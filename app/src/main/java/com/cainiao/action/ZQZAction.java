@@ -59,7 +59,7 @@ public class ZQZAction extends BaseAction {
                 .params("account", mParams.getAccount())
                 .params("password", mParams.getPassword())
                 .headers("Cookie","tmp_cc="+r)
-                .headers("Referer","http://wx.q64b.cn/wap/")
+                .headers("Referer","http://wx.99liuping.com/wap/")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -99,7 +99,7 @@ public class ZQZAction extends BaseAction {
     private void startTask() {
         HttpClient.getInstance().post("/task", mPlatform.getHost())
                 .headers("Auth-Token", cookie)
-                .headers("Referer", "http://ql.qishikj.cn/home/")
+                .headers("Referer", "http://wx.99liuping.com/home/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override

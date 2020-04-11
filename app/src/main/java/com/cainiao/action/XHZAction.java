@@ -116,7 +116,7 @@ public class XHZAction extends BaseAction {
                                 isStart = false;
                             }
                         } catch (Exception e) {
-                            sendLog("检测任务异常");  //接单异常
+                            sendLog("等待派送任务");  //接单异常
                         }
                     }
 

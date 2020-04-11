@@ -38,6 +38,7 @@ public class KDJLAction extends BaseAction {
     private String token;
     private String rToken;
     private String buyerId = "";
+    private String uuid = "";
 
     @Override
     public void start(Platform platform) {
@@ -66,7 +67,7 @@ public class KDJLAction extends BaseAction {
                 .params("username", mParams.getAccount())
                 .params("password", Utils.md5(Utils.md5(mParams.getPassword())))
                 .params("grant_type", "password")
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("client_id", "cepingfu")
                 .params("imeis", Utils.randomString(16))
                 .params("devicenames", "MI+9")
@@ -86,10 +87,12 @@ public class KDJLAction extends BaseAction {
                                 userId = jsonObject.getJSONObject("data").getJSONObject("info").getString("userId");
                                 token = jsonObject.getJSONObject("data").getJSONObject("info").getString("access_token");
                                 rToken = jsonObject.getJSONObject("data").getJSONObject("info").getString("refresh_token");
+                                uuid = jsonObject.getJSONObject("data").getJSONObject("info").getString("uuid");
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
                                 MyToast.error(jsonObject.getString("message"));
+                                sendLog(jsonObject.getString("message"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -111,8 +114,9 @@ public class KDJLAction extends BaseAction {
                 .params("platid", "1")
                 .params("bid", userId)
                 .params("accessToken", token)
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("refreshToken", rToken)
+                .params("uuid",uuid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 9; MI 9 Build/PKQ1.181121.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36")
                 .headers("X-Request-With", "com.qazapp.buyer")
                 .execute(new StringCallback() {
@@ -184,8 +188,9 @@ public class KDJLAction extends BaseAction {
                 .params("mincomm", "4.00")
                 .params("maxcomm", "以上")
                 .params("accessToken", token)
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("refreshToken", rToken)
+                .params("uuid",uuid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 9; MI 9 Build/PKQ1.181121.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36")
                 .headers("X-Request-With", "com.qazapp.buyer")
                 .execute(new StringCallback() {
@@ -223,8 +228,9 @@ public class KDJLAction extends BaseAction {
                 .params("buyeraccount[0][accountid]", buyerId)
                 .params("first", "1")
                 .params("accessToken", token)
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("refreshToken", rToken)
+                .params("uuid",uuid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 9; MI 9 Build/PKQ1.181121.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36")
                 .headers("X-Request-With", "com.qazapp.buyer")
                 .execute(new StringCallback() {
@@ -292,8 +298,9 @@ public class KDJLAction extends BaseAction {
                 .params("orderid", taskId)
                 .params("cancelReason", 3)
                 .params("accessToken", token)
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("refreshToken", rToken)
+                .params("uuid",uuid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 9; MI 9 Build/PKQ1.181121.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36")
                 .headers("X-Request-With", "com.qazapp.buyer")
                 .execute(new StringCallback() {
@@ -323,8 +330,9 @@ public class KDJLAction extends BaseAction {
         HttpClient.getInstance().post("/orderreceive/cancel_receiveOrder", "http://app.koudaijl.com")
                 .params("bid", userId)
                 .params("accessToken", token)
-                .params("softversion", "8.0.0")
+                .params("softversion", "9.0.0")
                 .params("refreshToken", rToken)
+                .params("uuid",uuid)
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 9; MI 9 Build/PKQ1.181121.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.136 Mobile Safari/537.36")
                 .headers("X-Request-With", "com.qazapp.buyer")
                 .execute(new StringCallback() {

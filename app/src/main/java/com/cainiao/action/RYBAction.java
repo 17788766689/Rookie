@@ -40,7 +40,7 @@ public class RYBAction extends BaseAction {
     private int count = 0;
     private List<Map<String, String>> accountList = new ArrayList<>();
     private int index = 0;
-    private String version = "2.0.0.12180";
+    private String version = "2.0.0.202003090";
     private String data = "";
 
     @Override
@@ -387,8 +387,15 @@ public class RYBAction extends BaseAction {
                                                     sendLog("继续检测任务");
                                                     return;
                                                 }
-                                                if (response.body().contains("您有未完的")) {
-                                                    sendLog("你有未完成的订单,请完成后再继续接单");
+                                                if (response.body().contains("您有未完")) {
+                                                    sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                                    if (count == 0) {
+                                                        receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaolu, 3000);
+                                                    }
+                                                    count++;
+                                                    addTask(mPlatform.getName());
+                                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                                    isStart = false;
                                                     return;
                                                 }
                                                 JSONObject data = JSONObject.parseObject(obj.getString("data"));

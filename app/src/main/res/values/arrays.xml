@@ -11,6 +11,11 @@
         <item>浏览任务</item>
     </string-array>
 
+    <string-array name="receipt_type_18">
+        <item>淘宝</item>
+        <item>拼多多</item>
+    </string-array>
+
     <!--欢乐购-->
     <string-array name="receipt_type_2">
         <item>垫付任务</item>
@@ -116,5 +121,12 @@
         <item>京东</item>
         <item>阿里巴巴</item>
         <item>抖音</item>
+    </string-array>
+
+    <!--有单做-->
+    <string-array name="receipt_type_19">
+        <item>不限</item>
+        <item>淘宝</item>
+        <item>京东</item>
     </string-array>
 </resources>

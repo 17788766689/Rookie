@@ -10,10 +10,17 @@ import com.cainiao.base.MyApp;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
+import com.cainiao.util.HelpUtil;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +36,8 @@ public class YDZAction extends BaseAction {
     private Params mParams;
     private Random mRandom;
     private String cookie = "";
+    private String token = "";
+    private String taskToken = "";
 
     @Override
     public void start(Platform platform) {
@@ -45,7 +54,7 @@ public class YDZAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            login();
+            getToken();
         }
     }
 
@@ -56,6 +65,34 @@ public class YDZAction extends BaseAction {
         sendMsg("get_verifycode", "http://www.127yjs.com/new_captcha.html?id=LAY-user-get-vercode&height=37&width=130&font_size=18&time=0." + new Date().getTime());
     }
 
+    private void getToken(){
+            HttpClient.getInstance().get("/portal/login/index.html", mPlatform.getHost())
+                    .headers("Cookie",mPlatform.getVerifyCodeCookie())
+                    .headers("Referer","http://www.127yjs.com/portal/index/index.html")
+                    .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            try {
+                                if (TextUtils.isEmpty(response.body())) return;
+                                Document doc = Jsoup.parse(response.body());
+                                token = doc.select("#publicKey").val();
+                                login();
+                            } catch (Exception e) {
+                                stop();
+                                getVerifyCode(mPlatform);
+                                sendLog("登录异常");  //接单异常
+                            }
+                        }
+
+                        @Override
+                        public void onError(Response<String> response) {
+                            super.onError(response);
+                            sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        }
+                    });
+    }
+
     /**
      * 登录
      */
@@ -63,7 +100,7 @@ public class YDZAction extends BaseAction {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         HttpClient.getInstance().post("/portal/login/dologin.html", mPlatform.getHost())
                 .params("mobile", mParams.getAccount())
-                .params("user_pass", mParams.getPassword())
+                .params("user_pass", HelpUtil.encrypt(mParams.getPassword(),token))
                 .params("captcha",mParams.getVerifyCode())
                 .params("_captcha_id","LAY-user-get-vercode")
                 .headers("Cookie",mPlatform.getVerifyCodeCookie())
@@ -80,12 +117,12 @@ public class YDZAction extends BaseAction {
                             if ("登录成功！".equals(jsonObject.getString("msg"))) {    //登录成功
                                 List<String> list = response.headers().values("Set-Cookie");
                                 for (String str : list) {
-                                    cookie = str.substring(0, str.indexOf(";")) +mPlatform.getVerifyCodeCookie();
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
                                 }
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                getIndex();
                             } else {
                                 getVerifyCode(mPlatform);
                                 MyToast.error(jsonObject.getString("msg"));
@@ -106,12 +143,48 @@ public class YDZAction extends BaseAction {
                 });
     }
 
+
+    private void getIndex(){
+        HttpClient.getInstance().get("/portal/index/index.html", mPlatform.getHost())
+                .headers("Cookie",cookie)
+                .headers("Referer","http://www.127yjs.com/portal/index/index.html")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            taskToken = response.body().substring(response.body().indexOf("token=")+6,response.body().indexOf("token=")+70);
+                            startTask();
+                        } catch (Exception e) {
+                            stop();
+                            getVerifyCode(mPlatform);
+                            sendLog("接单异常");  //接单异常
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                    }
+                });
+    }
+
     /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/portal/index/dispatch.html", mPlatform.getHost())
-                .headers("Cookie",mPlatform.getVerifyCodeCookie())
+        String url = "";
+        if (mParams.getType().equals("1")){
+            url = "/api.php/home/index/index?token="+taskToken;
+        }else if (mParams.getType().equals("2")){
+            url = "/api.php/home/index/jd?token="+taskToken;
+        }
+        HttpClient.getInstance().post(url, "http://api.127yjs.com/")
+                .params("from","1")
+                .params("sec","2")
+                .headers("Cookie",cookie)
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("Referer","http://www.127yjs.com/portal/index/index.html")
@@ -122,7 +195,7 @@ public class YDZAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (obj.getInteger("code") != 0) {
+                            if (obj.getInteger("code") == 1) {
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.youdanzuo, 3000);
                                 addTask(mPlatform.getName());

@@ -108,9 +108,8 @@ public class AMAction extends BaseAction {
                 .params("type", 0)
                 .headers("Platform", "Android")
                 .headers("X-XSRF-TOKEN", xtoken)
-                .headers("X-Token", token)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("X-Requested-With", "com.lzy.lovemi")
                 .headers("Referer", "https://www.huimi123.com/login")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
@@ -240,13 +239,13 @@ public class AMAction extends BaseAction {
      */
     private void startTask() {
         {
-            HttpClient.getInstance().get("/v2/account/check-set", mPlatform.getHost())
+            HttpClient.getInstance().get("/buyer/order/check-set", mPlatform.getHost())
                     .headers("Platform", "Android")
                     .headers("X-XSRF-TOKEN", xtoken)
                     .headers("X-Token", token)
                     .headers("Cookie", cookie)
-                    .headers("X-Requested-With", "XMLHttpRequest")
-                    .headers("Referer", "https://www.huimi123.com/")
+                    .headers("X-Requested-With", "com.lzy.lovemi")
+                    .headers("Referer", "https://www.huimi123.com/switchaccount")
                     .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                     .execute(new StringCallback() {
                         @Override
@@ -256,6 +255,7 @@ public class AMAction extends BaseAction {
                                     .headers("X-XSRF-TOKEN", xtoken)
                                     .headers("X-Token", token)
                                     .headers("Cookie", cookie)
+                                    .headers("Referer","https://www.huimi123.com/robwelfare")
                                     .headers("X-Requested-With", "XMLHttpRequest")
                                     .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                                     .execute(new StringCallback() {
@@ -325,8 +325,8 @@ public class AMAction extends BaseAction {
                 .headers("X-XSRF-TOKEN", xtoken)
                 .headers("X-Token", token)
                 .headers("Cookie", cookie)
-                .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("Referer", "https://www.huimi123.com/")
+                .headers("X-Requested-With", "com.lzy.lovemi")
+                .headers("Referer", "https://www.huimi123.com/switchaccount")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; U; Android 8.0.0; zh-cn; MI 6 Build/OPR1.170623.027) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/61.0.3163.128 Mobile Safari/537.36 XiaoMi/MiuiBrowser/10.5.1")
                 .execute(new StringCallback() {
                     @Override

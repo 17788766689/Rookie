@@ -135,6 +135,7 @@ public class ZFZPDAction extends BaseAction {
                             }else{
                                 if(response.body().indexOf("检测中") != -1){
                                     btwaf = response.body().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
+                                    return;
                                 }
                                 JSONObject jsonObject = JSONObject.parseObject(response.body());
                                 if(1 == jsonObject.getInteger("status")){

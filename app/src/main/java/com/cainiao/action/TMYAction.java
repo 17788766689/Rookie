@@ -37,7 +37,7 @@ public class TMYAction extends BaseAction {
     private Random mRandom;
     private int count = 0;
     private String buyerId = "";
-    private String appid = "A6010957284142";
+    private String appid = "A604895728415127";
     @Override
     public void start(Platform platform) {
         if (platform == null) return;
@@ -59,10 +59,10 @@ public class TMYAction extends BaseAction {
     }
 
     private String getSign(Long time){
-        String clientId = "32422354D41A4E7814D0ACDF510D2167";
-        String clientSecret = "79C8F22AB0DD19B4A74F254A75887DAA";
-        String apikey = "TxRe@5_6A7a#e_8Fr5c1_36El@1a1_u7tFtr@Rg";
-        return Utils.md5(appid+clientId+clientSecret+apikey+time);
+        String clientId = "6DCD1E064A77590CF7478914C6900B3D";
+        String clientSecrect = "7AC7AF2C3598C13744949CB0625C3D3A";
+        String apiKey = "DtFr5#c1_36El@1a1_u7tFRtt_r@RgK9_hYfe@3S2";
+        return Utils.md5(appid+clientId+clientSecrect+apiKey+time);
     }
 
     /**
@@ -74,8 +74,8 @@ public class TMYAction extends BaseAction {
         HttpClient.getInstance().post("api/Login/LoginByMobile", mPlatform.getHost())
                 .params("Mobile", mParams.getAccount())
                 .params("PassWord", mParams.getPassword())
-                .params("client_id", "32422354D41A4E7814D0ACDF510D2167")
-                .params("client_secret", "79C8F22AB0DD19B4A74F254A75887DAA")
+                .params("client_id", "6DCD1E064A77590CF7478914C6900B3D")
+                .params("client_secret", "7AC7AF2C3598C13744949CB0625C3D3A")
                 .headers("Timetamp",n+"")
                 .headers("Sign",getSign(n))
                 .headers("AppId",appid)
@@ -175,7 +175,7 @@ public class TMYAction extends BaseAction {
                 .params("PlatId", 1)
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountId", buyerId)//报错的地方，这个mParams.getBuyerNum()为null了，判断一下，防止有时候买号获取不到的时候这里出错
-                .params("AppVersion","0.0.18")
+                .params("AppVersion","0.0.20")
                 .headers("Content-Type", "application/json")
                 .headers("Timetamp",n+"")
                 .headers("Sign",getSign(n))

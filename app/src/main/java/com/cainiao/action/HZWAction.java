@@ -134,8 +134,8 @@ public class HZWAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
 //                        LogUtil.e("response: " + response.body());
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONObject array = jsonObject.getJSONObject("data");
                             if (jsonObject.getInteger("code") == 0) {    //获取买号成功
+                                JSONObject array = jsonObject.getJSONObject("data");
                                 count = 1;
                                 lqTask(array.getString("taoname"),id);
                             } else { //无可用的买号

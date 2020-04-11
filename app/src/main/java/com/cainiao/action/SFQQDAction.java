@@ -191,6 +191,10 @@ public class SFQQDAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
+                            if(response.body().indexOf("login/kickout") != -1){
+                                sendLog("登录已过期,接单过程中请勿在其他地方登录");
+                                return;
+                            }
                             String str = response.body().substring(response.body().indexOf("==") + 2, response.body().length());
                             if(str != null && str.length() > 0){
                                 JSONObject obj = JSONObject.parseObject(str);

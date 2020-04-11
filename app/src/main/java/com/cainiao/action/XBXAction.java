@@ -64,6 +64,13 @@ public class XBXAction extends BaseAction {
     }
 
     /**
+     * 获取验证码
+     */
+    public void getVerifyCode(Platform platform) {
+        sendMsg("get_verifycode", "http://49.234.145.140/auth/getCaptcha?t=0."+new Date().getTime());
+    }
+
+    /**
      * 登录
      */
     private void login() {
@@ -71,6 +78,9 @@ public class XBXAction extends BaseAction {
         HttpClient.getInstance().post("/auth/userLogin", mPlatform.getHost())
                 .params("account", mParams.getAccount())
                 .params("password", mParams.getPassword())
+                .params("imageCode",mParams.getVerifyCode())
+                .params("deviceId","")
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -81,7 +91,6 @@ public class XBXAction extends BaseAction {
                             if ("success".equals(jsonObject.getString("msg"))) {    //登录成功
                                 sendLog("登录成功！");
                                 List<String> cookies = response.headers().values("Set-Cookie");
-                                System.out.println(JSON.toJSONString(cookies));
                                 for (String str : cookies) {
                                     cookie += str.substring(0, str.indexOf(";")) + ";";
                                 }
@@ -89,7 +98,8 @@ public class XBXAction extends BaseAction {
                                 updateParams(mPlatform);
                                 getAccount();
                             } else {
-                                MyToast.error(jsonObject.getString("msg")+",如果需要输入验证码,请先去官方登录一次");
+                                sendLog(jsonObject.getString("msg"));
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -105,8 +115,8 @@ public class XBXAction extends BaseAction {
      */
     private void getAccount() {
         HttpClient.getInstance().post("/user/userBindAccountList", mPlatform.getHost())
-                .params("isReview",1)
-                .headers("Cookie",cookie)
+                .params("type",1)
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -148,7 +158,9 @@ public class XBXAction extends BaseAction {
         HttpClient.getInstance().post("/user/getTaskOrderList", mPlatform.getHost())
                 .params("userAccountId",buyerId)
                 .params("sign","xx1")
-                .headers("Cookie",cookie)
+                .headers("Referer","http://49.234.145.140/user/goGameLobby")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -203,7 +215,9 @@ public class XBXAction extends BaseAction {
                 .params("accountId",buyerId)
                 .params("taskId",taskId)
                 .params("sign","xx1")
-                .headers("Cookie",cookie)
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
+                .headers("Referer","http://49.234.145.140/user/goGameLobby")
+                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override

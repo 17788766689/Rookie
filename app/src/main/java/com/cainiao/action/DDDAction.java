@@ -38,10 +38,7 @@ public class DDDAction extends BaseAction {
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
-        if(TextUtils.isEmpty(mPlatform.getCookie()) || !mPlatform.getCookie().contains("user=")){
-            sendLog("未登录...");
-            return;
-        }
+
 //        isStart = true;
 //        updatePlatform(mPlatform);
 //        updateStatus(platform, Const.AJW_VA);
@@ -52,8 +49,15 @@ public class DDDAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
-            startTask();
+            login();
         }
+    }
+
+    /**
+     * 获取验证码
+     */
+    public void getVerifyCode(Platform platform) {
+        sendMsg("get_verifycode", "http://www.027k8.com/Member/User/verify/"+new Date().getTime());
     }
 
     /**
@@ -64,8 +68,9 @@ public class DDDAction extends BaseAction {
         HttpClient.getInstance().post("/member/user/login.html", "http://www.027k8.com")
                 .params("mobile",mParams.getAccount())
                 .params("password",mParams.getPassword())
-                .params("j_verify",Utils.randomString(4))
+                .params("j_verify",mParams.getVerifyCode())
                 .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("Referer", "http://www.027k8.com/login.html")
                 .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
                 .execute(new StringCallback() {
@@ -106,7 +111,7 @@ public class DDDAction extends BaseAction {
     private void index(){
         callback = "jQuery11130"+Utils.getRandom(16)+"_"+new Date().getTime();
         HttpClient.getInstance().get("index", "http://www.027k8.com/")
-                .headers("Cookie",mPlatform.getCookie())
+                .headers("Cookie",cookie)
                 .headers("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -152,7 +157,7 @@ public class DDDAction extends BaseAction {
                 .params("tokey",tokey)
                 .params("callback",callback)
                 .params("_",new Date().getTime())
-                .headers("Cookie",mPlatform.getCookie())
+                .headers("Cookie",cookie)
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {

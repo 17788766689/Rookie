@@ -166,6 +166,13 @@ public class TQDAction extends BaseAction {
                             if (JSONObject.parseObject(response.body()).getString("message") != null && !JSONObject.parseObject(response.body()).getString("message").equals("")){
                                 sendLog(JSONObject.parseObject(response.body()).getString("message"));
                                 return;
+                            }else if (JSONObject.parseObject(response.body()).getString("message").equals("请完成当前订单")){
+
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.taoqiangdan, 3000);
+
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
                             }
                             JSONArray array = JSONObject.parseObject(response.body()).getJSONObject("data").getJSONObject("list").getJSONArray("data");
                             for (int i = 0, len = array.size(); i < len; i++) {

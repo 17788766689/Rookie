@@ -154,6 +154,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                         }
                     });  //callback后面的参数要写在这里，}和)之间，}之前的代码时callback里面的，不然就写在callback前面
                 }else if(mPlatform.getPageType() == 9){ //像单多多一样需要打开官网进行登录拿cookie的类型
+                    System.out.println("-------------------------------------");
                     startActivityForResult(new Intent(this, WebReceiptActivity.class)
                             .putExtra("url", mPlatform.getWebUrl())
                             .putExtra("position", position), WEB_RECEIPT_CODE);
@@ -380,7 +381,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_11;
                 }else if (TextUtils.equals(mPlatform.getName(), "黑马")) {
                     resId = R.array.receipt_type_14;
-                } else{
+                } else if (TextUtils.equals(mPlatform.getName(), "铁蚂蚁(派单)")) {
+                    resId = R.array.receipt_type_18;
+                } else {
                     resId = R.array.receipt_type_1;
                 }
                 break;
@@ -395,6 +398,9 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llReceiptType.setVisibility(View.GONE);
                 if (TextUtils.equals(mPlatform.getName(),"万象任务")){
                     llVerifyCode.setVisibility(View.VISIBLE);
+                }else if(TextUtils.equals(mPlatform.getName(),"小白象")){
+                    llVerifyCode.setVisibility(View.VISIBLE);
+                    if(mPlatform.isStart() == false)refreshLogView("如提示输入验证码再点获取验证码,如过没有提示可以不用去点直接登录",true);
                 }
                 break;
             case 4:  //代表平台：51赚钱 等（频率、买号、接单类型）
@@ -427,12 +433,12 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llReceiptType.setVisibility(View.GONE);
                 break;
             case 9:  //代表平台：单多多 等(频率、接单地址、接单类型）
-                resId = R.array.receipt_type_4;
                 llAccount.setVisibility(View.GONE);
                 llPwd.setVisibility(View.GONE);
                 llBuyerNum.setVisibility(View.GONE);
-                llComm.setVisibility(View.GONE);
-                llReceiptUrl.setVisibility(View.VISIBLE);
+                llComm.setVisibility(View.VISIBLE);
+                llReceiptType.setVisibility(View.GONE);
+                if(mPlatform.isStart() == false)refreshLogView("易筋经不支持卡佣金,可以在最小佣金选项框中设置最小【本金】,建议设置最小本金(佣金)为5左右",true);
                 break;
             case 10:  //代表平台：红苹果 等（频率、接单类型）
                 resId = R.array.receipt_type_5;
@@ -484,6 +490,10 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                     resId = R.array.receipt_type_16;
                 }else if(TextUtils.equals("单多多",mPlatform.getName())){
                     resId = R.array.receipt_type_4;
+                    llVerifyCode.setVisibility(View.VISIBLE);
+                }else if(TextUtils.equals("有单做",mPlatform.getName())){
+                    resId = R.array.receipt_type_3;
+                    llVerifyCode.setVisibility(View.VISIBLE);
                 }else{
                     resId = R.array.receipt_type_11;
                 }
@@ -752,7 +762,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
         if(requestCode != WEB_RECEIPT_CODE) return;
         getCurrPlatform(position);
         String cookie = mPlatform.getCookie();
-        if(!TextUtils.isEmpty(cookie) && cookie.contains("user=")){  //已经登录，开始抢单
+        if(!TextUtils.isEmpty(cookie) && (cookie.contains("user=") || cookie.contains("sessionid") )){  //已经登录，开始抢单
 //            LogUtil.e("cookie=====>" + cookie);
             setCurrPlatform(position, mPlatform);
             startReceipt();

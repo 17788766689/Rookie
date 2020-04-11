@@ -272,7 +272,7 @@ public class KXGAction extends BaseAction {
                                 type = 0;
                                 stop();
                             }else {
-                                HttpClient.getInstance().get("/task!waitresult.htm?version=338&imei=" + uuid +"&imeimsg=8;5.1.1&sign=0&userid=" + userId + "&token=" + token+"&stoken"+Utils.parmEncryption(), mPlatform.getHost())
+                                HttpClient.getInstance().get("/task!waitresult.htm?version=338&imei=" + uuid +"&imeimsg=8;5.1.1&sign=0&userid=" + userId + "&token=" + token+"&stoken="+Utils.parmEncryption(), mPlatform.getHost())
                                         .headers("Content-Type", "application/json")
                                         .execute(new StringCallback() {
                                             @Override

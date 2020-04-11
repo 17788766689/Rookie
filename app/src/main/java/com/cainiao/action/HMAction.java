@@ -119,7 +119,6 @@ public class HMAction extends BaseAction {
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
                                     if ("//cdn.heima911.com/binary/taobao_bind_ok.png".equals(tbData.get(i).select(".item-media").select("img").attr("src"))) {
                                         String href = tbData.get(i).select("a").attr("href");
-                                        System.out.println(href);
                                         href = href.substring(href.indexOf("=") + 1, href.length());
                                         if (count == 0) {
                                             mParams.setBuyerNum(new BuyerNum(href, tbData.get(i).select(".item-title-row").select(".item-title").text()));
