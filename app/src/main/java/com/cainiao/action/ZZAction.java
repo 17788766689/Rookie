@@ -59,28 +59,32 @@ public class ZZAction extends BaseAction {
      * 登录
      */
     private void login() {
-        HttpClient.getInstance().get("/iop/web/logionapp.html", mPlatform.getHost())
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+
+        sendLog(MyApp.getContext().getString(R.string.being_login));
+        HttpClient.getInstance().post("/iop/register/loginActApp", mPlatform.getHost())
+                .params("moblie", mParams.getAccount())
+                .params("password", mParams.getPassword())
+                .params("devicename","" )
+                .params("deviceid","" )
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Mobile Safari/537.36")
+                .headers("Origin", "http://xk.51zugeju.com")
+                .headers("Proxy-Connection", "keep-alive")
+                .headers("Referer", "http://xk.51zugeju.com/iop/web/logionapp.html")
+                .headers("X-Requested-With", "XMLHttpRequest")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            Document doc = Jsoup.parse(response.body());
-                            Elements taskToken = doc.select("input[name=tok]");
-                            token = taskToken.val();
-                        } catch (Exception e) {
-                            sendLog("登录异常");
-                        }
-                        sendLog(MyApp.getContext().getString(R.string.being_login));
-                        HttpClient.getInstance().post("/iop/register/loginActApp", mPlatform.getHost())
+                        token = response.body().toString().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
+                        System.out.println(token+"-------");
+                        HttpClient.getInstance().post("/iop/register/loginActApp?btwaf="+Integer.valueOf(token), mPlatform.getHost())
                                 .params("moblie", mParams.getAccount())
                                 .params("password", mParams.getPassword())
-                                .params("tok", token)
-                                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                                .headers("Origin", "http://yuntao.zhengfuz.com")
+                                .params("devicename","" )
+                                .params("deviceid","" )
+                                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Mobile Safari/537.36")
+                                .headers("Origin", "http://xk.51zugeju.com")
                                 .headers("Proxy-Connection", "keep-alive")
-                                .headers("Referer", "http://xmt.51zugeju.com/iop/web/logionapp.html")
+                                .headers("Referer", "http://xk.51zugeju.com/iop/web/logionapp.html?btwaf="+Integer.valueOf(token))
                                 .headers("X-Requested-With", "XMLHttpRequest")
                                 .execute(new StringCallback() {
                                     @Override

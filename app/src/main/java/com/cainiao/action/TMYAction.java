@@ -175,7 +175,7 @@ public class TMYAction extends BaseAction {
                 .params("PlatId", 1)
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountId", buyerId)//报错的地方，这个mParams.getBuyerNum()为null了，判断一下，防止有时候买号获取不到的时候这里出错
-                .params("AppVersion","0.0.20")
+                .params("AppVersion","0.0.21")
                 .headers("Content-Type", "application/json")
                 .headers("Timetamp",n+"")
                 .headers("Sign",getSign(n))
@@ -290,5 +290,9 @@ public class TMYAction extends BaseAction {
         //主动点击停止抢单，则还原初始状态。  注意：抢单成功之后不要直接调用stop方法，
         // 否则状态会变成初始状态而不是“抢单成功”的状态。抢单成功直接把isStart设为false即可
         updateStatus(mPlatform, Const.WGHS);
+    }
+
+    public static void main(String[] args) {
+
     }
 }

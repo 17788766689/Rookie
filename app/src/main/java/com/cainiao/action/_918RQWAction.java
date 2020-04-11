@@ -21,10 +21,17 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 import com.lzy.okgo.request.base.Request;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 /**
  * 918人气王
@@ -148,7 +155,64 @@ public class _918RQWAction extends BaseAction {
      */
     private void startTask() {
         long n = new Date().getTime();
-        HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
+
+        OkHttpClient okHttpClient = new OkHttpClient().newBuilder().followRedirects(true).build(); // OkHttpClient对象
+        RequestBody formBody = new FormBody.Builder().add("time",n+"").add("sign", Utils.md5("renqiwangjiamifangzhiwaigua" + Utils.md5("page=1&type=" + mParams.getType()) + n)).add("page", "1").add("type",mParams.getType()).build(); // 表单键值对
+        okhttp3.Request request = new okhttp3.Request.Builder().url(mPlatform.getHost()+"/api/assign/get_all_task").post(formBody)
+                .addHeader("Content-Type","application/json")
+                .addHeader("Authorization",token)
+                .addHeader("User-Agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .build(); // 请求
+        okHttpClient.newCall(request).enqueue(new Callback() {// 回调
+            public void onFailure(Call call, IOException e) {
+                if (isStart) {
+                    //取最小频率和最大频率直接的随机数值作为刷单间隔
+                    int period = mRandom.nextInt(mParams.getMaxFrequency() - mParams.getMinFrequency()) + mParams.getMinFrequency();
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            startTask();
+                        }
+                    }, period);
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, okhttp3.Response response) throws IOException {
+                String json = response.body().string();
+                try {
+                    if (TextUtils.isEmpty(json)) return;
+                    if (JSONObject.parseObject(json).getString("message") != null && !JSONObject.parseObject(json).getString("message").equals("")){
+                        sendLog(JSONObject.parseObject(json).getString("message"));
+                        return;
+                    }else if (JSONObject.parseObject(json).getString("message").equals("请完成当前订单")){
+
+                        receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw._918renqiwang, 3000);
+
+                        addTask(mPlatform.getName());
+                        updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                        isStart = false;
+                    }
+                    JSONArray array = JSONObject.parseObject(json).getJSONObject("data").getJSONObject("list").getJSONArray("data");
+                    for (int i = 0, len = array.size(); i < len; i++) {
+                        JSONObject object = array.getJSONObject(i);
+                        if (object.getIntValue("publish_status") == 0
+                                && Float.parseFloat(object.getString("brokerage")) >= mParams.getMinCommission()    //佣金金额大于最小佣金
+                                && Float.parseFloat(object.getString("return_money")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金
+                            sendLog(String.format(MyApp.getContext().getString(R.string.receipt_get_task), object.getString("return_money"), object.getString("brokerage")));
+                            lqTask(object.getString("id"));
+                            break;
+                        }
+                    }
+                    sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                } catch (Exception e) {
+                    sendLog("检测任务异常！");
+                }
+            }
+
+        });
+
+        /*HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("page", "1")
                 .params("type", mParams.getType())
@@ -160,7 +224,7 @@ public class _918RQWAction extends BaseAction {
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
-                        try {
+                        *//*try {
                             if (TextUtils.isEmpty(response.body())) return;
                             if (JSONObject.parseObject(response.body()).getString("message") != null && !JSONObject.parseObject(response.body()).getString("message").equals("")){
                                 sendLog(JSONObject.parseObject(response.body()).getString("message"));
@@ -187,7 +251,7 @@ public class _918RQWAction extends BaseAction {
                             sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
-                        }
+                        }*//*
                     }
 
                     @Override
@@ -210,7 +274,7 @@ public class _918RQWAction extends BaseAction {
                             }, period);
                         }
                     }
-                });
+                });*/
     }
 
 
