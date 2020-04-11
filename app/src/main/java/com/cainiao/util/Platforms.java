@@ -175,7 +175,6 @@ public class Platforms {
             //第二行
             mList.add(new Platform(new Params(5000, 8000), R.mipmap._918renqiwang, "918人气王", "io.dcloud.UNIE9BC8DE", "http://rqw.918money.cn", "https://fir.im/regy", "", 0, Const.BJSHA, 0, 0, new _918RQWAction()));
             mList.add(new Platform(new Params(4000, 5000), R.mipmap._51mangguopai, "51芒果派", "com._51mangguopai", "http://madou.fl1m.cn", "", "http://madou.fl1m.cn/login?returnUrl=/", 0, Const.BJSHA, 1, 2, new _51MGPAction()));
-            //mList.add(new Platform(new Params(0,0),R.mipmap._51zhuanqian, "51赚钱", "com.platform6", "", "", "",0, Const.TLSHE, 0, 4, null));
 //            //第三行
             mList.add(new Platform(new Params(5000, 8000), R.mipmap.aimi, "爱米", "com.lzy.lovemi", "https://www.huimi123.com", "", "https://www.huimi123.com/login", 0, Const.BJSHA, 0, 3, new AMAction()));
             mList.add(new Platform(new Params(60000, 65000), R.mipmap.baomatuan, "宝妈团", "com.baomatuan", "http://www.rongyao999.cn:8008", "", "http://www.rongyao999.cn:8008/Wap/UserLogin/Login", 0, Const.TLSHE, 1, 13, new BMTAction()));
