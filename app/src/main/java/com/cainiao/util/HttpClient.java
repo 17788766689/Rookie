@@ -14,6 +14,7 @@ import com.lzy.okgo.request.PostRequest;
 
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
 /**
@@ -22,7 +23,7 @@ import okhttp3.OkHttpClient;
 
 public class HttpClient {
 
-  private static final int TIMEOUT = 10000;
+  private static final int TIMEOUT = 5;
   private static HttpClient sInstance;
   private OkHttpClient mOkHttpClient;
   private String mLanguage;//语言
@@ -50,10 +51,10 @@ public class HttpClient {
     builder.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
     builder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
     builder.retryOnConnectionFailure(true);
-//        Dispatcher dispatcher = new Dispatcher();
-//        dispatcher.setMaxRequests(20000);
-//        dispatcher.setMaxRequestsPerHost(10000);
-//        builder.dispatcher(dispatcher);
+        Dispatcher dispatcher = new Dispatcher();
+        dispatcher.setMaxRequests(20000);
+        dispatcher.setMaxRequestsPerHost(10000);
+       builder.dispatcher(dispatcher);
 
     //输出HTTP请求 响应信息
     HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("http");

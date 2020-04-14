@@ -199,7 +199,7 @@ public class MGDDAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("继续检测任务");  //接单异常
                     }
 
                     @Override
@@ -247,7 +247,7 @@ public class MGDDAction extends BaseAction {
                                 sendLog(jsonObject.getString("message"));
                             }
                         } catch (Exception e) {
-                            sendLog("领取任务异常！");
+                            sendLog("领取任务超时！");
                         }
                     }
                 });

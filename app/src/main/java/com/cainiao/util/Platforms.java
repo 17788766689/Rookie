@@ -23,6 +23,7 @@ import com.cainiao.action.HLGAction;
 import com.cainiao.action.HMAction;
 import com.cainiao.action.HSSGTAction;
 import com.cainiao.action.HZWAction;
+import com.cainiao.action.JCYAction;
 import com.cainiao.action.JDMTAction;
 import com.cainiao.action.JLZAction;
 import com.cainiao.action.JNZAction;
@@ -152,6 +153,8 @@ public class Platforms {
             //第一行
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(派单)", "com.p3066672015", "https://api.damingduo.cn/", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYPDAction()));
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(抢单)", "com.p3066672015.rpm", "https://api.damingduo.cn/", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYAction()));
+            mList.add(new Platform(new Params(20000, 25000), R.mipmap.jucaiyuan, "聚财源", "com.jucaiyuan", "http://jcy.solid88.cn", "", "http://jcy.solid88.cn/login?returnUrl=/", 0, Const.BJSHA, 1, 2, new JCYAction()));
+//
             mList.add(new Platform(new Params(10000, 12000), R.mipmap.chouxiaoya, "丑小鸭", "com.chouxiaoya", "https://api.b5gw.cn:6448", "", "https://wx.b5gw.cn:6443/#/Login", 0, Const.TLSHE, 1, 13, new CXYAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.hongguan, "红馆", "com.hongguang.hg", "http://175.24.154.31", "http://175.24.154.12/", "", 0, Const.TLSHE, 0, 2, new HGAction()));
             mList.add(new Platform(new Params(32000, 35000), R.mipmap.zhiliao, "知了", "com.zhiliao.myapp", "http://27.159.65.16:27008", "http://wo-com.club/Q3WX", "http://27.159.65.16:9000/#/login", 0, Const.TLSHE, 1, 23, new ZLAction()));
@@ -169,9 +172,9 @@ public class Platforms {
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.heima, "黑马", "com.heima", "http://www.heima911.com", "", "http://www.heima911.com/mm/main", 0, Const.TLSHE, 1, 1, new HMAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaopingguopdd, "小苹果(拼多多)", "io.dcloud.UNIB205D0A", "http://hpg.918money.cn:82", "https://fir.im/s6qm", "", 0, Const.TLSHE, 0, 0, new XPGPDDAction()));
             mList.add(new Platform(new Params(4000, 5000), R.mipmap.xiaozhanggui, "小掌柜", "com.xiaozhanggui", "http://xzg.46137.cn/", "", "http://xzg.707607.cn/login?returnUrl=/", 0, Const.BJSHA, 1, 2, new XZGAction()));
-            mList.add(new Platform(new Params(5000, 8000), R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://bqd.918money.cn", "https://fir.im/tbrp", "", 0, Const.BJSHA, 0, 0, new HLGAction()));
-            mList.add(new Platform(new Params(5000, 8000), R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://tqd.918money.cn:81", "https://fir.im/l5y2", "", 0, Const.BJSHA, 0, 0, new TQDAction()));
-            mList.add(new Platform(new Params(5000, 8000), R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "http://bdf.918money.cn", "https://fir.im/r7na", "", 0, Const.BJSHA, 0, 0, new MGDDAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.huanlegou, "欢乐购", "io.dcloud.UNI89500DB", "http://bqd.918money.cn", "https://fir.im/tbrp", "", 0, Const.BJSHA, 0, 0, new HLGAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.taoqiangdan, "淘抢单", "io.dcloud.UNI55AAAAA", "http://tqd.918money.cn:81", "https://fir.im/l5y2", "", 0, Const.BJSHA, 0, 0, new TQDAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.mangguodingdong, "芒果叮咚", "io.dcloud.UNIE7AC320", "http://bdf.918money.cn", "https://fir.im/r7na", "", 0, Const.BJSHA, 0, 0, new MGDDAction()));
             //第二行
             mList.add(new Platform(new Params(5000, 8000), R.mipmap._918renqiwang, "918人气王", "io.dcloud.UNIE9BC8DE", "http://rqw.918money.cn", "https://fir.im/regy", "", 0, Const.BJSHA, 0, 0, new _918RQWAction()));
             mList.add(new Platform(new Params(4000, 5000), R.mipmap._51mangguopai, "51芒果派", "com._51mangguopai", "http://madou.fl1m.cn", "", "http://madou.fl1m.cn/login?returnUrl=/", 0, Const.BJSHA, 1, 2, new _51MGPAction()));

@@ -134,7 +134,7 @@ public class GYTAction extends BaseAction {
                                 stop();
                             }
                         } catch (Exception e) {
-                            sendLog("获取买号异常！");
+                            sendLog("继续检测任务");  //接单异常
                             stop();
                         }
                     }
