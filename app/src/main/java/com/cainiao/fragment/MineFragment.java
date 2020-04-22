@@ -52,6 +52,7 @@ public class MineFragment extends BaseFragment {
         mList.add(new Mine(R.mipmap._60x60, "购卡地址", "不推荐使用", "点我前往，仅限购买不到激活码的用户使用"));
         mList.add(new Mine(R.mipmap._60x60, "菜鸟抢单App", "下载地址", Const.OUTER_DOWNLOAD_URL));
         mList.add(new Mine(R.mipmap._60x60, "问题反馈", "点我跳转QQ", Const.SERVICE_QQ));
+        mList.add(new Mine(R.mipmap._60x60, "加平台点我", "", "需要加平台点我"));
         mList.add(new Mine(R.mipmap._60x60, "当前版本号", "", AppUtil.getVersionName(getActivity())));
     }
 
@@ -102,6 +103,9 @@ public class MineFragment extends BaseFragment {
                 if(AppUtil.isInstalled("com.tencent.mobileqq")){
                     AppUtil.openUrlInOuter(Const.SERVICE_URI);
                 }
+                break;
+            case 6:
+                AppUtil.openUrlInOuter(Const.ADD_PLATFORM);
                 break;
         }
     }

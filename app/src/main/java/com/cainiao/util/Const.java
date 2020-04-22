@@ -22,6 +22,7 @@ public class Const {
     public static String UPDATE_URL;
     public static String MESSAGE_URL;
 
+    public static String ADD_PLATFORM;
     public static String OUTER_BUY_URL;
     public static String OUTER_DOWNLOAD_URL;
     public static String SERVICE_QQ;
@@ -55,6 +56,7 @@ public class Const {
         BASE_USER_URL = HOST + "/user/";
         OUTER_BUY_URL = "http://www.kuaifaka.com/purchasing?link=3buO9";
         OUTER_DOWNLOAD_URL = "http://www.lanzous.com/b744695";
+        ADD_PLATFORM = "https://www.wenjuan.com/s/MjAVb2c/?share_device=m";
         SERVICE_QQ = "2240295974";
         SERVICE_URI = "mqqwpa://im/chat?chat_type=wpa&uin=" + SERVICE_QQ;
         SELECT_TOTAL = "selectTotal";
