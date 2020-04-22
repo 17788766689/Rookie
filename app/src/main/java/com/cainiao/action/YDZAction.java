@@ -38,6 +38,7 @@ public class YDZAction extends BaseAction {
     private String cookie = "";
     private String token = "";
     private String taskToken = "";
+    private String btwaf;
 
     @Override
     public void start(Platform platform) {
@@ -103,6 +104,7 @@ public class YDZAction extends BaseAction {
                 .params("user_pass", HelpUtil.encrypt(mParams.getPassword(),token))
                 .params("captcha",mParams.getVerifyCode())
                 .params("_captcha_id","LAY-user-get-vercode")
+               // .params("btwaf",btwaf)
                 .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
@@ -112,6 +114,11 @@ public class YDZAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
+                            if(response.body().indexOf("检测中") != -1){
+                                btwaf = response.body().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
+                                sendLog("登录失败,重新登录");
+                                return;
+                            }
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
                             if ("登录成功！".equals(jsonObject.getString("msg"))) {    //登录成功

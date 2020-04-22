@@ -8,11 +8,13 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.cache.CacheMode;
 import com.lzy.okgo.cookie.CookieJarImpl;
 import com.lzy.okgo.cookie.store.MemoryCookieStore;
+import com.lzy.okgo.https.HttpsUtils;
 import com.lzy.okgo.interceptor.HttpLoggingInterceptor;
 import com.lzy.okgo.request.GetRequest;
 import com.lzy.okgo.request.PostRequest;
 
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
@@ -23,7 +25,7 @@ import okhttp3.OkHttpClient;
 
 public class HttpClient {
 
-  private static final int TIMEOUT = 5;
+  private static final long TIMEOUT = 10000;
   private static HttpClient sInstance;
   private OkHttpClient mOkHttpClient;
   private String mLanguage;//语言
@@ -46,26 +48,19 @@ public class HttpClient {
 
   public void init() {
     OkHttpClient.Builder builder = new OkHttpClient.Builder();
-    builder.connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
+    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("OkGo");
+    loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
+    loggingInterceptor.setColorLevel(Level.INFO);
+    builder.addInterceptor(loggingInterceptor);
+
     builder.readTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
     builder.writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
-    builder.cookieJar(new CookieJarImpl(new MemoryCookieStore()));
-    builder.retryOnConnectionFailure(true);
-        Dispatcher dispatcher = new Dispatcher();
-        dispatcher.setMaxRequests(20000);
-        dispatcher.setMaxRequestsPerHost(10000);
-       builder.dispatcher(dispatcher);
+    builder.connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS);
 
-    //输出HTTP请求 响应信息
-    HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor("http");
-    loggingInterceptor.setPrintLevel(HttpLoggingInterceptor.Level.BODY);
-    builder.addInterceptor(loggingInterceptor);
+    HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory();
+    builder.sslSocketFactory(sslParams.sSLSocketFactory, sslParams.trustManager);
+    builder.hostnameVerifier(HttpsUtils.UnSafeHostnameVerifier);
     mOkHttpClient = builder.build();
-
-    OkGo.getInstance().init(MyApp.getContext())
-            .setOkHttpClient(mOkHttpClient)
-            .setCacheMode(CacheMode.NO_CACHE);
-
   }
 
   public GetRequest get(String serviceName, String baseUrl) {

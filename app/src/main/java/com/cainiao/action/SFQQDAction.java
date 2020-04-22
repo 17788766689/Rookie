@@ -184,7 +184,7 @@ public class SFQQDAction extends BaseAction {
                 .params("site", site)
                 .params("time", new Date().getTime())
                 .headers("Cookie",cookie)
-                .headers("Referer","http://19sf.cn/login")
+                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
                     @Override
@@ -269,7 +269,8 @@ public class SFQQDAction extends BaseAction {
                 .params("vestid",vestid)
                 .params("listid",listid)
                 .headers("Cookie",cookie)
-                .headers("Referer","http://19sf.cn/login")
+                .headers("Referer","http://19sf.cn/myssionhall/multidaygame/v?=201903151051")
+                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Content-Type", "application/json")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {

@@ -148,7 +148,7 @@ public class TANGSENGAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             if ("0000".equals(jsonObject.getString("errorCode"))) {    //接单成功
                                 sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jucaiyuan, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.tansen, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

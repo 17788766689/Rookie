@@ -1,5 +1,7 @@
 package com.cainiao.action;
 
+import android.content.SyncStatusObserver;
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -10,24 +12,28 @@ import com.cainiao.base.MyApp;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
-import com.cainiao.util.HYNCUtils;
 import com.cainiao.util.HttpClient;
+import com.cainiao.util.Utils;
 import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
- * 养乐多
+ * 机器猫
  */
-public class YLDAction extends BaseAction {
+public class JQMAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
+    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
-    private String cookie = "";
+    private String token;
+    private String btwaf;
 
     @Override
     public void start(Platform platform) {
@@ -50,27 +56,39 @@ public class YLDAction extends BaseAction {
     }
 
     /**
+     * 获取验证码
+     */
+    public void getVerifyCode(Platform platform) {
+        sendMsg("get_verifycode", "http://xiao.toponeculture.xyz/captcha.html");
+    }
+
+    /**
      * 登录
      */
     private void login() {
-        String r = HYNCUtils.md5("account"+mParams.getAccount()+"password"+mParams.getPassword()+"~244!@#~$$~");
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/user/login", mPlatform.getHost())
-                .params("account", mParams.getAccount())
+        HttpClient.getInstance().post("home/register/loginActApp", mPlatform.getHost())
+                .params("moblie", mParams.getAccount())
                 .params("password", mParams.getPassword())
-                .headers("Cookie","tmp_cc="+r)
-                .headers("Referer","http://wx.cqytjsgc.com/wap/")
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36")
+                .params("captcha",mParams.getVerifyCode())
+                .params("deviceid", Utils.md5(Build.DEVICE + Build.SERIAL))
+                .params("devicename", Build.BRAND + " " + Build.MODEL + " Android " + Build.VERSION.RELEASE + " SDK " + Build.VERSION.SDK_INT)
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045132 Mobile Safari/537.36 MMWEBID/3768 MicroMessenger/7.0.13.1640(0x27000D36) Process/tools NetType/WIFI Language/zh_CN ABI/arm64 WeChat/arm32")
+                .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("msg"));
                             if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
-                                cookie = jsonObject.getJSONObject("data").getString("token");
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                                }
+                                cookie.replace("cookie_deviceid","PHPSESSID");
+                                System.out.println(cookie);
+                                sendLog("登录成功");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
@@ -80,44 +98,52 @@ public class YLDAction extends BaseAction {
                                 stop();
                             }
                         } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
-                            sendLog("登录异常");  //接单异常
                         }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
                     }
                 });
     }
+
 
     /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/task", mPlatform.getHost())
-                .headers("Auth-Token", cookie)
-                .headers("Referer", "http://wx.cqytjsgc.com/home/")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 8.0.0; Pixel 2 XL Build/OPD1.170816.004) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Mobile Safari/537.36")
+        if (isStart == false){
+            return;
+        }
+        String type = "0";
+        if (mParams.getType().equals("1")){
+            type = "0";
+        }else{
+            type = "1";
+        }
+        HttpClient.getInstance().get("home/index/jqmindex?type=1", mPlatform.getHost())
+                .headers("Referer","http://xiao.toponeculture.xyz/home/index/index?change="+type)
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045132 Mobile Safari/537.36 MMWEBID/3768 MicroMessenger/7.0.13.1640(0x27000D36) Process/tools NetType/WIFI Language/zh_CN ABI/arm64 WeChat/arm32")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Cookie", "PHPSESSID=845q8djognavc2ckf02egeofeh; uid=1601; cookie_name=13278008800; cookie_psw=guojiawei; changepayfor=0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject obj = JSONObject.parseObject(response.body());
-                            if (obj.getString("msg").equals("领取成功")) {
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.damuniuniu, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(obj.getString("msg"));  //继续检测任务
+                            if (TextUtils.isEmpty(response.body())) {
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            }else{
+                                JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                if(1 == jsonObject.getInteger("status")){
+                                    sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jiqimao, 3000);
+                                    addTask(mPlatform.getName());
+                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                    isStart = false;
+                                }else{
+                                    sendLog(jsonObject.getString("msg"));
+                                }
                             }
                         } catch (Exception e) {
-                            sendLog("检测任务异常");  //接单异常
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -143,6 +169,7 @@ public class YLDAction extends BaseAction {
                     }
                 });
     }
+
 
 
     @Override
