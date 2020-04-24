@@ -141,7 +141,7 @@ public class ZZAction extends BaseAction {
                                     stop();
                                 }
                             } catch (Exception e) {
-                                sendLog("登录异常！");
+                                sendLog("如果一直异常.请点击app内或者浏览器打开宅仔输入验证码");
                                 stop();
                             }
                         }
@@ -164,7 +164,7 @@ public class ZZAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         if (response.body().indexOf("btwaf") != -1){
                             token = response.body().toString().substring(response.body().indexOf("btwaf=")+6,response.body().indexOf("btwaf=")+14);
-                            HttpClient.getInstance().post("/iop/index/autoindex?type="+mParams.getType()+"&btwaf="+Integer.valueOf(token), mPlatform.getHost())
+                            HttpClient.getInstance().post("/iop/index/autoindex?type="+mParams.getType()+"&btwaf="+token, mPlatform.getHost())
                                     .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Mobile Safari/537.36")
                                     .headers("Referer", "http://xk.51zugeju.com/iop/index/index")
                                     .headers("X-Requested-With", "XMLHttpRequest")
@@ -187,7 +187,7 @@ public class ZZAction extends BaseAction {
                                                     }
                                                 }
                                             } catch (Exception e) {
-                                                sendLog("检测任务异常！");
+                                                sendLog("如果一直异常.请点击app内或者浏览器打开宅仔输入验证码");
                                             }
                                         }
                                     });

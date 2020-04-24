@@ -65,6 +65,7 @@ import com.cainiao.action.WDBAction;
 import com.cainiao.action.WWDAction;
 import com.cainiao.action.XBXAction;
 import com.cainiao.action.XHZAction;
+import com.cainiao.action.XIAOHZAction;
 import com.cainiao.action.XIAOJLAction;
 import com.cainiao.action.XJLAction;
 import com.cainiao.action.XLAction;
@@ -329,10 +330,10 @@ public class Platforms {
             mList.add(new Platform(new Params(6000, 8000), R.mipmap.dianjinyiyou, "电竞艺游", "com.dianjinyiyouPD", "http://xmt.51zugeju.com", "", "http://xmt.51zugeju.com/iop/index/index", 1, Const.TLSHE, 1, 15, new DJYYPDAction()));
             mList.add(new Platform(new Params(20000, 25000), R.mipmap.meiliriji, "美丽日记", "com.meiliriji", "http://www.838304.cn", "", "http://www.838304.cn/home/index.html#/", 1, Const.TLSHE, 1, 15, new MLRJAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.maitian, "麦田", "io.dcloud.yuji1548", "http://www.sswxt.com/com", "https://fir.im/k2tw", "", 1, Const.TLSHE, 3, 22, new MTAction()));
-            mList.add(new Platform(new Params(3000, 5000), R.mipmap.zhaizai, "宅仔", "com.zhaizai", "http://xk.51zugeju.com", "", "http://xk.51zugeju.com/iop/web/logionapp.html", 1, Const.TLSHE, 1, 15, new ZZAction()));
+            mList.add(new Platform(new Params(8000, 10000), R.mipmap.zhaizai, "宅仔", "com.zhaizai", "http://xk.51zugeju.com", "", "http://xk.51zugeju.com/iop/web/logionapp.html", 1, Const.TLSHE, 1, 15, new ZZAction()));
            mList.add(new Platform(new Params(3000, 5000), R.mipmap.yijingjin, "易筋经", "com.yijingjin", "https://yijingjin.club", "", "https://yijingjin.club/", 1, Const.TLSHE, 1, 9, new YJJAction()));
             mList.add(new Platform(new Params(3000, 5000), R.mipmap.jiqimao, "机器猫", "com.jiqimao", "http://xiao.toponeculture.xyz/", "", "http://xiao.toponeculture.xyz/home/web/login.html", 1, Const.TLSHE, 1, 15, new JQMAction()));
-
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaohouzi, "小猴子", "com.xiaohouzi", "https://lm.da-k.com/", "", "https://lm.da-k.com/index/login.html", 1, Const.TLSHE, 1, 7, new XIAOHZAction()));
             initLatestStatus();
         }
         return mList;
