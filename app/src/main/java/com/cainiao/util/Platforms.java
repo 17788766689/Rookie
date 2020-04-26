@@ -25,6 +25,7 @@ import com.cainiao.action.HSSGTAction;
 import com.cainiao.action.HZWAction;
 import com.cainiao.action.JCYAction;
 import com.cainiao.action.JDMTAction;
+import com.cainiao.action.JHQAction;
 import com.cainiao.action.JLZAction;
 import com.cainiao.action.JNZAction;
 import com.cainiao.action.JQMAction;
@@ -156,6 +157,7 @@ public class Platforms {
             //第一行
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(派单)", "com.p3066672015", "https://api.damingduo.cn/", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYPDAction()));
             mList.add(new Platform(new Params(12000, 15000), R.mipmap.tiemayi, "铁蚂蚁(抢单)", "com.p3066672015.rpm", "https://api.damingduo.cn/", "", "http://www.3318pk.com/invite/register.html?rCode=60645053", 0, Const.BLSA, 2, 1, new TMYAction()));
+        mList.add(new Platform(new Params(5000, 8000), R.mipmap.jianghuquan, "江湖圈", "com.jianghuquan", "http://www.177wt.cn:8888", "", "http://www.177wt.cn/order-client/page/login/login.html?from=2", 0, Const.TLSHE, 1, 7, new JHQAction()));
             mList.add(new Platform(new Params(2000, 4000), R.mipmap.tangseng  , "唐僧", "com.tangseng", "http://ts.tangsengshuo.shop", "", "http://ts.tangsengshuo.shop/home/initLogin.do", 0, Const.TLSHE, 1, 2, new TANGSENGAction()));
             mList.add(new Platform(new Params(20000, 25000), R.mipmap.jucaiyuan, "聚财源", "com.jucaiyuan", "http://jcy.solid88.cn", "", "http://jcy.solid88.cn/login?returnUrl=/", 0, Const.BJSHA, 1, 2, new JCYAction()));
 //
