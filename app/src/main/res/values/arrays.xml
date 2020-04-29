@@ -129,4 +129,12 @@
         <item>淘宝</item>
         <item>京东</item>
     </string-array>
+
+    <!--小猴子-->
+    <string-array name="receipt_type_20">
+        <item>全部</item>
+        <item>普通</item>
+        <item>隔日</item>
+        <item>浏览</item>
+    </string-array>
 </resources>

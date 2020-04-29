@@ -107,7 +107,7 @@ public class XMGAction extends BaseAction {
                                                 stop();
                                             }
                                         } catch (Exception e) {
-                                            sendLog("登录异常！");
+                                            sendLog("如果一直异常,请停止接单,点击app内或者浏览器打开小蘑菇输入验证码");
                                             stop();
                                         }
                                     }
@@ -157,7 +157,7 @@ public class XMGAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("如果一直异常,请停止接单,点击app内或者浏览器打开小蘑菇输入验证码");
                     }
 
                     @Override

@@ -116,7 +116,7 @@ public class JHQAction extends BaseAction {
                                 isStart = false;
                             }else if( "您已经有任务在进行请完成后再来".equals(obj.getString("returnMsg"))){
                                 sendLog("接单成功");
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.muguakeji, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jianhuquan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;

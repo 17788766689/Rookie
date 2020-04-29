@@ -6,8 +6,8 @@ android {
         applicationId "com.cainiao"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 73
-        versionName "1.8.1"
+        versionCode 75
+        versionName "1.8.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -44,7 +44,7 @@ dependencies {
     implementation ('com.zhousf.lib:okhttp3:2.9.6'){
         exclude(module: 'support-annotations')
     }
-    implementation 'com.lzy.net:okgo:3.0.4'
+//    implementation 'com.lzy.net:okgo:3.0.4'
     //OkGo上传下载扩展库hss01248
     implementation 'com.lzy.net:okserver:2.0.5'
     implementation 'com.alibaba:fastjson:1.1.70.android'

@@ -69,6 +69,10 @@ public class MainActivity extends BaseActivity {
         IntentFilter filter = new IntentFilter(Const.STATUS_ACTION);
         registerReceiver(mReceiver,filter);
         updateCommonPlatforms();
+        if(mServiceIntent == null){  //启动保活服务
+            mServiceIntent = new Intent(this, KeepAliveService.class);
+            startService(mServiceIntent);
+        }
     }
 
     /**
@@ -140,25 +144,6 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if(mServiceIntent != null){
-            stopService(mServiceIntent);
-            mServiceIntent = null;
-        }
-    }
-
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(mServiceIntent == null){
-            mServiceIntent = new Intent(this, KeepAliveService.class);
-            startService(mServiceIntent);
-        }
-    }
-
-    @Override
     protected void onDestroy() {
         super.onDestroy();
         DialogUtil.get().closeAlertDialog();
@@ -166,6 +151,11 @@ public class MainActivity extends BaseActivity {
         if(mReceiver != null){
             unregisterReceiver(mReceiver);
             mReceiver = null;
+        }
+
+        if(mServiceIntent != null){
+            stopService(mServiceIntent);
+            mServiceIntent = null;
         }
     }
 

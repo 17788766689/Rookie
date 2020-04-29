@@ -116,7 +116,14 @@ public class ZZAction extends BaseAction {
                                                 stop();
                                             }
                                         }
+
+                                        @Override
+                                        public void onError(Response<String> response) {
+                                            super.onError(response);
+                                            sendLog("如果一直异常,请停止接单,点击app内或者浏览器打开宅仔输入验证码");
+                                        }
                                     });
+
                         }else {
                             try {
                                 if (TextUtils.isEmpty(response.body())) return;
@@ -141,12 +148,13 @@ public class ZZAction extends BaseAction {
                                     stop();
                                 }
                             } catch (Exception e) {
-                                sendLog("如果一直异常.请点击app内或者浏览器打开宅仔输入验证码");
+                                sendLog("如果一直异常,请停止接单,点击app内或者浏览器打开宅仔输入验证码");
                                 stop();
                             }
                         }
                     }
                 });
+
     }
 
     /**
@@ -187,7 +195,7 @@ public class ZZAction extends BaseAction {
                                                     }
                                                 }
                                             } catch (Exception e) {
-                                                sendLog("如果一直异常.请点击app内或者浏览器打开宅仔输入验证码");
+                                                sendLog("如果一直异常,请停止接单,点击app内或者浏览器打开宅仔输入验证码");
                                             }
                                         }
                                     });
@@ -215,7 +223,7 @@ public class ZZAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("请点击浏览器打开宅仔然后输入验证码就可以了");
                     }
 
                     @Override

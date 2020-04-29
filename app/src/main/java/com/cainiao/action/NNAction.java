@@ -4,10 +4,12 @@ import android.os.Handler;
 import android.text.TextUtils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
 import com.cainiao.base.MyApp;
+import com.cainiao.bean.BuyerNum;
 import com.cainiao.bean.Params;
 import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
@@ -16,18 +18,18 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
-import java.util.HashMap;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-
 /**
- * 小猴子
+ * 闹闹
  */
-public class XIAOHZAction extends BaseAction {
+public class NNAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private String cookie = "";
@@ -47,7 +49,6 @@ public class XIAOHZAction extends BaseAction {
 
         if (!isStart) {    //未开始抢单
             isStart = true;
-            cookie = "";
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
@@ -60,30 +61,22 @@ public class XIAOHZAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("Index/logindo.html", mPlatform.getHost())
-                .params("TxtName",mParams.getAccount())
-                .params("TxtPWD",mParams.getPassword())
-                .headers("Content-Type", "application/json")
-                .headers("Referer","https://lm.da-k.com/index/login.html")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045132 Mobile Safari/537.36 MMWEBID/3768 MicroMessenger/7.0.13.1640(0x27000D36) Process/tools NetType/WIFI Language/zh_CN ABI/arm64 WeChat/arm32")
+        HttpClient.getInstance().post("public/index.php/apis/login", mPlatform.getHost())
+                .params("user", mParams.getAccount())
+                .params("pass", mParams.getPassword())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            if (response.body().indexOf("登陆成功") != -1) {    //登录成功
-                                sendLog("登录成功！");
-                                List<String> cookies = response.headers().values("Set-Cookie");
-                                for (String str : cookies) {
-                                    cookie += str.substring(0, str.indexOf(";")) + ";";
-                                }
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("msg"));
+                            if (jsonObject.getInteger("errno") == 0) {    //登录成功
+                                cookie = jsonObject.getJSONObject("data").getString("uid");
                                 updateParams(mPlatform);
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                getAccount();
                             } else {
-                                sendLog("账号密码错误");
-                                MyToast.error("账号密码错误");
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -95,23 +88,67 @@ public class XIAOHZAction extends BaseAction {
     }
 
     /**
+     * 获取买号
+     */
+    private void getAccount() {
+        HttpClient.getInstance().post("/public/index.php/apis/total_wang", mPlatform.getHost())
+                .params("uid",cookie)
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+
+                            JSONArray array = jsonObject.getJSONArray("data");
+                            if (array.size() > 0) {    //获取买号成功
+                                JSONObject obj = array.getJSONObject(0); ////默认使用第一个买号
+                                mParams.setBuyerNum(new BuyerNum(obj.getString("wangwang"), obj.getString("wangwang")));
+                                List<BuyerNum> list = new ArrayList<>();
+                                for (int i = 0, len = array.size(); i < len; i++) {
+                                    obj = array.getJSONObject(i);
+                                    list.add(new BuyerNum(obj.getString("wangwang"), obj.getString("wangwang")));
+                                }
+                                showBuyerNum(JSON.toJSONString(list));
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
+                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                updateStatus(mPlatform, 3); //正在接单的状态
+                                startTask();
+                            } else { //无可用的买号
+                                sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
+                                stop();
+                            }
+                        } catch (Exception e) {
+                            sendLog("获取买号异常！");
+                            stop();
+                        }
+                    }
+                });
+    }
+
+    /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("task/tasklist.html", mPlatform.getHost())
-                .headers("Cookie",cookie)
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/66.0.3359.126 MQQBrowser/6.2 TBS/045132 Mobile Safari/537.36 MMWEBID/3768 MicroMessenger/7.0.13.1640(0x27000D36) Process/tools NetType/WIFI Language/zh_CN ABI/arm64 WeChat/arm32")
+        if (isStart == false)return;
+        HttpClient.getInstance().post("/public/index.php/apis/pai_dan", mPlatform.getHost())
+                .params("uid",cookie)
+                .params("wang", mParams.getBuyerNum().getId())
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject array = JSONObject.parseObject(response.body());
-                            if (array.getIntValue("total") > 0) {
-                                sendLog("检测到任务领取中...");
-                                lqTask(String.valueOf(array.getJSONArray("data").getJSONObject(0).getIntValue("taskId")));
+                            if (array.getInteger("errno") == 3) {
+                                sendLog(array.getString("msg"));
+                                sendLog("接单成功");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.naonao, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
                             } else {
-                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                                sendLog(array.getString("msg"));  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -141,36 +178,6 @@ public class XIAOHZAction extends BaseAction {
                 });
     }
 
-    /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/chaoshua/app/user/mission/submit/" + taskId + "/Android", mPlatform.getHost())
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Mobile Safari/537.36")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if ("success".equals(jsonObject.getString("msg"))) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xiaolanshu, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(jsonObject.getString("msg"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
 
 
     @Override

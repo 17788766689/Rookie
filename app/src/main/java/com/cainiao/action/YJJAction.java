@@ -46,7 +46,6 @@ public class YJJAction extends BaseAction {
 
     @Override
     public void start(Platform platform) {
-        System.out.println("aaaaaa");
         if (platform == null) return;
         mPlatform = platform;
         mParams = platform.getParams();
@@ -59,6 +58,7 @@ public class YJJAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            count = 0;
             cookie = "";
             isStart = true;
             mHandler = new Handler();
@@ -74,9 +74,9 @@ public class YJJAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().get("/mall/task/list/", mPlatform.getHost())
+        HttpClient.getInstance().get("/mall/task/list_get/", mPlatform.getHost())
                 .headers("Cookie",mPlatform.getCookie())
-                .headers("Referer","https://yijingjin.club/mall/task/list/")
+                .headers("Referer","https://yijingjin.club/mall/task/list_get/")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
@@ -93,7 +93,7 @@ public class YJJAction extends BaseAction {
                                    Double yj = Double.parseDouble(tbData.get(i).select("a").select(".num").text().replaceAll(" ",""));
                                    if (yj>=mParams.getMinCommission() && mParams.getMaxPrincipal() >= yj){
                                         sendLog("检测到任务领取中");
-                                        id = id.substring(id.indexOf("info/")+5,id.length()-1);
+                                        id = id.substring(id.indexOf("info_get/")+9,id.length()-1);
                                         lqTask(id);
                                     }else{
                                        sendLog("佣金:"+yj+",不符合要求,已自动过滤");
@@ -148,15 +148,16 @@ public class YJJAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getIntValue("code") == 200 ) {    //接单成功
+                            if (jsonObject.getIntValue("code") == 200 || "有未完成的订单".equals(jsonObject.getString("message") )) {    //接单成功
                                 if (count == 0) {
                                     sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
                                     receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.yijinjing, 3000);
                                     addTask(mPlatform.getName());
                                     updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                     isStart = false;
+                                    count++;
                                 }
-                                count++;
+
                             } else {
                                 sendLog(jsonObject.getString("message"));
                             }

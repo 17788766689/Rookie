@@ -497,6 +497,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 }else if(TextUtils.equals("有单做",mPlatform.getName())){
                     resId = R.array.receipt_type_3;
                     llVerifyCode.setVisibility(View.VISIBLE);
+                }else if(TextUtils.equals("小猴子",mPlatform.getName())){
+                    resId = R.array.receipt_type_20;
                 }else{
                     resId = R.array.receipt_type_11;
                 }
