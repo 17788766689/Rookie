@@ -62,6 +62,43 @@ public class MGDDAction extends BaseAction {
         }
     }
 
+    /**
+     * 获取信息
+     */
+    private void getInfo() {
+        long n = new Date().getTime();
+        sendLog(MyApp.getContext().getString(R.string.being_login));
+        Request request = HttpClient.getInstance().post("/api/index/get_user_info", mPlatform.getHost());
+        request.params("mobile", mParams.getAccount())
+                .params("password", Utils.md5(mParams.getPassword()))
+                .params("device_version", "")
+                .params("time",n)
+                .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
+        request.headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920");
+        request.execute(new StringCallback() {
+            @Override
+            public void onSuccess(Response<String> response) {
+                try {
+                    if (TextUtils.isEmpty(response.body())) return;
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    sendLog(jsonObject.getString("message"));
+                    if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                        updateParams(mPlatform);
+                        token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                        getAccount();
+                    } else {
+                        MyToast.error(jsonObject.getString("message"));
+                        stop();
+                    }
+                } catch (Exception e) {
+                    sendLog("登录异常！");
+                    stop();
+                }
+            }
+        });
+    }
+
+
 
     /**
      * 登录

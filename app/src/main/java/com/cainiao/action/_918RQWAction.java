@@ -73,32 +73,32 @@ public class _918RQWAction extends BaseAction {
         sendLog(MyApp.getContext().getString(R.string.being_login));
         Request request = HttpClient.getInstance().post("/api/index/login", mPlatform.getHost());
         request.params("mobile", mParams.getAccount())
-               .params("password", Utils.md5(mParams.getPassword()))
-               .params("device_version", "")
+                .params("password", Utils.md5(mParams.getPassword()))
+                .params("device_version", "")
                 .params("time",n)
                 .params("sign", Utils.md5("youqianyiqizhuanyoumengyiqizuo" + Utils.md5("device_version=&mobile="+mParams.getAccount()+"&password="+Utils.md5(mParams.getPassword())) + n));
-        request.headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920");
+        request.headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920");
         request.execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("message"));
-                            if (jsonObject.getIntValue("code") == 1) {    //登录成功
-                                updateParams(mPlatform);
-                                token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
-                                getAccount();
-                            } else {
-                                MyToast.error(jsonObject.getString("message"));
-                                stop();
-                            }
-                        } catch (Exception e) {
-                            sendLog("登录异常！");
-                            stop();
-                        }
+            @Override
+            public void onSuccess(Response<String> response) {
+                try {
+                    if (TextUtils.isEmpty(response.body())) return;
+                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                    sendLog(jsonObject.getString("message"));
+                    if (jsonObject.getIntValue("code") == 1) {    //登录成功
+                        updateParams(mPlatform);
+                        token = jsonObject.getJSONObject("data").getJSONObject("token").getString("token");
+                        getAccount();
+                    } else {
+                        MyToast.error(jsonObject.getString("message"));
+                        stop();
                     }
-                });
+                } catch (Exception e) {
+                    sendLog("登录异常！");
+                    stop();
+                }
+            }
+        });
     }
 
     /**
@@ -113,7 +113,7 @@ public class _918RQWAction extends BaseAction {
                 .params("time", n)
                 .headers("Authorization", token)
                 .headers("Content-Type", "application/json")
-                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -154,8 +154,8 @@ public class _918RQWAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
+        if (isStart == false)return;
         long n = new Date().getTime();
-
         HttpClient.getInstance().post("/api/assign/get_all_task", mPlatform.getHost())
                 .headers("Authorization", token)
                 .params("page", "1")
@@ -164,7 +164,7 @@ public class _918RQWAction extends BaseAction {
                 .params("time", n)
                 .headers("Content-Type", "application/json")
                 .headers("Authorization", token)
-                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -175,7 +175,7 @@ public class _918RQWAction extends BaseAction {
                                 return;
                             }else if (JSONObject.parseObject(response.body()).getString("message").equals("请完成当前订单")){
 
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw._918renqiwang, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.manguodingdon, 3000);
 
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
@@ -201,7 +201,7 @@ public class _918RQWAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("继续检测任务");  //接单异常
                     }
 
                     @Override
@@ -221,8 +221,6 @@ public class _918RQWAction extends BaseAction {
                 });
     }
 
-
-
     /**
      * 领取任务
      *
@@ -237,7 +235,7 @@ public class _918RQWAction extends BaseAction {
                 .params("time", n)
                 .headers("Content-Type", "application/json")
                 .headers("Authorization", token)
-                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
 
                     @Override
@@ -251,7 +249,7 @@ public class _918RQWAction extends BaseAction {
                                 sendLog(jsonObject.getString("message"));
                             }
                         } catch (Exception e) {
-                            sendLog("领取任务异常！");
+                            sendLog("领取任务超时！");
                         }
                     }
                 });
@@ -269,7 +267,7 @@ public class _918RQWAction extends BaseAction {
                 .params("time", n)
                 .headers("Content-Type", "application/json")
                 .headers("Authorization", token)
-                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE9BC8DE/1.0.1) Weex/0.26.0 1080x1920")
+                .headers("user-agent","15(Android/7.1.1) (io.dcloud.UNIE7AC320/1.0.1) Weex/0.26.0 1080x1920")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {

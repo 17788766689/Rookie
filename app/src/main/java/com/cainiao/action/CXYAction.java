@@ -70,14 +70,14 @@ public class CXYAction extends BaseAction {
      * 获取验证码
      */
     public void getVerifyCode(Platform platform) {
-        HttpClient.getInstance().get("/#/Login?time=" + new Date().getTime(), "https://wx.b5gw.cn:6443/")
+        HttpClient.getInstance().get("/#/Login?time=" + new Date().getTime(), "https://wx.iqryznl.cn:6443")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         if (TextUtils.isEmpty(response.body())) return;
                         yzmKey = Utils.getUuid();
-                        String imgUrl = "https://api.b5gw.cn:6448/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
+                        String imgUrl = "https://api.iqryznl.cn:6448/captcha/gen_img?key=" + yzmKey + "&time=" + new Date();
                         sendMsg("get_verifycode", imgUrl);
                     }
                 });

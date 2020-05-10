@@ -55,7 +55,7 @@ public class WebReceiptActivity extends BaseActivity {
                 String cookie = manager.getCookie(url);
 //                LogUtil.e("cookie: " + cookie);
                 super.onPageFinished(view, url);
-                if(!TextUtils.isEmpty(cookie) && (cookie.contains("user=") || cookie.contains("sessionid"))){ //cookie里包含user_id，则说明已经登录，此时关闭对话框
+                if(!TextUtils.isEmpty(cookie) && (cookie.contains("user=") || cookie.contains("sessionid") || cookie.contains("home_user_name") || cookie.contains("ASP.NET_SessionId"))){ //cookie里包含user_id，则说明已经登录，此时关闭对话框
                     mPlatform.setCookie(cookie);
                     MyToast.info("如果已经登录直接按返回键关闭弹窗就可以了");
                 }

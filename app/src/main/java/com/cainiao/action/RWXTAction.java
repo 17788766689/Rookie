@@ -16,19 +16,20 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
- * 油麦菜
+ * 江湖圈
  */
-public class YMCAction extends BaseAction {
+public class RWXTAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
     private String cookie = "";
-    private String prot = ":";
 
     @Override
     public void start(Platform platform) {
@@ -49,30 +50,40 @@ public class YMCAction extends BaseAction {
         }
     }
 
-
     /**
      * 登录
      */
     private void login() {
-        HttpClient.getInstance().post("/index.php?g=Wap&m=Login&a=dologin", mPlatform.getHost())
-                .params("username", mParams.getAccount())
-                .params("password", "###"+Utils.md5(Utils.md5("grYhnneNF6OdANRXok"+mParams.getPassword())))
+        sendLog(MyApp.getContext().getString(R.string.being_login));
+        HttpClient.getInstance().post("/login/login_submit", mPlatform.getHost())
+                .params("mobile",mParams.getAccount())
+                .params("password",mParams.getPassword())
+                .params("imei",null)
+                .params("imsi",null)
+                .params("uuid",Utils.randomString(16))
+                .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("Referer","http://39.100.240.105:8021/login/index")
+                .headers("User-Agent","Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/80.0.3987.99 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("messages"));
-                            if (1 == jsonObject.getInteger("status")) {    //登录成功
-                                cookie = response.headers().get("Set-Cookie").toString();
+                            sendLog(jsonObject.getString("info"));
+                            if (jsonObject.getInteger("status") == 1) {    //登录成功
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";"))+";";
+                                }
+                                sendLog("登录成功！");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
                             } else {
-                                MyToast.error("账号或者密码错误");
+                                MyToast.error(jsonObject.getString("info"));
                                 stop();
                             }
                         } catch (Exception e) {
@@ -83,16 +94,8 @@ public class YMCAction extends BaseAction {
 
                     @Override
                     public void onError(Response<String> response) {
-                        try {
-                            super.onError(response);
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONObject obj = jsonObject.getJSONObject("error");
-                            sendLog(obj.getString("details"));  //接单异常
-                            stop();
-                        } catch (Exception e) {
-                            stop();
-                            sendLog("登录异常");  //接单异常
-                        }
+                        super.onError(response);
+                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
                     }
                 });
     }
@@ -101,12 +104,9 @@ public class YMCAction extends BaseAction {
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/index.php?g=Wap&m=Index&a=GetQueueAndProduntNum", mPlatform.getHost())
-                .params("selectChks",0)
-                .params("taskType",0)
-                .params("InTimeType",0)
-                .headers("Cookie", cookie)
-                .headers("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+        HttpClient.getInstance().post("/api/shop/myBuy?userType=02&userName="+mParams.getAccount()+"&request_time"+new Date(), mPlatform.getHost())
+                .headers("Authorization",cookie)
+                .headers("Content-Type", "application/json")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
@@ -114,7 +114,25 @@ public class YMCAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            lqTask();
+                            JSONObject obj = JSONObject.parseObject(response.body());
+                            sendLog(obj.getString("returnMsg"));
+                            if(obj.getInteger("returnCode")== 1){
+                                sendLog("接单成功,店铺名:"+obj.getString("dpmc"));
+                                Utils.setClipboardStr(obj.getString("shopLink"));
+                                sendLog("商品链接自动复制成功,可粘贴查看！");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getString("dpmc"), R.raw.muguakeji, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }else if( "您已经有任务在进行请完成后再来".equals(obj.getString("returnMsg"))){
+                                sendLog("接单成功");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.jianhuquan, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }else{
+                                sendLog("继续检测任务");
+                            }
                         } catch (Exception e) {
                             sendLog("检测任务异常");  //接单异常
                         }
@@ -123,7 +141,7 @@ public class YMCAction extends BaseAction {
                     @Override
                     public void onError(Response<String> response) {
                         super.onError(response);
-                        sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        sendLog("接单异常！");
                     }
 
                     @Override
@@ -143,41 +161,6 @@ public class YMCAction extends BaseAction {
                 });
     }
 
-    /**
-     * 领取任务
-     */
-    private void lqTask() {
-        HttpClient.getInstance().post("/index.php?g=Wap&m=Index&a=GetQueueAcceptResult", mPlatform.getHost())
-                .params("selectChks",0)
-                .params("taskType",0)
-                .params("InTimeType",0)
-                .params("TaskPriceEnd",2000)
-                .headers("Cookie", cookie)
-                .headers("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (null != jsonObject.getInteger("AcceptResult") && jsonObject.getInteger("AcceptResult")== 1) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.youmaicai, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                                stop();
-                            } else {
-                                sendLog("未抢到任务");
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
-                        }
-                    }
-                });
-    }
 
     @Override
     public void stop() {

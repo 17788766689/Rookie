@@ -64,6 +64,9 @@ public class NNAction extends BaseAction {
         HttpClient.getInstance().post("public/index.php/apis/login", mPlatform.getHost())
                 .params("user", mParams.getAccount())
                 .params("pass", mParams.getPassword())
+                .headers("X-Reuqested-With","io.ionic.wanwanshuadanptai")
+                .headers("Referer","http://localhost/login")
+                .headers("User-Agent","Mozilla/5.0 (Linux; U; Android 5.0; zh-cn; vivo X5Pro D Build/LRX21M) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.100 U3/0.8.0 Mobile Safari/534.30 AliApp(TB/6.5.2) WindVane/8.0.0 1080X1920 GCanvas/1.4.2.21")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -93,6 +96,9 @@ public class NNAction extends BaseAction {
     private void getAccount() {
         HttpClient.getInstance().post("/public/index.php/apis/total_wang", mPlatform.getHost())
                 .params("uid",cookie)
+                .headers("X-Reuqested-With","io.ionic.wanwanshuadanptai")
+                .headers("Referer","http://localhost/jiedan")
+                .headers("User-Agent","Mozilla/5.0 (Linux; U; Android 5.0; zh-cn; vivo X5Pro D Build/LRX21M) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.100 U3/0.8.0 Mobile Safari/534.30 AliApp(TB/6.5.2) WindVane/8.0.0 1080X1920 GCanvas/1.4.2.21")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -134,6 +140,10 @@ public class NNAction extends BaseAction {
         HttpClient.getInstance().post("/public/index.php/apis/pai_dan", mPlatform.getHost())
                 .params("uid",cookie)
                 .params("wang", mParams.getBuyerNum().getId())
+                .params("version","1.0.2")
+                .headers("X-Reuqested-With","io.ionic.wanwanshuadanptai")
+                .headers("Referer","http://localhost/jiedan")
+                .headers("User-Agent","Mozilla/5.0 (Linux; U; Android 5.0; zh-cn; vivo X5Pro D Build/LRX21M) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.100 U3/0.8.0 Mobile Safari/534.30 AliApp(TB/6.5.2) WindVane/8.0.0 1080X1920 GCanvas/1.4.2.21")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -147,7 +157,9 @@ public class NNAction extends BaseAction {
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
-                            } else {
+                            } else if(array.getInteger("errno") == 0){
+                                lqTask(array.getJSONObject("data").getString("task_num"));
+                            }else {
                                 sendLog(array.getString("msg"));  //继续检测任务
                             }
                         } catch (Exception e) {
@@ -177,6 +189,44 @@ public class NNAction extends BaseAction {
                     }
                 });
     }
+
+    public void lqTask(String task_num){
+            HttpClient.getInstance().post("/public/index.php/apis/jie_dan", mPlatform.getHost())
+                    .params("uid",cookie)
+                    .params("wang", mParams.getBuyerNum().getId())
+                    .params("task_num",task_num)
+                    .headers("X-Reuqested-With","io.ionic.wanwanshuadanptai")
+                    .headers("Referer","http://localhost/jiedan")
+                    .headers("User-Agent","Mozilla/5.0 (Linux; U; Android 5.0; zh-cn; vivo X5Pro D Build/LRX21M) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/1.0.0.100 U3/0.8.0 Mobile Safari/534.30 AliApp(TB/6.5.2) WindVane/8.0.0 1080X1920 GCanvas/1.4.2.21")
+                    .execute(new StringCallback() {
+                        @Override
+                        public void onSuccess(Response<String> response) {
+                            try {
+                                if (TextUtils.isEmpty(response.body())) return;
+                                JSONObject array = JSONObject.parseObject(response.body());
+                                if (array.getInteger("errno") == 0) {
+                                    sendLog(array.getString("msg"));
+                                    sendLog("接单成功");
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.naonao, 3000);
+                                    addTask(mPlatform.getName());
+                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                    isStart = false;
+                                } else {
+                                    sendLog(array.getString("msg"));  //继续检测任务
+                                }
+                            } catch (Exception e) {
+                                sendLog("检测任务异常！");
+                            }
+                        }
+
+                        @Override
+                        public void onError(Response<String> response) {
+                            super.onError(response);
+                            sendLog(MyApp.getContext().getString(R.string.receipt_exception) + mParams.getType());  //接单异常
+                        }
+
+                    });
+        }
 
 
 

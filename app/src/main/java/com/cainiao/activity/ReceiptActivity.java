@@ -438,7 +438,11 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
                 llBuyerNum.setVisibility(View.GONE);
                 llComm.setVisibility(View.VISIBLE);
                 llReceiptType.setVisibility(View.GONE);
-                if(mPlatform.isStart() == false)refreshLogView("易筋经不支持卡佣金,可以在最小佣金选项框中设置最小【本金】,建议设置最小本金(佣金)为5左右",true);
+                if("阿西里里".equals(mPlatform.getName())){
+                    llReceiptType.setVisibility(View.VISIBLE);
+                    resId = R.array.receipt_type_4;
+                }
+                if(mPlatform.isStart() == false && "易筋经".equals(mPlatform.getName()))refreshLogView("易筋经不支持卡佣金,可以在最小佣金选项框中设置最小【本金】,建议设置最小本金(佣金)为5左右",true);
                 break;
             case 10:  //代表平台：红苹果 等（频率、接单类型）
                 resId = R.array.receipt_type_5;
@@ -482,7 +486,7 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 15:  //代表平台：红苹果 等（账号、密码、接单类型）
                 llBuyerNum.setVisibility(View.GONE);
                 llComm.setVisibility(View.GONE);
-                if(TextUtils.equals("麒麟",mPlatform.getName()) || TextUtils.equals("小蘑菇",mPlatform.getName()) || TextUtils.equals("电竞艺游",mPlatform.getName()) || TextUtils.equals("征服者",mPlatform.getName()) || TextUtils.equals("宅仔",mPlatform.getName())){
+                if(TextUtils.equals("麒麟",mPlatform.getName()) || TextUtils.equals("小蘑菇",mPlatform.getName()) || TextUtils.equals("电竞艺游",mPlatform.getName()) || TextUtils.equals("征服者",mPlatform.getName()) || TextUtils.equals("宅仔",mPlatform.getName()) ||  TextUtils.equals("熙喜科技",mPlatform.getName())){
                     resId = R.array.receipt_type_13;
                 }else if(TextUtils.equals("红苹果",mPlatform.getName())){
                     resId = R.array.receipt_type_5;

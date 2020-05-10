@@ -1,5 +1,6 @@
 package com.cainiao.action;
 
+import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
 
@@ -16,19 +17,21 @@ import com.cainiao.view.toasty.MyToast;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
+import java.util.List;
 import java.util.Random;
 
 /**
- * 百手联盟
+ * 熙喜科技
  */
-public class BSLMAction extends BaseAction {
+public class XXKJAction extends BaseAction {
     private boolean isStart;
     private Handler mHandler;
+    private String cookie = "";
     private Platform mPlatform;
     private Params mParams;
     private Random mRandom;
-    private String cookie = "";
-    private String prot = ":";
+    private String token;
+    private String btwaf;
 
     @Override
     public void start(Platform platform) {
@@ -41,6 +44,7 @@ public class BSLMAction extends BaseAction {
 //        updateStatus(platform, Const.AJW_VA);
 
         if (!isStart) {    //未开始抢单
+            cookie = "";
             isStart = true;
             mHandler = new Handler();
             mRandom = new Random();
@@ -49,86 +53,78 @@ public class BSLMAction extends BaseAction {
         }
     }
 
-
     /**
      * 登录
      */
     private void login() {
-        HttpClient.getInstance().post("/index.php?g=Wap&m=Login&a=dologin", mPlatform.getHost())
-                .params("username", mParams.getAccount())
-                .params("password", "###"+Utils.md5(Utils.md5("grYhnneNF6OdANRXok"+mParams.getPassword())))
-                .headers("X-Requested-With", "XMLHttpRequest")
+        sendLog(MyApp.getContext().getString(R.string.being_login));
+        HttpClient.getInstance().post("/iop/register/loginActApp", mPlatform.getHost())
+                .params("moblie", mParams.getAccount())
+                .params("password", mParams.getPassword())
+                .params("deviceid", Utils.md5(Build.DEVICE + Build.SERIAL))
+                .params("devicename", Build.BRAND + " " + Build.MODEL + " Android " + Build.VERSION.RELEASE + " SDK " + Build.VERSION.SDK_INT)
+                .headers("User-Agent", "Mozilla/5.0 (iPhone; CPU iPhone OS 12_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.2 Mobile/15E148 Safari/604.1")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("messages"));
-                            if (1 == jsonObject.getInteger("status")) {    //登录成功
-                                cookie = response.headers().get("Set-Cookie").toString();
+                            if ("登录成功".equals(jsonObject.getString("msg"))) {    //登录成功
+                                List<String> cookies = response.headers().values("Set-Cookie");
+                                for (String str : cookies) {
+                                    cookie += str.substring(0, str.indexOf(";")) + ";";
+                                }
+                                sendLog("登录成功");
                                 updateParams(mPlatform);
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
                                 startTask();
                             } else {
-                                MyToast.error("账号或者密码错误");
+                                MyToast.error(jsonObject.getString("msg"));
                                 stop();
                             }
                         } catch (Exception e) {
+                            sendLog("登录异常！");
                             stop();
-                            sendLog("登录异常");  //接单异常
-                        }
-                    }
-
-                    @Override
-                    public void onError(Response<String> response) {
-                        try {
-                            super.onError(response);
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            JSONObject obj = jsonObject.getJSONObject("error");
-                            sendLog(obj.getString("details"));  //接单异常
-                            stop();
-                        } catch (Exception e) {
-                            stop();
-                            sendLog("登录异常");  //接单异常
                         }
                     }
                 });
     }
 
+
     /**
      * 开始任务
      */
     private void startTask() {
-        HttpClient.getInstance().post("/index.php?g=Wap&m=Index&a=GetQueueAcceptResult", mPlatform.getHost())
-                .params("selectChks",0)
-                .params("taskType",0)
-                .params("InTimeType",0)
-                .params("TaskPriceEnd",0)
-                .params("platform",1)
+        if (isStart == false){
+            return;
+        }
+        HttpClient.getInstance().get("/iop/index/autoindex?type="+mParams.getType(), mPlatform.getHost())
+                .headers("Referer","http://xishuashua.51zugeju.com/iop/index/index")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-N9100 Build/LRX21V) > AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 > Chrome/37.0.0.0 Mobile Safari/537.36 V1_AND_SQ_5.3.1_196_YYB_D > QQ/5.3.1.2335 NetType/WIFI")
+                .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Cookie", cookie)
-                .headers("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-                .headers("X-Requested-With", "XMLHttpRequest")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (null != jsonObject.getInteger("AcceptResult") && jsonObject.getInteger("AcceptResult")== 1) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.baishoulianmeng, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                                stop();
-                            } else {
-                                sendLog("未抢到任务");
+                            if (TextUtils.isEmpty(response.body())) {
+                                sendLog(MyApp.getContext().getString(R.string.receipt_continue_task));  //继续检测任务
+                            }else{
+                                JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                if(1 == jsonObject.getInteger("status")){
+                                    sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                    receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.xixikeji, 3000);
+                                    addTask(mPlatform.getName());
+                                    updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                    isStart = false;
+                                }else{
+                                    sendLog(jsonObject.getString("msg"));
+                                }
                             }
                         } catch (Exception e) {
-                            sendLog("领取任务异常！");
+                            sendLog("检测任务异常！");
                         }
                     }
 
@@ -154,6 +150,7 @@ public class BSLMAction extends BaseAction {
                     }
                 });
     }
+
 
 
     @Override
