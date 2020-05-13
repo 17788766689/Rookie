@@ -202,9 +202,10 @@ public class ZQQAction extends BaseAction {
                                                         map.put("type", "1");
                                                         map.put("id", obj.getString("id"));
                                                         map.put("isaccept", "1");
+                                                        map.put("account", obj.getString("account"));
                                                         accountList.add(map);
                                                     } else {
-                                                        setAccount(obj.getString("id"), "0");
+                                                        setAccount(obj.getString("id"), "0",obj.getString("account"),"1");
                                                     }
 
                                                 } else if (obj.getInteger("type") == 2) { // 拼多多
@@ -217,9 +218,10 @@ public class ZQQAction extends BaseAction {
                                                         map.put("type", "2");
                                                         map.put("id", obj.getString("id"));
                                                         map.put("isaccept", "1");
+                                                        map.put("account", obj.getString("account"));
                                                         accountList.add(map);
                                                     } else {
-                                                        setAccount(obj.getString("id"), "0");
+                                                        setAccount(obj.getString("id"), "0",obj.getString("account"),"2");
                                                     }
 
                                                 } else if (obj.getInteger("type") == 3) { // 京东
@@ -232,9 +234,10 @@ public class ZQQAction extends BaseAction {
                                                         map.put("type", "3");
                                                         map.put("id", obj.getString("id"));
                                                         map.put("isaccept", "1");
+                                                        map.put("account", obj.getString("account"));
                                                         accountList.add(map);
                                                     } else {
-                                                        setAccount(obj.getString("id"), "0");
+                                                        setAccount(obj.getString("id"), "0",obj.getString("account"),"3");
                                                     }
 
                                                 }
@@ -248,6 +251,7 @@ public class ZQQAction extends BaseAction {
                                                     map.put("type", "1");
                                                     map.put("id", obj.getString("id"));
                                                     map.put("isaccept", "0");
+                                                    map.put("account", obj.getString("account"));
                                                     accountList.add(map);
                                                 } else if (mParams.isPdd() && obj.getInteger("type") == 2) { // 拼多多
                                                     if (count == 0) {
@@ -258,6 +262,7 @@ public class ZQQAction extends BaseAction {
                                                     map.put("type", "2");
                                                     map.put("id", obj.getString("id"));
                                                     map.put("isaccept", "0");
+                                                    map.put("account", obj.getString("account"));
                                                     accountList.add(map);
                                                 } else if (mParams.isPdd() && obj.getInteger("type") == 3) { // 京东
                                                     if (count == 0) {
@@ -268,6 +273,7 @@ public class ZQQAction extends BaseAction {
                                                     map.put("type", "3");
                                                     map.put("id", obj.getString("id"));
                                                     map.put("isaccept", "0");
+                                                    map.put("account", obj.getString("account"));
                                                     accountList.add(map);
                                                 }
                                             }
@@ -554,13 +560,12 @@ public class ZQQAction extends BaseAction {
             for (int i = 0; i < accountList.size(); i++) {
                 Map<String, String> account = accountList.get(i);
                 if (account.get("type").equals(map.get("type")) && account.get("id").equals(map.get("id"))) {
-                    setAccount(map.get("id"), "1");
+                    setAccount(map.get("id"), "1",map.get("account"),map.get("type"));
                 } else if (account.get("type").equals(map.get("type"))) {
-
-                    setAccount(account.get("id"), "0");
+                    setAccount(account.get("id"), "0",map.get("account"),map.get("type"));
                     try {
                         Thread.sleep(2000);
-                        setAccount(map.get("id"), "1");
+                        setAccount(map.get("id"), "1",map.get("account"),map.get("type"));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -570,7 +575,7 @@ public class ZQQAction extends BaseAction {
         }
     }
 
-    private void setAccount(String id, String isaccept) {
+    private void setAccount(String id, String isaccept,String account,String type) {
         HttpClient.getInstance().get("/api/member/platform_isaccept", mPlatform.getHost())
                 .params("ver", version)
                 .params("id", id)
@@ -584,7 +589,7 @@ public class ZQQAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            getAccount();
+                            checkTbAccount(id,account,type);
                         } catch (Exception e) {
                             sendLog("获取版本异常");
                             stop();
@@ -600,6 +605,38 @@ public class ZQQAction extends BaseAction {
                 });
     }
 
+    private void checkTbAccount(String id, String account,String type) {
+        HttpClient.getInstance().get("/api/member/checkTbAccount", mPlatform.getHost())
+                .params("ver", version)
+                .params("platform_id", id)
+                .params("account", account)
+                .params("platform_type",type)
+                .params("verify", data)
+                .headers("Cookie", cookie)
+                .headers("X-Requested-With", "com.xmtyq.zzd")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 6.0.1; Pro 7 Build/V417IR; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/52.0.2743.100 Mobile Safari/537.36 Html5Plus/1.0 (Immersed/24.296297)")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("msg"));
+                            getAccount();
+                        } catch (Exception e) {
+                            sendLog("获取版本异常");
+                            stop();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Response<String> response) {
+                        super.onError(response);
+                        sendLog("获取版本异常");  //接单异常
+                        stop();
+                    }
+                });
+    }
 
     @Override
     public void stop() {
