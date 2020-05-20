@@ -175,7 +175,7 @@ public class TMYAction extends BaseAction {
                 .params("PlatId", 1)
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountId", buyerId)//报错的地方，这个mParams.getBuyerNum()为null了，判断一下，防止有时候买号获取不到的时候这里出错
-                .params("AppVersion","0.0.21")
+                .params("AppVersion","0.0.22")
                 .headers("Content-Type", "application/json")
                 .headers("Timetamp",n+"")
                 .headers("Sign",getSign(n))

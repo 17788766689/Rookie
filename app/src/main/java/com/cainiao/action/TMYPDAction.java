@@ -209,7 +209,7 @@ public class TMYPDAction extends BaseAction {
                 .params("PlatIdList", PlatIdList+",")
                 .params("MaxAdvancePayMoney", 5000)
                 .params("AccountIdList", AccountIdList)
-                .params("AppVersion","0.0.21")
+                .params("AppVersion","0.0.22")
                 .headers("Content-Type", "application/json")
                 .headers("Timetamp",n+"")
                 .headers("Sign",getSign(n))

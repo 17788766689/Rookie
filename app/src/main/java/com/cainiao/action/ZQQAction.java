@@ -189,7 +189,9 @@ public class ZQQAction extends BaseAction {
                                             sendLog("买号:" + obj.getString("account") + "今日已接满,自动过滤");
                                         } else {
                                             Map<String, String> map = new HashMap<>();
-
+                                            if (obj.getInteger("isCheckTbAccount") == 0){
+                                                checkTbAccount(obj.getString("id"),obj.getString("account"),obj.getString("type"));
+                                            }
                                             // 判断用户勾选了那些接单类型就获取那些买号
                                             if (obj.getInteger("isaccept") == 1) {//买号已开启接单
                                                 if (obj.getInteger("type") == 1) { // 淘宝
@@ -407,6 +409,9 @@ public class ZQQAction extends BaseAction {
                                                 }
                                                 JSONObject data = JSONObject.parseObject(obj.getString("data"));
                                                 if (data.getInteger("accept_code") != 0) {
+                                                    if(data.getString("msg").equals("当前账号没有校验，请先校验")){
+                                                        return;
+                                                    }
                                                     sendLog(data.getString("msg"));
                                                     return;
                                                 }
@@ -589,7 +594,7 @@ public class ZQQAction extends BaseAction {
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
-                            checkTbAccount(id,account,type);
+                            //checkTbAccount(id,account,type);
                         } catch (Exception e) {
                             sendLog("获取版本异常");
                             stop();
@@ -621,8 +626,8 @@ public class ZQQAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            sendLog(jsonObject.getString("msg"));
-                            getAccount();
+                            sendLog(jsonObject.getString("msg")+",即将开始接单,请耐心等待");
+                            //getAccount();
                         } catch (Exception e) {
                             sendLog("获取版本异常");
                             stop();

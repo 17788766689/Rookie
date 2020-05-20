@@ -115,8 +115,8 @@ public class MTAction extends BaseAction {
         HttpClient.getInstance().post("/index/taskList", mPlatform.getHost())
                 .params("type",type)
                 .params("platform_type",Integer.parseInt(mParams.getType())+1)
-                .params("page_size","10")
                 .params("page","1")
+                .params("page_size","10")
                 .params("access_token",token)
                 .headers("Cookie", cookie)
                 .headers("User-Agent", "15(Android/7.1.1) (io.dcloud.yuji1548/1.0.0) Weex/0.26.0 1080x1920").execute(new StringCallback() {
@@ -129,8 +129,7 @@ public class MTAction extends BaseAction {
                                 JSONArray array = obj.getJSONObject("data").getJSONArray("list");
                                 for (int i = 0, len = array.size(); i < len; i++) {
                                     JSONObject object = array.getJSONObject(i);
-                                    if(Float.parseFloat(object.getString("sys_bean")) >= mParams.getMinCommission() && Float.parseFloat(object.getString("beat_price")) <= mParams.getMaxPrincipal()) {    //本金金额小于最大本金.){
-                                        if(object.getInteger("task_type") != 6 && object.getInteger("task_type") != 3){//不接货反
+                                        if(object.getInteger("task_type") != 6){//不接货反
                                             sendLog("检测到任务领取中");
                                             lqTask(object.getString("take_key_id"));
                                             break;
@@ -139,7 +138,6 @@ public class MTAction extends BaseAction {
                                             lqTask(object.getString("take_key_id"));
                                             break;
                                         }
-                                    }
                                 }
                                 sendLog("继续检测任务");
                             }else{

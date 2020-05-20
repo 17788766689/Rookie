@@ -70,6 +70,8 @@ public class RRLTAction extends BaseAction {
                 .params("devMac", Utils.randomString(14))
                 .params("rememberMe", "true")
                 .headers("Accept", "application/json, text/javascript, */*; q=0.01")
+                .headers("Referer","https://www.rrletao.cn/app-web/pages/home/index.html")
+                .headers("User-Agent","Mozilla/5.0 (Linux; Android 5.1.1; huawei tag-al00 Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .execute(new StringCallback() {
                     @Override
@@ -123,6 +125,8 @@ public class RRLTAction extends BaseAction {
                 .params("tbNo", mParams.getBuyerNum().getName())
                 .headers("Cookie", cookie)
                 .headers("Accept", "application/json, text/javascript, */*; q=0.01")
+                .headers("Referer","https://www.rrletao.cn/app-web/pages/home/index.html")
+                .headers("User-Agent","Mozilla/5.0 (Linux; Android 5.1.1; huawei tag-al00 Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .execute(new StringCallback() {
                     @Override
@@ -182,6 +186,8 @@ public class RRLTAction extends BaseAction {
                 .params("version", "1.0.0")
                 .headers("Cookie", cookie)
                 .headers("Accept", "application/json, text/javascript, */*; q=0.01")
+                .headers("Referer","https://www.rrletao.cn/app-web/pages/home/index.html")
+                .headers("User-Agent","Mozilla/5.0 (Linux; Android 5.1.1; huawei tag-al00 Build/LMY47I) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/39.0.0.0 Mobile Safari/537.36")
                 .headers("X-Requested-With", "XMLHttpRequest")
                 .execute(new StringCallback() {
 
