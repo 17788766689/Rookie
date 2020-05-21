@@ -13,7 +13,6 @@ import com.cainiao.action.DKXMFAction;
 import com.cainiao.action.DMNNAction;
 import com.cainiao.action.DSAction;
 import com.cainiao.action.DSHZAction;
-import com.cainiao.action.DSWAction;
 import com.cainiao.action.FCSAction;
 import com.cainiao.action.FSDMAction;
 import com.cainiao.action.GBWSSAction;
@@ -22,7 +21,6 @@ import com.cainiao.action.GYTAction;
 import com.cainiao.action.HCKJAction;
 import com.cainiao.action.HGAction;
 import com.cainiao.action.HLGAction;
-import com.cainiao.action.HMAction;
 import com.cainiao.action.HSSGTAction;
 import com.cainiao.action.HZWAction;
 import com.cainiao.action.JCYAction;
@@ -71,7 +69,6 @@ import com.cainiao.action.WDBAction;
 import com.cainiao.action.WWDAction;
 import com.cainiao.action.XBXAction;
 import com.cainiao.action.XHZAction;
-import com.cainiao.action.XIAOHZAction;
 import com.cainiao.action.XIAOJLAction;
 import com.cainiao.action.XJLAction;
 import com.cainiao.action.XLAction;
@@ -270,7 +267,7 @@ public class Platforms {
             mList.add(new Platform(new Params(4000, 6000), R.mipmap.xiaoheizhu, "小黑猪", "com.xiaoheizhu", "https://hzapi.ka5a.com", "", "http://hz.ka5a.com/#/login", 0, Const.TLSHE, 1, 7, new XHZAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaotudou, "小土豆", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaopeiqi, "小佩奇", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 13, null));
-            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaobaixiang, "小白象", "com.xiaobaixiang", "http://49.234.145.140", "", "http://49.234.145.140/auth/goLoginPage", 0, Const.TLSHE, 1, 3, new XBXAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaobaixiang, "小白象", "com.xiaobaixiang", "https://wx.xbx99.com", "", "https://wx.xbx99.com/auth/goLoginPage", 0, Const.TLSHE, 1, 3, new XBXAction()));
 //            //第十九行
 
             mList.add(new Platform(new Params(2000, 3000), R.mipmap.xiaojinli, "小锦鲤", "com.xiaojinli", "http://118.25.168.82", "", "http://118.25.168.82/auth/goLoginPage", 0, Const.BJSHA, 1, 3, new XJLAction()));

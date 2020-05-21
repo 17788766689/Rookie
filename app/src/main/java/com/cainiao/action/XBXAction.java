@@ -67,7 +67,7 @@ public class XBXAction extends BaseAction {
      * 获取验证码
      */
     public void getVerifyCode(Platform platform) {
-        sendMsg("get_verifycode", "http://49.234.145.140/auth/getCaptcha?t=0."+new Date().getTime());
+        sendMsg("get_verifycode", "https://wx.xbx99.com/auth/getCaptcha?t=0."+new Date().getTime());
     }
 
     /**
@@ -158,7 +158,7 @@ public class XBXAction extends BaseAction {
         HttpClient.getInstance().post("/user/getTaskOrderList", mPlatform.getHost())
                 .params("userAccountId",buyerId)
                 .params("sign","xx1")
-                .headers("Referer","http://49.234.145.140/user/goGameLobby")
+                .headers("Referer","https://wx.xbx99.com/user/goGameLobby")
                 .headers("X-Requested-With","XMLHttpRequest")
                 .headers("Cookie",mPlatform.getVerifyCodeCookie())
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
@@ -216,7 +216,7 @@ public class XBXAction extends BaseAction {
                 .params("taskId",taskId)
                 .params("sign","xx1")
                 .headers("Cookie",mPlatform.getVerifyCodeCookie())
-                .headers("Referer","http://49.234.145.140/user/goGameLobby")
+                .headers("Referer","https://wx.xbx99.com/user/goGameLobby")
                 .headers("X-Requested-With","XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
                 .execute(new StringCallback() {

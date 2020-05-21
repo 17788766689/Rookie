@@ -65,7 +65,6 @@ public class MTYAction extends BaseAction {
                 .params("password", mParams.getPassword())
                 .headers("Content-Type","application/x-www-form-urlencoded; charset=UTF-8")
                 .headers("Referer","http://m.haoyun2019.com/Login")
-                .headers("User-Agent","Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36")
                 .headers("X-Requested-With","XMLHttpRequest")
                 .execute(new StringCallback() {
                     @Override
@@ -147,7 +146,6 @@ public class MTYAction extends BaseAction {
                 .headers("Cookie", cookie)
                 .headers("Content-Type","application/x-www-form-urlencoded; charset=UTF-8")
                 .headers("Referer","http://m.haoyun2019.com//Home")
-                .headers("User-Agent","Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Mobile Safari/537.36")
                 .headers("X-Requested-With","XMLHttpRequest")
                 .execute(new StringCallback() {
                     @Override
