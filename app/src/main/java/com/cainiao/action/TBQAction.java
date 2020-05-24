@@ -61,13 +61,12 @@ public class TBQAction extends BaseAction {
      */
     private void login() {
         sendLog(MyApp.getContext().getString(R.string.being_login));
-        HttpClient.getInstance().post("/mm/user/login_handler", mPlatform.getHost())
+        HttpClient.getInstance().post("/1/user/login_handler", mPlatform.getHost())
                 .params("user_name", mParams.getAccount())
                 .params("password", mParams.getPassword())
-                .headers("Referer","http://www.dashuwong.com/mm/user")
+                .headers("Referer","http://www.tbquan88.com/1/user")
                 .headers("X-Requested-With","XMLHttpRequest")
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .headers("Content-Type", "application/x-www-form-urlencoded")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
@@ -99,9 +98,9 @@ public class TBQAction extends BaseAction {
      * 获取买号
      */
     private void getAccount() {
-        HttpClient.getInstance().post("/mm/pages/binded_account", mPlatform.getHost())
+        HttpClient.getInstance().get("/1/pages/binded_account", mPlatform.getHost())
                 .headers("Cookie", cookie)
-                .headers("Referer","http://www.dashuwong.com/mm/main")
+                .headers("Referer","http://www.tbquan88.com/1/main")
                 .headers("X-Requested-With","XMLHttpRequest")
                 .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
                 .execute(new StringCallback() {
@@ -115,21 +114,22 @@ public class TBQAction extends BaseAction {
                                 int count =0;
                                 List<BuyerNum> list = new ArrayList<>();
                                 for (int i = 0, len = tbData.size(); i < len; i++) {
-                                    if("绑定成功".equals(tbData.get(i).select(".col-30").select(".unbind-account").text())){
+                                    System.out.println(tbData.get(i).select(".col-30").select(".unbind-account").text());
+                                    if("//cdn.tbquan88.com/binary/taobao_bind_ok.png".equals(tbData.get(i).select("img").attr("src"))){
                                         String href = tbData.get(i).select("a").attr("href");
                                         href = href.substring(href.indexOf("=")+1,href.length());
                                         if(count == 0){
-                                            mParams.setBuyerNum(new BuyerNum(href, tbData.get(i).select(".row").select(".col-100").eq(0).text()));
+                                            mParams.setBuyerNum(new BuyerNum(href, tbData.get(i).select(".item-title").text()));
                                         }
                                         count++;
-                                        list.add(new BuyerNum(href, tbData.get(i).select(".row").select(".col-100").eq(0).text()));
+                                        list.add(new BuyerNum(href, tbData.get(i).select(".item-title").text()));
                                     }
                                 }
                                 showBuyerNum(JSON.toJSONString(list));
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_success));
                                 MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
                                 updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                isSuccess();
                             } else { //无可用的买号
                                 sendLog(MyApp.getContext().getString(R.string.receipt_get_buyer_fail));
                                 stop();
@@ -142,31 +142,177 @@ public class TBQAction extends BaseAction {
                 });
     }
 
-    /**
-     * 开始任务
-     */
-    private void startTask() {
-        HttpClient.getInstance().post("/mm/task/always_task_api", mPlatform.getHost())
-                .params("nick_id", mParams.getBuyerNum().getId())
+    private void isSuccess(){
+        HttpClient.getInstance().post("/1/task/get_user_status", mPlatform.getHost())
+                .params("task_type", "DIANFU")
                 .headers("Cookie", cookie)
-                .headers("Referer","http://www.dashuwong.com/mm/user")
+                .headers("Referer","http://www.tbquan88.com/1/main")
                 .headers("X-Requested-With","XMLHttpRequest")
-                .headers("Content-Type", "application/json")
-                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .headers("Content-Type", "application/x-www-form-urlencoded ")
                 .execute(new StringCallback() {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (obj.getInteger("code") == 0) {
-                                sendLog("接单成功,店铺名:"+obj.getJSONObject("result").getString("shop_name"));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName())+",店铺名:"+obj.getJSONObject("result").getString("shop_name"), R.raw.dashuwang, 3000);
+                            if (obj.getJSONObject("msg").getIntValue("code") == 1) {
+                                sendLog("接单成功");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dashuwang, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            } else if (obj.getJSONObject("msg").getIntValue("code") == 2){
+                                startTask();
+                            }else {
+                                jiance();
+                            }
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
+                        }
+                    }
+                });
+    }
+
+    private void jiance(){
+        HttpClient.getInstance().get("/1/task/engine_start_df", mPlatform.getHost())
+                .headers("Cookie", cookie)
+                .headers("Referer","http://www.tbquan88.com/1/main")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                           if (response.body().contains("请选择")){
+                               Document doc = Jsoup.parse(response.body());
+                               Elements tbData = doc.select(".btn-task-accept");
+                               for (int i = 0, len = tbData.size(); i < len; i++) {
+                                   if (tbData.get(i).attr("data-nick").equals(mParams.getBuyerNum().getName().replace("花呗已绑定",""))){
+                                       mParams.getBuyerNum().setId(tbData.get(i).attr("data-tb_id"));
+                                   }
+                               }
+                               new Handler().postDelayed(new Runnable() {
+                                   @Override
+                                   public void run() {
+                                       getKey();
+                                   }
+                               },3000);
+                           }else{
+                               sendLog("继续检测任务！");
+                               new Handler().postDelayed(new Runnable() {
+                                   @Override
+                                   public void run() {
+                                       jiance();
+                                   }
+                               },3500);
+                           }
+                        } catch (Exception e) {
+                            sendLog("检测任务异常！");
+                        }
+                    }
+                });
+    }
+
+    private void getKey(){
+        HttpClient.getInstance().post("/captcha/get", "http://154.204.41.165")
+                .params("app_key", "0a017c93a3309fd092a61e048c850155")
+                .params("challenge", "eb6daf666cc8da269070f56b441f5780")
+                .headers("Referer","http://www.tbquan88.com/1/main")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .headers("Content-Type", "application/x-www-form-urlencoded")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getInteger("code") == 1000) {
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        addTaskLine(jsonObject.getJSONObject("result").getString("challenge"));
+                                    }
+                                },4000);
+                            } else {
+                                sendLog("6秒后继续检测任务");
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        jiance();
+                                    }
+                                },6000);
+                            }
+                        } catch (Exception e) {
+                            sendLog("加入任务异常！");
+                            stop();
+                        }
+                    }
+                });
+    }
+
+    private void addTaskLine(String challenge){
+        HttpClient.getInstance().post("/1/task/engine_start_handle?task_type=DIANFU", mPlatform.getHost())
+                .params("tb_nick", mParams.getBuyerNum().getName().replace("花呗已绑定",""))
+                .params("tb_id", mParams.getBuyerNum().getId())
+                .params("challenge",challenge)
+                .headers("Cookie", cookie)
+                .headers("Referer","http://www.tbquan88.com/1/main")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+                .headers("Connection","Keep-Alive")
+                .headers("Accept-Encoding","gzip")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 7.1.1; 15 Build/NGI77B; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/65.0.3325.110 Mobile Safari/537.36")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            if (jsonObject.getInteger("code") == 0) {
+                                startTask();
+                            } else {
+                                sendLog("6秒后继续检测任务");
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        jiance();
+                                    }
+                                },6000);
+                            }
+                        } catch (Exception e) {
+                            sendLog("接单异常！");
+                            stop();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 开始任务
+     */
+    private void startTask() {
+        HttpClient.getInstance().post("/1/task/get_user_status", mPlatform.getHost())
+                .params("task_type", "DIANFU")
+                .headers("Cookie", cookie)
+                .headers("Referer","http://www.tbquan88.com/1/main")
+                .headers("X-Requested-With","XMLHttpRequest")
+                .headers("Content-Type", "application/x-www-form-urlencoded")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject obj = JSONObject.parseObject(response.body());
+                            if (obj.getJSONObject("msg").getIntValue("code") == 1) {
+                                sendLog("接单成功");
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dashuwang, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
                             } else {
-                                sendLog(obj.getString("msg"));  //继续检测任务
+                                sendLog("继续检测任务");  //继续检测任务
                             }
                         } catch (Exception e) {
                             sendLog("检测任务异常！");
@@ -191,38 +337,6 @@ public class TBQAction extends BaseAction {
                                     startTask();
                                 }
                             }, period);
-                        }
-                    }
-                });
-    }
-
-    /**
-     * 领取任务
-     *
-     * @param taskId 任务id
-     */
-    private void lqTask(String taskId) {
-        HttpClient.getInstance().post("/ReceiptTask/SaveReceiptOrder", mPlatform.getHost())
-                .params("id", mParams.getBuyerNum().getId())
-                .params("orderId", taskId)
-                .headers("Cookie", cookie)
-                .execute(new StringCallback() {
-                    @Override
-                    public void onSuccess(Response<String> response) {
-                        try {
-                            if (TextUtils.isEmpty(response.body())) return;
-                            JSONObject jsonObject = JSONObject.parseObject(response.body());
-                            if (jsonObject.getBooleanValue("Success")) {    //接单成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.miaomiaomiao, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
-                            } else {
-                                sendLog(jsonObject.getString("Message"));
-                            }
-                        } catch (Exception e) {
-                            sendLog("领取任务异常！");
                         }
                     }
                 });
