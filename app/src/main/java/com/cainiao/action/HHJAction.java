@@ -3,6 +3,7 @@ package com.cainiao.action;
 import android.os.Handler;
 import android.text.TextUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cainiao.R;
 import com.cainiao.base.BaseAction;
@@ -12,6 +13,8 @@ import com.cainiao.bean.Platform;
 import com.cainiao.util.Const;
 import com.cainiao.util.HttpClient;
 import com.cainiao.view.toasty.MyToast;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.Response;
 
@@ -68,10 +71,37 @@ public class HHJAction extends BaseAction {
                             if (1 == jsonObject.getInteger("status")) {    //登录成功
                                 cookie = response.headers().get("Set-Cookie").toString();
                                 userId = jsonObject.getString("userid");
-                                updateParams(mPlatform);
-                                MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
-                                updateStatus(mPlatform, 3); //正在接单的状态
-                                startTask();
+                                HttpClient.getInstance().post("/index.php/User/Task/getorderlist/", mPlatform.getHost())
+                                        .params("username", mParams.getAccount())
+                                        .params("userid", userId)
+                                        .params("status",2)
+                                        .params("pt_id",1)
+                                        .headers("Cookie", cookie)
+                                        .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                                        .execute(new StringCallback() {
+                                            @Override
+                                            public void onSuccess(Response<String> response) {
+                                                try {
+                                                    if (TextUtils.isEmpty(response.body())) return;
+                                                    JSONObject jsonObject = JSONObject.parseObject(response.body());
+                                                    if (1 == jsonObject.getInteger("status")) {
+                                                        sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                                        receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.guli, 3000);
+                                                        addTask(mPlatform.getName());
+                                                        updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                                        isStart = false;
+                                                    }else{
+                                                        updateParams(mPlatform);
+                                                        MyToast.info(MyApp.getContext().getString(R.string.receipt_start));
+                                                        updateStatus(mPlatform, 3); //正在接单的状态
+                                                        startTask();
+                                                    }
+                                                } catch (Exception e) {
+                                                    stop();
+                                                    sendLog("登录异常");  //接单异常
+                                                }
+                                            }
+                                        });
                             } else {
                                 MyToast.error("账号或者密码错误");
                                 stop();
@@ -118,12 +148,10 @@ public class HHJAction extends BaseAction {
                         try {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
-                            if (!(obj.getString("msg").contains("抱歉"))) {
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.guli, 3000);
-                                addTask(mPlatform.getName());
-                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
-                                isStart = false;
+                            if (0 == obj.getIntValue("status")) {
+                                sendLog("检测到任务领取中");
+                                JSONArray taskId = obj.getJSONArray("data");
+                                lqTask(obj.getJSONObject("acount").getString("accname"),taskId.getJSONArray(0).getJSONObject(0).getString("id"));
                             } else {
                                 sendLog("继续检测任务");
                             }
@@ -150,6 +178,36 @@ public class HHJAction extends BaseAction {
                                     startTask();
                                 }
                             }, period);
+                        }
+                    }
+                });
+    }
+
+    public void lqTask(String accname,String taskId){
+        HttpClient.getInstance().post("/index.php/User/Task/receipt", mPlatform.getHost())
+                .params("username", mParams.getAccount())
+                .params("userid", userId)
+                .params("id",taskId)
+                .params("accname",accname)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                        try {
+                            if (TextUtils.isEmpty(response.body())) return;
+                            JSONObject jsonObject = JSONObject.parseObject(response.body());
+                            sendLog(jsonObject.getString("msg"));
+                            if (1 == jsonObject.getInteger("status")) {    //登录成功
+                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.guli, 3000);
+                                addTask(mPlatform.getName());
+                                updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
+                                isStart = false;
+                            }
+                        } catch (Exception e) {
+                            stop();
+                            sendLog("登录异常");  //接单异常
                         }
                     }
                 });
