@@ -390,6 +390,8 @@ public class ReceiptActivity extends BaseActivity implements View.OnClickListene
             case 2:  //代表平台：918人气王 等（频率、账号、密码、买号、佣金本金、滑块验证码）
                 if("口袋精灵".equals(mPlatform.getName())){
                     llFilter.setVisibility(View.VISIBLE);
+                }else if (TextUtils.equals(mPlatform.getName(),"领钱宝")){
+                    llFilter.setVisibility(View.VISIBLE);
                 }
                 llReceiptType.setVisibility(View.GONE);
                 break;

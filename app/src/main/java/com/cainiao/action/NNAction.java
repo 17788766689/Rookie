@@ -140,7 +140,7 @@ public class NNAction extends BaseAction {
         HttpClient.getInstance().post("/public/index.php/apis/pai_dan", mPlatform.getHost())
                 .params("uid",cookie)
                 .params("wang", mParams.getBuyerNum().getId())
-                .params("version","1.0.3")
+                .params("version","1.0.4")
                 .params("addr","东城区锡拉胡同")
                 .params("addrs","北京市")
                 .headers("X-Reuqested-With","io.ionic.wanwanshuadanptai")

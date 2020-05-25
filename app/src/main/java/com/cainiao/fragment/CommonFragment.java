@@ -101,7 +101,7 @@ public class CommonFragment extends BaseFragment implements TextWatcher{
                 }
             }
         }else{ //非免费且设备未激活
-            DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.home_un_active) + getString(R.string.home_reactive_tips), getString(R.string.home_input_code), getString(R.string.home_active_tips), new View.OnClickListener() {
+            DialogUtil.get().showInputAlertDialog(getActivity(), getString(R.string.home_un_active), getString(R.string.home_input_code), getString(R.string.home_active_tips), new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     active(DialogUtil.get().getInputStr());
