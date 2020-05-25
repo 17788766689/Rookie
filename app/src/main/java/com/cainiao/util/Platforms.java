@@ -20,6 +20,7 @@ import com.cainiao.action.GLAction;
 import com.cainiao.action.GYTAction;
 import com.cainiao.action.HCKJAction;
 import com.cainiao.action.HGAction;
+import com.cainiao.action.HHJAction;
 import com.cainiao.action.HLGAction;
 import com.cainiao.action.HSSGTAction;
 import com.cainiao.action.HZWAction;
@@ -167,6 +168,8 @@ public class Platforms {
             mList.add(new Platform(new Params(1500, 2000), R.mipmap.maotouying  , "猫头鹰", "com.maotouying", "http://m.haoyun2019.com", "", "http://m.haoyun2019.com/Login", 0, Const.TLSHE, 1, 2, new MTYAction()));
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.baishoulianmeng, "百手联盟", "com.baishoulianmeng", "http://aaa.66145.cn", "", "http://aaa.66145.cn/index.php?g=Wap&m=Login&a=logon", 0, Const.TLSHE, 1, 7, new BSLMAction()));
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.youmaicai, "油麦菜", "com.youmaicai", "http://aaa.yyoumaicai.com", "", "http://aaa.yyoumaicai.com/index.php?g=Wap&m=index&a=notice", 0, Const.TLSHE, 1, 7, new YMCAction()));
+            mList.add(new Platform(new Params(10000, 12000), R.mipmap.huahuajie, "花花街", "com.xmyyhhj.nrv", "http://www.qianqianke.net", "", "", 0, Const.TLSHE, 0, 7, new HHJAction()));
+
 
             mList.add(new Platform(new Params(5000, 8000), R.mipmap.jianghuquan, "江湖圈", "com.jianghuquan", "http://www.177wt.cn:8888", "", "http://www.177wt.cn/order-client/page/login/login.html?from=2", 0, Const.TLSHE, 1, 7, new JHQAction()));
             mList.add(new Platform(new Params(2000, 4000), R.mipmap.tangseng  , "唐僧", "com.tangseng", "http://ts.tangsengshuo.shop", "", "http://ts.tangsengshuo.shop/home/initLogin.do", 0, Const.TLSHE, 1, 2, new TANGSENGAction()));
