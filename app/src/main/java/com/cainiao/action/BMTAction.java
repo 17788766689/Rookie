@@ -53,7 +53,7 @@ public class BMTAction extends BaseAction {
      * 获取验证码
      */
     public void getVerifyCode(Platform platform) {
-        sendMsg("get_verifycode", "http://www.rongyao999.cn:8008/Wap/UserLogin/verifyimg.html?"+Math.random());
+        sendMsg("get_verifycode", "http://www.rongyao999.cn:8008/Wap/UserLogin/verifyimg?"+Math.random());
     }
 
     /**
