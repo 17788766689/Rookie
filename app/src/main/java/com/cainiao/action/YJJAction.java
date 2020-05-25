@@ -64,6 +64,7 @@ public class YJJAction extends BaseAction {
             mHandler = new Handler();
             mRandom = new Random();
             updatePlatform(mPlatform);
+            updateStatus(mPlatform, 3); //接单成功的状态
             startTask();
             MyToast.info("已开始接单，请点击弹窗外部隐藏弹窗");
         }

@@ -231,27 +231,6 @@ public class Utils {
         return Base32.encode(originString.getBytes());
     }
 
-    String DESKEY = "7C3EFBEC";
-    String a = "N8Oz2QQtMMKyDKW6OMcy2e";
-    //
-    public String axiosApi(String method,String content,String timestamp) {
-        String  nonce = rndHexString(8);     //
-        String md5 = Utils.md5(a + method + content + timestamp + nonce);  //
-        nonce = AESUtils.encryptCBC(nonce, DESKEY).toUpperCase();  //
-        content = AESUtils.encryptCBC(content,DESKEY).toUpperCase();  //
-        String returnMsg = "&method=" + method + "&content=" + content + "&timestamp=" + timestamp + "&sign=" + md5 + "&nonce=" + nonce;
-        return returnMsg;
-    }
 
-    public String rndHexString(int l) {
-        String chars = "ABCDEF1234567890";
-        Double max = Double.valueOf(chars.length());
-        String str = "";
-        for (int i = 0; i < l; i++) {
-            Double a = Math.floor((Math.random() * max));
-            str += chars.charAt(a.intValue());
-        }
-        return str;
-    }
 
 }

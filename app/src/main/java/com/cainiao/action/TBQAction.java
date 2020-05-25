@@ -157,7 +157,7 @@ public class TBQAction extends BaseAction {
                             JSONObject obj = JSONObject.parseObject(response.body());
                             if (obj.getJSONObject("msg").getIntValue("code") == 1) {
                                 sendLog("接单成功");
-                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.dashuwang, 3000);
+                                receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.taobaoquan, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态
                                 isStart = false;
