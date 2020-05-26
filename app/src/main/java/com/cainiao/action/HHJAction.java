@@ -149,9 +149,14 @@ public class HHJAction extends BaseAction {
                             if (TextUtils.isEmpty(response.body())) return;
                             JSONObject obj = JSONObject.parseObject(response.body());
                             if (0 == obj.getIntValue("status")) {
-                                sendLog("检测到任务领取中");
                                 JSONArray taskId = obj.getJSONArray("data");
-                                lqTask(obj.getJSONObject("acount").getString("accname"),taskId.getJSONArray(0).getJSONObject(0).getString("id"));
+                                sendLog("检测到任务 本金："+taskId.getJSONArray(0).getJSONObject(0).getString("bj_price")+"  佣金："+taskId.getJSONArray(0).getJSONObject(0).getString("yjm_price"));
+                                if (taskId.getJSONArray(0).getJSONObject(0).getDouble("yjm_price") < 2){
+                                    sendLog("自动过滤浏览单...继续接单");
+                                    removeTask(obj.getJSONObject("acount").getString("accname"),taskId.getJSONArray(0).getJSONObject(0).getString("id"));
+                                }else{
+                                    lqTask(obj.getJSONObject("acount").getString("accname"),taskId.getJSONArray(0).getJSONObject(0).getString("id"),taskId.getJSONArray(0).getJSONObject(0).getString("shopname"));
+                                }
                             } else {
                                 sendLog("继续检测任务");
                             }
@@ -183,7 +188,23 @@ public class HHJAction extends BaseAction {
                 });
     }
 
-    public void lqTask(String accname,String taskId){
+    public void removeTask(String accname,String taskId){
+        HttpClient.getInstance().post("/index.php/User/Task/refuse", mPlatform.getHost())
+                .params("username", mParams.getAccount())
+                .params("userid", userId)
+                .params("id",taskId)
+                .params("accname",accname)
+                .headers("X-Requested-With", "XMLHttpRequest")
+                .headers("User-Agent", "Mozilla/5.0 (Linux; Android 10; MI 9 Build/QKQ1.190825.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.186 Mobile Safari/537.36 Html5Plus/1.0")
+                .execute(new StringCallback() {
+                    @Override
+                    public void onSuccess(Response<String> response) {
+                    }
+                });
+    }
+
+
+    public void lqTask(String accname,String taskId,String shopName){
         HttpClient.getInstance().post("/index.php/User/Task/receipt", mPlatform.getHost())
                 .params("username", mParams.getAccount())
                 .params("userid", userId)
@@ -199,7 +220,7 @@ public class HHJAction extends BaseAction {
                             JSONObject jsonObject = JSONObject.parseObject(response.body());
                             sendLog(jsonObject.getString("msg"));
                             if (1 == jsonObject.getInteger("status")) {    //登录成功
-                                sendLog(MyApp.getContext().getString(R.string.KSHG_AW));
+                                sendLog("接单成功 店铺名："+shopName+" 接单旺旺："+accname);
                                 receiveSuccess(String.format(MyApp.getContext().getString(R.string.KSHG_AW_tips), mPlatform.getName()), R.raw.guli, 3000);
                                 addTask(mPlatform.getName());
                                 updateStatus(mPlatform, Const.KSHG_AW); //接单成功的状态

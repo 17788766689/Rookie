@@ -76,6 +76,7 @@ import com.cainiao.action.XLAction;
 import com.cainiao.action.XLSAction;
 import com.cainiao.action.XMCAction;
 import com.cainiao.action.XMGAction;
+import com.cainiao.action.XNGAction;
 import com.cainiao.action.XPGPDDAction;
 import com.cainiao.action.XQWAction;
 import com.cainiao.action.XXKJAction;
@@ -169,6 +170,7 @@ public class Platforms {
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.baishoulianmeng, "百手联盟", "com.baishoulianmeng", "http://aaa.66145.cn", "", "http://aaa.66145.cn/index.php?g=Wap&m=Login&a=logon", 0, Const.TLSHE, 1, 7, new BSLMAction()));
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.youmaicai, "油麦菜", "com.youmaicai", "http://aaa.yyoumaicai.com", "", "http://aaa.yyoumaicai.com/index.php?g=Wap&m=index&a=notice", 0, Const.TLSHE, 1, 7, new YMCAction()));
             mList.add(new Platform(new Params(10000, 12000), R.mipmap.huahuajie, "花花街", "com.xmyyhhj.nrv", "http://www.qianqianke.net", "", "", 0, Const.TLSHE, 0, 7, new HHJAction()));
+            mList.add(new Platform(new Params(60000, 100000), R.mipmap.xiaonangua, "小南瓜", "com.xiaonangua", "http://86.xiaonangua68.com", "", "http://86.xiaonangua68.com/home/index.html#/login", 1, Const.TLSHE, 1, 7, new XNGAction()));
 
 
             mList.add(new Platform(new Params(5000, 8000), R.mipmap.jianghuquan, "江湖圈", "com.jianghuquan", "http://www.177wt.cn:8888", "", "http://www.177wt.cn/order-client/page/login/login.html?from=2", 0, Const.TLSHE, 1, 7, new JHQAction()));
@@ -270,7 +272,7 @@ public class Platforms {
             mList.add(new Platform(new Params(4000, 6000), R.mipmap.xiaoheizhu, "小黑猪", "com.xiaoheizhu", "https://hzapi.ka5a.com", "", "http://hz.ka5a.com/#/login", 0, Const.TLSHE, 1, 7, new XHZAction()));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaotudou, "小土豆", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 3, null));
 //            mList.add(new Platform(new Params(0,0),R.mipmap.xiaopeiqi, "小佩奇", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 13, null));
-            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaobaixiang, "小白象", "com.xiaobaixiang", "https://wx.xbx99.com", "", "https://wx.xbx99.com/auth/goLoginPage", 0, Const.TLSHE, 1, 3, new XBXAction()));
+            mList.add(new Platform(new Params(3000, 5000), R.mipmap.xiaobaixiang, "小白象", "com.xiaobaixiang", "http://49.234.145.140", "", "http://49.234.145.140/auth/goLoginPage", 0, Const.TLSHE, 1, 3, new XBXAction()));
 //            //第十九行
 
             mList.add(new Platform(new Params(2000, 3000), R.mipmap.xiaojinli, "小锦鲤", "com.xiaojinli", "http://118.25.168.82", "", "http://118.25.168.82/auth/goLoginPage", 0, Const.BJSHA, 1, 3, new XJLAction()));
