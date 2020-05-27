@@ -310,7 +310,7 @@ public class Platforms {
             mList.add(new Platform(new Params(15000,17000),R.mipmap.zhangquanzhong, "涨权重", "com.zhangquanzhon", "http://wx.99liuping.com", "", "http://wx.99liuping.com/wap/", 0, Const.BJSHA, 1, 7, new ZQZAction()));
 //            //第二十六行
 //            mList.add(new Platform(new Params(0,0),R.mipmap.zhishengji, "直升机", "com.platform8", "", "", "", 0, Const.TLSHE, 0, 19, null));
-              mList.add(new Platform(new Params(3000,5000),R.mipmap.taobaoquan, "淘宝圈", "com.platform8", "http://www.tbquan88.com", "", "http://www.tbquan88.com/1/user#", 0, Const.TLSHE, 1, 3, new TBQAction()));
+              mList.add(new Platform(new Params(15000,20000),R.mipmap.taobaoquan, "淘宝圈", "com.platform8", "http://www.tbquan88.com", "", "http://www.tbquan88.com/1/user#", 0, Const.TLSHE, 1, 7, new TBQAction()));
 //            //第二十七行
 //
 //            /******************************************   打款平台   **************************************************/
