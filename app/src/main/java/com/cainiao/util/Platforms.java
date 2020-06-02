@@ -169,7 +169,7 @@ public class Platforms {
             mList.add(new Platform(new Params(1500, 2000), R.mipmap.maotouying  , "猫头鹰", "com.maotouying", "http://m.haoyun2019.com", "", "http://m.haoyun2019.com/Login", 0, Const.TLSHE, 1, 2, new MTYAction()));
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.baishoulianmeng, "百手联盟", "com.baishoulianmeng", "http://aaa.66145.cn", "", "http://aaa.66145.cn/index.php?g=Wap&m=Login&a=logon", 0, Const.TLSHE, 1, 7, new BSLMAction()));
             mList.add(new Platform(new Params(2000, 2500), R.mipmap.youmaicai, "油麦菜", "com.youmaicai", "http://aaa.yyoumaicai.com", "", "http://aaa.yyoumaicai.com/index.php?g=Wap&m=index&a=notice", 0, Const.TLSHE, 1, 7, new YMCAction()));
-            mList.add(new Platform(new Params(10000, 12000), R.mipmap.huahuajie, "花花街", "com.xmyyhhj.nrv", "http://www.qianqianke.net", "", "", 0, Const.TLSHE, 0, 7, new HHJAction()));
+            mList.add(new Platform(new Params(10000, 12000), R.mipmap.huahuajie, "花花街", "com.xmyyhhj.nrv", "http://www.qianqianke.cn", "", "", 0, Const.TLSHE, 0, 7, new HHJAction()));
             mList.add(new Platform(new Params(60000, 100000), R.mipmap.xiaonangua, "小南瓜", "com.xiaonangua", "http://86.xiaonangua68.com", "", "http://86.xiaonangua68.com/home/index.html#/login", 1, Const.TLSHE, 1, 7, new XNGAction()));
 
 
